@@ -25,6 +25,7 @@ type Santri struct {
 	Address     string         `json:"address"`
 	ParentName  string         `json:"parent_name"`
 	ParentPhone string         `json:"parent_phone"`
+	PhotoURL    string         `json:"photo_url"` // New field for pas foto
 	Status      SantriStatus   `gorm:"default:PENDING" json:"status"`
 	CreatedAt   time.Time      `json:"created_at"`
 	UpdatedAt   time.Time      `json:"updated_at"`

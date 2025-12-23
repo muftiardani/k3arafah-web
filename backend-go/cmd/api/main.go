@@ -85,6 +85,7 @@ func main() {
 	r.Use(middleware.LoggerMiddleware())
 	r.Use(middleware.ErrorHandlerMiddleware())
 	r.Use(middleware.CORSMiddleware())
+	r.Use(middleware.SecurityMiddleware()) // Apply Security Headers globally
 
 	// Swagger Configuration
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
@@ -94,20 +95,34 @@ func main() {
 	santriRepo := repository.NewSantriRepository(config.DB)
 	articleRepo := repository.NewArticleRepository(config.DB)
 
+	mediaService, err := services.NewMediaService()
+	if err != nil {
+		logger.Fatal("Failed to init media service", zap.Error(err))
+	}
+
+	// Connect Redis for Cache
+	config.ConnectRedis()
+	cacheService := services.NewCacheService()
+
 	authService := services.NewAuthService(userRepo)
 	psbService := services.NewPSBService(santriRepo)
-	articleService := services.NewArticleService(articleRepo)
+	articleService := services.NewArticleService(articleRepo, cacheService)
 
 	authHandler := handlers.NewAuthHandler(authService)
 	psbHandler := handlers.NewPSBHandler(psbService)
 	articleHandler := handlers.NewArticleHandler(articleService)
+	mediaHandler := handlers.NewMediaHandler(mediaService)
+
+	// Rate Limiters
+	loginLimiter := middleware.RateLimitMiddleware(1) // 1 request / second
+	uploadLimiter := middleware.RateLimitMiddleware(0.5) // 0.5 request / second (1 req per 2 sec)
 
 	// Routes
 	api := r.Group("/api")
 	{
 		// Public Routes
 		api.POST("/register-admin", authHandler.Register) // Dev only: remove in prod
-		api.POST("/login", authHandler.Login)
+		api.POST("/login", loginLimiter, authHandler.Login) // Rate Limited
 		api.POST("/psb/register", psbHandler.Register)
 		api.GET("/articles", articleHandler.GetAll)
 		api.GET("/articles/:id", articleHandler.GetDetail)
@@ -116,6 +131,8 @@ func main() {
 		protected := api.Group("/")
 		protected.Use(middleware.AuthMiddleware())
 		{
+			protected.POST("/upload", uploadLimiter, mediaHandler.Upload) // Rate Limited
+
 			protected.GET("/psb/registrants", psbHandler.GetAll)
 			protected.GET("/psb/registrants/:id", psbHandler.GetDetail)
 			protected.PUT("/psb/registrants/:id/status", psbHandler.UpdateStatus)

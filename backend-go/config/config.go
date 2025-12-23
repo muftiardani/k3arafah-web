@@ -14,7 +14,10 @@ type Config struct {
 	DBName     string `validate:"required"`
 	DBPort     string `validate:"required"`
 	Port       string `validate:"required"`
-	JWTSecret  string `validate:"required"`
+	JWTSecret     string `validate:"required"`
+	CloudinaryURL string `validate:"required"`
+	RedisAddr     string `validate:"required"` // localhost:6379
+	RedisPassword string // Optional
 }
 
 var AppConfig Config
@@ -24,13 +27,16 @@ func LoadConfig() error {
 	_ = godotenv.Load()
 
 	AppConfig = Config{
-		DBHost:     os.Getenv("DB_HOST"),
-		DBUser:     os.Getenv("DB_USER"),
-		DBPassword: os.Getenv("DB_PASSWORD"),
-		DBName:     os.Getenv("DB_NAME"),
-		DBPort:     os.Getenv("DB_PORT"),
-		Port:       os.Getenv("PORT"),
-		JWTSecret:  os.Getenv("JWT_SECRET"),
+		DBHost:        os.Getenv("DB_HOST"),
+		DBUser:        os.Getenv("DB_USER"),
+		DBPassword:    os.Getenv("DB_PASSWORD"),
+		DBName:        os.Getenv("DB_NAME"),
+		DBPort:        os.Getenv("DB_PORT"),
+		Port:          os.Getenv("PORT"),
+		JWTSecret:     os.Getenv("JWT_SECRET"),
+		CloudinaryURL: os.Getenv("CLOUDINARY_URL"),
+		RedisAddr:     os.Getenv("REDIS_ADDR"),
+		RedisPassword: os.Getenv("REDIS_PASSWORD"),
 	}
 
 	// Set default port if empty
