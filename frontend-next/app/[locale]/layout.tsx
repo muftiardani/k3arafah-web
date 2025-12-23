@@ -5,7 +5,7 @@ import { Outfit } from "next/font/google"; // Keep font here or in root?
 import { Toaster } from "@/components/ui/sonner";
 import QueryProvider from "@/components/providers/QueryProvider";
 import "../globals.css"; // Uppercase dir ..
-import { GlobalLoader } from "@/components/global-loader";
+import { GlobalLoader } from "@/components/GlobalLoader";
 
 const outfit = Outfit({
   subsets: ["latin"],
