@@ -1,0 +1,30 @@
+{
+  "Navbar": {
+    "home": "Beranda",
+    "about": "Tentang",
+    "news": "Berita",
+    "programs": "Program",
+    "psb": "Pendaftaran",
+    "login": "Masuk"
+  },
+  "Hero": {
+    "title": "Pondok Pesantren K3 Arafah",
+    "subtitle": "Mencetak Generasi Rabbani yang Unggul dalam Imtaq dan Iptek.",
+    "cta_primary": "Daftar Sekarang",
+    "cta_secondary": "Pelajari Lebih Lanjut"
+  },
+  "Stats": {
+    "students": "Santri Aktif",
+    "teachers": "Pengajar",
+    "alumni": "Alumni",
+    "years": "Tahun Mengabdi"
+  },
+  "Programs": {
+    "title": "Program Pendidikan",
+    "subtitle": "Keseimbangan antara ilmu agama (Tafaqquh Fiddin) dan umum.",
+    "quran_title": "Takhassus Al-Qur'an",
+    "quran_desc": "Program intensif menghafal Al-Qur'an 30 Juz dengan sanad (Mutqin).",
+    "kitab_title": "Kajian Kitab Kuning",
+    "kitab_desc": "Mendalami khazanah keilmuan Islam klasik (Turats)."
+  }
+}

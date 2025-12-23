@@ -2,14 +2,9 @@
 
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import Link from "next/link";
-import {
-  ArrowRight,
-  BookOpen,
-  Users,
-  GraduationCap,
-  Calendar,
-} from "lucide-react";
+import { Link } from "@/navigation";
+import { ArrowRight, BookOpen, GraduationCap, Calendar } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 interface Article {
   id: number;
@@ -39,11 +34,15 @@ const staggerContainer = {
 };
 
 export default function LandingPage({ articles }: LandingPageProps) {
+  const tHero = useTranslations("Hero");
+  const tPrograms = useTranslations("Programs");
+  const tStats = useTranslations("Stats");
+
   return (
-    <div className="flex flex-col min-h-[calc(100vh-4rem)]">
+    <div className="flex min-h-[calc(100vh-4rem)] flex-col">
       {/* Hero Section */}
-      <section className="relative py-20 md:py-32 bg-linear-to-br from-green-50 to-emerald-100 dark:from-green-950 dark:to-slate-900 overflow-hidden">
-        <div className="container px-4 md:px-6 relative z-10">
+      <section className="relative overflow-hidden bg-linear-to-br from-green-50 to-emerald-100 py-20 md:py-32 dark:from-green-950 dark:to-slate-900">
+        <div className="relative z-10 container px-4 md:px-6">
           <motion.div
             initial="hidden"
             animate="visible"
@@ -51,107 +50,233 @@ export default function LandingPage({ articles }: LandingPageProps) {
             className="flex flex-col items-center space-y-4 text-center"
           >
             <motion.div variants={fadeIn} className="space-y-2">
-              <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl lg:text-6xl/none text-emerald-800 dark:text-emerald-400">
-                Pondok Pesantren K3 Arafah
+              <h1 className="text-3xl font-bold tracking-tighter text-emerald-800 sm:text-4xl md:text-5xl lg:text-6xl/none dark:text-emerald-400">
+                {tHero("title")}
               </h1>
               <p className="mx-auto max-w-[700px] text-gray-600 md:text-xl dark:text-gray-400">
-                Mencetak Generasi Rabbani yang Unggul dalam Imtaq dan Iptek.
+                {tHero("subtitle")}
               </p>
             </motion.div>
             <motion.div variants={fadeIn} className="space-x-4">
               <Button
                 asChild
                 size="lg"
-                className="bg-emerald-600 hover:bg-emerald-700 hover:scale-105 transition-transform"
+                className="bg-emerald-600 transition-transform hover:scale-105 hover:bg-emerald-700"
               >
                 <Link href="/psb">
-                  Daftar Sekarang <ArrowRight className="ml-2 h-4 w-4" />
+                  {tHero("cta_primary")} <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
               </Button>
               <Button
                 asChild
                 variant="outline"
                 size="lg"
-                className="hover:scale-105 transition-transform"
+                className="transition-transform hover:scale-105"
               >
-                <Link href="/#about">Pelajari Lebih Lanjut</Link>
+                <Link href="/#about">{tHero("cta_secondary")}</Link>
               </Button>
             </motion.div>
           </motion.div>
         </div>
 
         {/* Background Pattern */}
-        <div className="absolute inset-0 z-0 opacity-10 pointer-events-none">
-          <div className="absolute top-0 left-0 w-64 h-64 bg-emerald-400 rounded-full mix-blend-multiply filter blur-3xl animate-blob"></div>
-          <div className="absolute top-0 right-0 w-64 h-64 bg-green-400 rounded-full mix-blend-multiply filter blur-3xl animate-blob animation-delay-2000"></div>
+        <div className="pointer-events-none absolute inset-0 z-0 opacity-10">
+          <div className="animate-blob absolute top-0 left-0 h-64 w-64 rounded-full bg-emerald-400 mix-blend-multiply blur-3xl filter"></div>
+          <div className="animate-blob animation-delay-2000 absolute top-0 right-0 h-64 w-64 rounded-full bg-green-400 mix-blend-multiply blur-3xl filter"></div>
         </div>
       </section>
 
-      {/* Features Section */}
-      <section id="about" className="py-16 md:py-24 bg-background">
+      {/* Statistics Section */}
+      <section className="bg-emerald-600 py-12 text-white dark:bg-emerald-900">
         <div className="container px-4 md:px-6">
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-100px" }}
-            variants={staggerContainer}
-            className="grid gap-10 sm:grid-cols-2 lg:grid-cols-3"
-          >
+          <div className="grid grid-cols-2 gap-8 text-center md:grid-cols-4">
             <motion.div
-              variants={fadeIn}
-              className="flex flex-col items-center space-y-4 text-center p-6 rounded-xl hover:bg-muted/50 transition-colors"
+              initial={{ opacity: 0, scale: 0.5 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5 }}
+              className="space-y-2"
             >
-              <div className="p-4 bg-emerald-100 dark:bg-emerald-900 rounded-full shadow-lg">
-                <BookOpen className="h-8 w-8 text-emerald-600 dark:text-emerald-400" />
-              </div>
-              <h3 className="text-xl font-bold">Kurikulum Terpadu</h3>
-              <p className="text-muted-foreground">
-                Memadukan kurikulum nasional dan kepesantrenan (Salaf & Khalaf).
-              </p>
+              <div className="text-4xl font-bold md:text-5xl">500+</div>
+              <div className="text-emerald-100">{tStats("students")}</div>
             </motion.div>
             <motion.div
-              variants={fadeIn}
-              className="flex flex-col items-center space-y-4 text-center p-6 rounded-xl hover:bg-muted/50 transition-colors"
+              initial={{ opacity: 0, scale: 0.5 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+              className="space-y-2"
             >
-              <div className="p-4 bg-emerald-100 dark:bg-emerald-900 rounded-full shadow-lg">
-                <Users className="h-8 w-8 text-emerald-600 dark:text-emerald-400" />
-              </div>
-              <h3 className="text-xl font-bold">Pengajar Berkualitas</h3>
-              <p className="text-muted-foreground">
-                Diasuh oleh asatidz wal asatidzah lulusan terbaik dalam dan luar
-                negeri.
-              </p>
+              <div className="text-4xl font-bold md:text-5xl">50+</div>
+              <div className="text-emerald-100">{tStats("teachers")}</div>
             </motion.div>
             <motion.div
-              variants={fadeIn}
-              className="flex flex-col items-center space-y-4 text-center p-6 rounded-xl hover:bg-muted/50 transition-colors"
+              initial={{ opacity: 0, scale: 0.5 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              className="space-y-2"
             >
-              <div className="p-4 bg-emerald-100 dark:bg-emerald-900 rounded-full shadow-lg">
-                <GraduationCap className="h-8 w-8 text-emerald-600 dark:text-emerald-400" />
-              </div>
-              <h3 className="text-xl font-bold">Program Tahfidz</h3>
-              <p className="text-muted-foreground">
-                Program unggulan tahfidz Al-Qur&apos;an dengan metode mutqin.
-              </p>
+              <div className="text-4xl font-bold md:text-5xl">1k+</div>
+              <div className="text-emerald-100">{tStats("alumni")}</div>
             </motion.div>
-          </motion.div>
+            <motion.div
+              initial={{ opacity: 0, scale: 0.5 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.3 }}
+              className="space-y-2"
+            >
+              <div className="text-4xl font-bold md:text-5xl">15</div>
+              <div className="text-emerald-100">{tStats("years")}</div>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* Educational Programs Section */}
+      <section id="program" className="bg-background py-16 md:py-24">
+        <div className="container px-4 md:px-6">
+          <div className="mb-12 text-center">
+            <h2 className="text-3xl font-bold tracking-tighter text-emerald-900 md:text-4xl dark:text-emerald-100">
+              {tPrograms("title")}
+            </h2>
+            <p className="text-muted-foreground mt-4">{tPrograms("subtitle")}</p>
+          </div>
+
+          <div className="grid gap-8 md:grid-cols-2 lg:gap-12">
+            {/* Program Al-Qur'an */}
+            <motion.div
+              initial={{ opacity: 0, x: -50 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              className="group relative overflow-hidden rounded-2xl border bg-linear-to-br from-emerald-50 to-white p-8 shadow-sm transition-all hover:shadow-lg dark:from-emerald-950 dark:to-slate-900"
+            >
+              <div className="absolute top-0 right-0 -mt-4 -mr-4 h-24 w-24 rounded-full bg-emerald-100 opacity-50 blur-2xl dark:bg-emerald-900"></div>
+
+              <div className="relative z-10 flex flex-col items-center space-y-4 text-center">
+                <div className="rounded-full bg-emerald-100 p-4 dark:bg-emerald-900">
+                  <BookOpen className="h-10 w-10 text-emerald-600 dark:text-emerald-400" />
+                </div>
+                <h3 className="text-2xl font-bold text-emerald-900 dark:text-emerald-100">
+                  {tPrograms("quran_title")}
+                </h3>
+                <p className="text-muted-foreground">{tPrograms("quran_desc")}</p>
+                <ul className="mt-4 space-y-2 text-start text-sm text-gray-600 dark:text-gray-300">
+                  <li className="flex items-center gap-2">
+                    <ArrowRight className="h-4 w-4 text-emerald-500" /> Target Hafalan Lancar
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <ArrowRight className="h-4 w-4 text-emerald-500" /> Ujian Tasmi&apos; Berkala
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <ArrowRight className="h-4 w-4 text-emerald-500" /> Bersanad Riwayat Hafs
+                  </li>
+                </ul>
+              </div>
+            </motion.div>
+
+            {/* Program Kitab */}
+            <motion.div
+              initial={{ opacity: 0, x: 50 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              className="group relative overflow-hidden rounded-2xl border bg-linear-to-br from-amber-50 to-white p-8 shadow-sm transition-all hover:shadow-lg dark:from-amber-950/30 dark:to-slate-900"
+            >
+              <div className="absolute top-0 right-0 -mt-4 -mr-4 h-24 w-24 rounded-full bg-amber-100 opacity-50 blur-2xl dark:bg-amber-900"></div>
+
+              <div className="relative z-10 flex flex-col items-center space-y-4 text-center">
+                <div className="rounded-full bg-amber-100 p-4 dark:bg-amber-900">
+                  <GraduationCap className="h-10 w-10 text-amber-600 dark:text-amber-400" />
+                </div>
+                <h3 className="text-2xl font-bold text-amber-900 dark:text-amber-100">
+                  {tPrograms("kitab_title")}
+                </h3>
+                <p className="text-muted-foreground">{tPrograms("kitab_desc")}</p>
+                <ul className="mt-4 space-y-2 text-start text-sm text-gray-600 dark:text-gray-300">
+                  <li className="flex items-center gap-2">
+                    <ArrowRight className="h-4 w-4 text-amber-500" /> Metode Sorogan & Bandongan
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <ArrowRight className="h-4 w-4 text-amber-500" /> Bahtsul Masail Rutin
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <ArrowRight className="h-4 w-4 text-amber-500" /> Penguasaan Bahasa Arab
+                  </li>
+                </ul>
+              </div>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* Gallery Section */}
+      <section className="bg-muted/50 py-16">
+        <div className="container px-4 md:px-6">
+          <div className="mb-10 text-center">
+            <h2 className="text-3xl font-bold tracking-tighter text-emerald-900 md:text-4xl dark:text-emerald-100">
+              Galeri Aktivitas
+            </h2>
+            <p className="text-muted-foreground mt-2">
+              Potret keseharian santri dalam menuntut ilmu.
+            </p>
+          </div>
+
+          <div className="grid auto-rows-[200px] grid-cols-2 gap-4 md:grid-cols-4">
+            {/* Note: In real app, use next/image */}
+            <motion.div
+              whileHover={{ scale: 1.02 }}
+              className="group relative col-span-2 row-span-2 overflow-hidden rounded-xl bg-gray-200 dark:bg-gray-800"
+            >
+              <div className="absolute inset-0 flex items-center justify-center text-gray-400 transition-colors group-hover:bg-black/20">
+                <span className="sr-only">Main Activity</span>
+              </div>
+              {/* Placeholder for Image 1 */}
+              <div className="h-full w-full bg-emerald-100/50 dark:bg-emerald-900/20"></div>
+            </motion.div>
+
+            <motion.div
+              whileHover={{ scale: 1.05 }}
+              className="col-span-1 overflow-hidden rounded-xl bg-gray-200 dark:bg-gray-800"
+            >
+              <div className="h-full w-full bg-amber-100/50 dark:bg-amber-900/20"></div>
+            </motion.div>
+            <motion.div
+              whileHover={{ scale: 1.05 }}
+              className="col-span-1 overflow-hidden rounded-xl bg-gray-200 dark:bg-gray-800"
+            >
+              <div className="h-full w-full bg-blue-100/50 dark:bg-blue-900/20"></div>
+            </motion.div>
+            <motion.div
+              whileHover={{ scale: 1.05 }}
+              className="col-span-1 overflow-hidden rounded-xl bg-gray-200 dark:bg-gray-800"
+            >
+              <div className="h-full w-full bg-purple-100/50 dark:bg-purple-900/20"></div>
+            </motion.div>
+            <motion.div
+              whileHover={{ scale: 1.05 }}
+              className="col-span-1 overflow-hidden rounded-xl bg-gray-200 dark:bg-gray-800"
+            >
+              <div className="h-full w-full bg-rose-100/50 dark:bg-rose-900/20"></div>
+            </motion.div>
+          </div>
         </div>
       </section>
 
       {/* News Section */}
-      <section id="berita" className="py-16 bg-muted/30">
+      <section id="berita" className="bg-muted/30 py-16">
         <div className="container px-4 md:px-6">
           <motion.div
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true }}
             variants={fadeIn}
-            className="flex flex-col items-center justify-center space-y-4 text-center mb-10"
+            className="mb-10 flex flex-col items-center justify-center space-y-4 text-center"
           >
-            <h2 className="text-3xl font-bold tracking-tighter md:text-4xl text-emerald-900 dark:text-emerald-100">
+            <h2 className="text-3xl font-bold tracking-tighter text-emerald-900 md:text-4xl dark:text-emerald-100">
               Kabar Pesantren
             </h2>
-            <p className="max-w-[700px] text-muted-foreground">
+            <p className="text-muted-foreground max-w-[700px]">
               Berita dan kegiatan terbaru dari Pondok Pesantren K3 Arafah.
             </p>
           </motion.div>
@@ -164,7 +289,7 @@ export default function LandingPage({ articles }: LandingPageProps) {
             className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
           >
             {articles.length === 0 ? (
-              <p className="col-span-full text-center text-muted-foreground">
+              <p className="text-muted-foreground col-span-full text-center">
                 Belum ada berita terbaru.
               </p>
             ) : (
@@ -174,18 +299,20 @@ export default function LandingPage({ articles }: LandingPageProps) {
                   <motion.div
                     variants={fadeIn}
                     key={article.id}
-                    className="group relative flex flex-col space-y-3 rounded-lg border bg-card p-6 shadow-sm hover:shadow-xl transition-all hover:-translate-y-1 duration-300"
+                    className="group bg-card relative flex flex-col space-y-3 rounded-lg border p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
                   >
-                    <div className="text-sm text-emerald-600 dark:text-emerald-400 flex items-center gap-2">
+                    <div className="flex items-center gap-2 text-sm text-emerald-600 dark:text-emerald-400">
                       <Calendar className="h-4 w-4" />
-                      {new Date(article.created_at).toLocaleDateString()}
+                      {new Date(article.created_at).toLocaleDateString("id-ID", {
+                        day: "numeric",
+                        month: "long",
+                        year: "numeric",
+                      })}
                     </div>
-                    <h3 className="text-lg font-semibold line-clamp-2 group-hover:text-emerald-700 transition-colors">
+                    <h3 className="line-clamp-2 text-lg font-semibold transition-colors group-hover:text-emerald-700">
                       {article.title}
                     </h3>
-                    <p className="text-sm text-muted-foreground line-clamp-3">
-                      {article.content}
-                    </p>
+                    <p className="text-muted-foreground line-clamp-3 text-sm">{article.content}</p>
                     {/* Link to detail page later */}
                   </motion.div>
                 ))

@@ -64,7 +64,7 @@ export default function ArticlesPage() {
         </Button>
       </div>
 
-      <div className="rounded-md border bg-card">
+      <div className="bg-card rounded-md border">
         <Table>
           <TableHeader>
             <TableRow>
@@ -77,13 +77,13 @@ export default function ArticlesPage() {
           <TableBody>
             {loading ? (
               <TableRow>
-                <TableCell colSpan={4} className="text-center py-10">
+                <TableCell colSpan={4} className="py-10 text-center">
                   Loading...
                 </TableCell>
               </TableRow>
             ) : articles.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={4} className="text-center py-10">
+                <TableCell colSpan={4} className="py-10 text-center">
                   Belum ada artikel.
                 </TableCell>
               </TableRow>
@@ -96,10 +96,8 @@ export default function ArticlesPage() {
                       {item.is_published ? "Published" : "Draft"}
                     </Badge>
                   </TableCell>
-                  <TableCell>
-                    {new Date(item.created_at).toLocaleDateString()}
-                  </TableCell>
-                  <TableCell className="text-right flex justify-end gap-2">
+                  <TableCell>{new Date(item.created_at).toLocaleDateString()}</TableCell>
+                  <TableCell className="flex justify-end gap-2 text-right">
                     <Button variant="ghost" size="icon">
                       {" "}
                       {/* Link to edit later */}

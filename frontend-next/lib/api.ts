@@ -1,6 +1,7 @@
 import axios from "axios";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api";
+// Point to Next.js API Routes (Proxy)
+const API_URL = "/api";
 
 const api = axios.create({
   baseURL: API_URL,
@@ -9,17 +10,14 @@ const api = axios.create({
   },
 });
 
-// Add a request interceptor to attach the token
-api.interceptors.request.use(
-  (config) => {
-    const token =
-      typeof window !== "undefined" ? localStorage.getItem("token") : null;
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
+// Response interceptor for error handling
+api.interceptors.response.use(
+  (response) => response,
   (error) => {
+    // Optional: Handle 401 globally by redirecting to /login
+    if (error.response?.status === 401 && typeof window !== "undefined") {
+      window.location.href = "/admin/login";
+    }
     return Promise.reject(error);
   }
 );

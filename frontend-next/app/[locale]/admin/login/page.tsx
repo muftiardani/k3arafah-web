@@ -18,13 +18,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 const formSchema = z.object({
   username: z.string().min(2, {
@@ -50,10 +44,9 @@ export default function AdminLogin() {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
     try {
-      const response = await api.post("/login", values);
-      const token = response.data.token;
+      // Hit BFF Proxy to set HTTP-Only Cookie
+      await api.post("/auth/login", values);
 
-      localStorage.setItem("token", token);
       toast.success("Login successful");
       router.push("/admin/dashboard");
     } catch (error) {
@@ -65,12 +58,10 @@ export default function AdminLogin() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-100 dark:bg-gray-900 p-4">
+    <div className="flex min-h-screen items-center justify-center bg-gray-100 p-4 dark:bg-gray-900">
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold text-center">
-            Admin Login
-          </CardTitle>
+          <CardTitle className="text-center text-2xl font-bold">Admin Login</CardTitle>
           <CardDescription className="text-center">
             Enter your credentials to access the dashboard
           </CardDescription>

@@ -1,0 +1,30 @@
+{
+  "Navbar": {
+    "home": "Home",
+    "about": "About",
+    "news": "News",
+    "programs": "Programs",
+    "psb": "Admission",
+    "login": "Login"
+  },
+  "Hero": {
+    "title": "K3 Arafah Boarding School",
+    "subtitle": "Forging a Rabbani Generation Excelling in Faith and Technology.",
+    "cta_primary": "Register Now",
+    "cta_secondary": "Learn More"
+  },
+  "Stats": {
+    "students": "Active Students",
+    "teachers": "Teachers",
+    "alumni": "Alumni",
+    "years": "Years of Service"
+  },
+  "Programs": {
+    "title": "Educational Programs",
+    "subtitle": "Balancing religious knowledge (Tafaqquh Fiddin) and general sciences.",
+    "quran_title": "Quran Specialization",
+    "quran_desc": "Intensive 30 Juz Quran memorization program with Sanad (Mutqin).",
+    "kitab_title": "Classical Book Studies",
+    "kitab_desc": "Deepening classical Islamic knowledge (Turats)."
+  }
+}

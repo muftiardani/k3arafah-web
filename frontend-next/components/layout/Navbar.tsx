@@ -1,52 +1,54 @@
 "use client";
 
-import Link from "next/link";
+import { Link } from "@/navigation";
 import { Button } from "@/components/ui/button";
 import { Menu } from "lucide-react";
 import { useState } from "react";
+import { useTranslations } from "next-intl";
+import { LanguageSwitcher } from "../LanguageSwitcher";
 
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
+  const t = useTranslations("Navbar");
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/80 backdrop-blur-md supports-backdrop-filter:bg-background/60">
+    <header className="border-border/40 bg-background/80 supports-backdrop-filter:bg-background/60 sticky top-0 z-50 w-full border-b backdrop-blur-md">
       <div className="container flex h-16 items-center justify-between px-4 sm:px-8">
         <div className="flex items-center gap-2">
           <Link href="/" className="flex items-center space-x-2">
             <span className="hidden text-xl font-bold sm:inline-block">
               Pondok Pesantren K3 Arafah
             </span>
-            <span className="inline-block text-xl font-bold sm:hidden">
-              Pondok Arafah
-            </span>
+            <span className="inline-block text-xl font-bold sm:hidden">Pondok Arafah</span>
           </Link>
         </div>
 
         {/* Desktop Nav */}
-        <nav className="hidden gap-6 md:flex">
+        <nav className="hidden items-center gap-6 md:flex">
           <Link
             href="/"
-            className="flex items-center text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+            className="text-muted-foreground hover:text-foreground flex items-center text-sm font-medium transition-colors"
           >
-            Beranda
+            {t("home")}
           </Link>
           <Link
             href="/#about"
-            className="flex items-center text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+            className="text-muted-foreground hover:text-foreground flex items-center text-sm font-medium transition-colors"
           >
-            Tentang Kami
+            {t("about")}
           </Link>
           <Link
             href="/#berita"
-            className="flex items-center text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+            className="text-muted-foreground hover:text-foreground flex items-center text-sm font-medium transition-colors"
           >
-            Berita
+            {t("news")}
           </Link>
+          <LanguageSwitcher />
         </nav>
 
         <div className="flex items-center gap-2">
           <Button asChild variant="default" size="sm">
-            <Link href="/psb">Daftar PSB</Link>
+            <Link href="/psb">{t("psb")}</Link>
           </Button>
           <Button
             variant="ghost"
@@ -62,29 +64,33 @@ export function Navbar() {
 
       {/* Mobile Nav */}
       {isOpen && (
-        <div className="border-b md:hidden bg-background">
-          <div className="container flex flex-col gap-4 py-4 px-4">
+        <div className="bg-background border-b md:hidden">
+          <div className="container flex flex-col gap-4 px-4 py-4">
             <Link
               href="/"
-              className="text-sm font-medium transition-colors hover:text-foreground"
+              className="hover:text-foreground text-sm font-medium transition-colors"
               onClick={() => setIsOpen(false)}
             >
-              Beranda
+              {t("home")}
             </Link>
             <Link
               href="/#about"
-              className="text-sm font-medium transition-colors hover:text-foreground"
+              className="hover:text-foreground text-sm font-medium transition-colors"
               onClick={() => setIsOpen(false)}
             >
-              Tentang Kami
+              {t("about")}
             </Link>
             <Link
               href="/#berita"
-              className="text-sm font-medium transition-colors hover:text-foreground"
+              className="hover:text-foreground text-sm font-medium transition-colors"
               onClick={() => setIsOpen(false)}
             >
-              Berita
+              {t("news")}
             </Link>
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-medium">Bahasa</span>
+              <LanguageSwitcher />
+            </div>
           </div>
         </div>
       )}

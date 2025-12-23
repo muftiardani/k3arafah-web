@@ -25,24 +25,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 
 const formSchema = z.object({
   full_name: z.string().min(3, { message: "Nama lengkap minimal 3 karakter." }),
   nik: z.string().min(16, { message: "NIK harus 16 digit." }).max(16),
   birth_place: z.string().min(2, { message: "Tempat lahir wajib diisi." }),
-  birth_date: z
-    .string()
-    .refine((date) => new Date(date).toString() !== "Invalid Date", {
-      message: "Tanggal tidak valid.",
-    }),
+  birth_date: z.string().refine((date) => new Date(date).toString() !== "Invalid Date", {
+    message: "Tanggal tidak valid.",
+  }),
   gender: z.enum(["L", "P"], { message: "Pilih jenis kelamin." }),
   address: z.string().min(10, { message: "Alamat minimal 10 karakter." }),
   parent_name: z.string().min(3, { message: "Nama orang tua wajib diisi." }),
@@ -89,10 +81,10 @@ export default function PSBPage() {
   }
 
   return (
-    <div className="container py-10 px-4 md:px-6">
-      <Card className="max-w-3xl mx-auto">
+    <div className="container px-4 py-10 md:px-6">
+      <Card className="mx-auto max-w-3xl">
         <CardHeader>
-          <CardTitle className="text-3xl font-bold text-center text-emerald-700">
+          <CardTitle className="text-center text-3xl font-bold text-emerald-700">
             Formulir Penerimaan Santri Baru
           </CardTitle>
           <CardDescription className="text-center">
@@ -110,10 +102,7 @@ export default function PSBPage() {
                     <FormItem>
                       <FormLabel>Nama Lengkap</FormLabel>
                       <FormControl>
-                        <Input
-                          placeholder="Sesuai Akta Kelahiran/KTP"
-                          {...field}
-                        />
+                        <Input placeholder="Sesuai Akta Kelahiran/KTP" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -126,11 +115,7 @@ export default function PSBPage() {
                     <FormItem>
                       <FormLabel>NIK (Nomor Induk Kependudukan)</FormLabel>
                       <FormControl>
-                        <Input
-                          placeholder="16 Digit NIK"
-                          maxLength={16}
-                          {...field}
-                        />
+                        <Input placeholder="16 Digit NIK" maxLength={16} {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -173,10 +158,7 @@ export default function PSBPage() {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Jenis Kelamin</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Pilih Jenis Kelamin" />

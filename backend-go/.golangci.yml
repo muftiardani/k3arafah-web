@@ -1,0 +1,32 @@
+# golangci-lint configuration file
+
+run:
+  timeout: 5m
+  tests: true
+  allow-parallel-runners: true
+
+linters:
+  disable-all: true
+  enable:
+    - errcheck
+    - gosimple
+    - govet
+    - ineffassign
+    - staticcheck
+    - unused
+    - revive
+    - gofmt
+    - goimports
+    - misspell
+
+linters-settings:
+  revive:
+    rules:
+      - name: exported
+        severity: warning
+  goimports:
+    local-prefixes: backend-go
+
+issues:
+  max-issues-per-linter: 0
+  max-same-issues: 0

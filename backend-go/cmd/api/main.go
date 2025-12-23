@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"log"
 	"os"
 
@@ -12,10 +13,37 @@ import (
 	"backend-go/internal/services"
 
 	"github.com/gin-gonic/gin"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
+
+	_ "backend-go/docs" // Import generated docs
+
 	"github.com/joho/godotenv"
 )
 
+// @title           K3 Arafah Web API
+// @version         1.0
+// @description     Backend API for Pondok Pesantren K3 Arafah Website.
+// @termsOfService  http://swagger.io/terms/
+
+// @contact.name    API Support
+// @contact.url     http://www.swagger.io/support
+// @contact.email   support@swagger.io
+
+// @license.name    Apache 2.0
+// @license.url     http://www.apache.org/licenses/LICENSE-2.0.html
+
+// @host            localhost:8080
+// @BasePath        /api
+
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
 func main() {
+	// Parse Flags
+	migrateFlag := flag.Bool("migrate", false, "Run database migration")
+	flag.Parse()
+
 	// Load .env file
 	if err := godotenv.Load(); err != nil {
 		log.Println("No .env file found, using system environment variables")
@@ -24,14 +52,22 @@ func main() {
 	// Connect to Database
 	config.ConnectDB()
 
-	// Auto Migrate
-	err := config.DB.AutoMigrate(&models.User{}, &models.Santri{}, &models.Article{})
-	if err != nil {
-		log.Fatal("Database migration failed:", err)
+	// Check for migration flag
+	if *migrateFlag {
+		log.Println("Running Database Migration...")
+		err := config.DB.AutoMigrate(&models.User{}, &models.Santri{}, &models.Article{})
+		if err != nil {
+			log.Fatal("Database migration failed:", err)
+		}
+		log.Println("Migration completed successfully.")
+		return
 	}
 
 	// Setup Router
 	r := gin.Default()
+
+	// Swagger Configuration
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	r.Use(middleware.CORSMiddleware())
 
 	// Init Layers

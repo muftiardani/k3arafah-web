@@ -44,7 +44,7 @@ export default function RegistrantsPage() {
     <div className="flex flex-col gap-4">
       <h1 className="text-lg font-semibold md:text-2xl">Data Santri Baru</h1>
 
-      <div className="rounded-md border bg-card">
+      <div className="bg-card rounded-md border">
         <Table>
           <TableHeader>
             <TableRow>
@@ -58,37 +58,27 @@ export default function RegistrantsPage() {
           <TableBody>
             {loading ? (
               <TableRow>
-                <TableCell colSpan={5} className="text-center py-10">
+                <TableCell colSpan={5} className="py-10 text-center">
                   Loading...
                 </TableCell>
               </TableRow>
             ) : registrants.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={5} className="text-center py-10">
+                <TableCell colSpan={5} className="py-10 text-center">
                   Belum ada pendaftar.
                 </TableCell>
               </TableRow>
             ) : (
               registrants.map((item) => (
                 <TableRow key={item.id}>
-                  <TableCell className="font-medium">
-                    {item.full_name}
-                  </TableCell>
+                  <TableCell className="font-medium">{item.full_name}</TableCell>
+                  <TableCell>{item.gender === "L" ? "Laki-laki" : "Perempuan"}</TableCell>
                   <TableCell>
-                    {item.gender === "L" ? "Laki-laki" : "Perempuan"}
-                  </TableCell>
-                  <TableCell>
-                    <Badge
-                      variant={
-                        item.status === "VERIFIED" ? "default" : "secondary"
-                      }
-                    >
+                    <Badge variant={item.status === "VERIFIED" ? "default" : "secondary"}>
                       {item.status}
                     </Badge>
                   </TableCell>
-                  <TableCell>
-                    {new Date(item.created_at).toLocaleDateString()}
-                  </TableCell>
+                  <TableCell>{new Date(item.created_at).toLocaleDateString()}</TableCell>
                   <TableCell className="text-right">
                     <Button variant="ghost" size="sm">
                       Detail
