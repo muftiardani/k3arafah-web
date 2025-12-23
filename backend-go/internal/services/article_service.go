@@ -3,17 +3,18 @@ package services
 import (
 	"backend-go/internal/models"
 	"backend-go/internal/repository"
+	"context"
 	"fmt"
 	"strings"
 	"time"
 )
 
 type ArticleService interface {
-	CreateArticle(article *models.Article) error
-	GetAllArticles() ([]models.Article, error)
-	GetArticleByID(id uint) (*models.Article, error)
-	UpdateArticle(id uint, articleData *models.Article) error
-	DeleteArticle(id uint) error
+	CreateArticle(ctx context.Context, article *models.Article) error
+	GetAllArticles(ctx context.Context) ([]models.Article, error)
+	GetArticleByID(ctx context.Context, id uint) (*models.Article, error)
+	UpdateArticle(ctx context.Context, id uint, articleData *models.Article) error
+	DeleteArticle(ctx context.Context, id uint) error
 }
 
 type articleService struct {
@@ -25,21 +26,21 @@ func NewArticleService(repo repository.ArticleRepository, cache CacheService) Ar
 	return &articleService{repo, cache}
 }
 
-func (s *articleService) CreateArticle(article *models.Article) error {
+func (s *articleService) CreateArticle(ctx context.Context, article *models.Article) error {
 	// Simple slug generation
 	slug := strings.ToLower(strings.ReplaceAll(article.Title, " ", "-"))
 	slug = strings.ReplaceAll(slug, "?", "") // basic cleanup
 	article.Slug = slug
 	article.CreatedAt = time.Now()
 	
-	err := s.repo.Create(article)
+	err := s.repo.Create(ctx, article)
 	if err == nil {
 		s.cache.Delete("articles:all") // Invalidate list
 	}
 	return err
 }
 
-func (s *articleService) GetAllArticles() ([]models.Article, error) {
+func (s *articleService) GetAllArticles(ctx context.Context) ([]models.Article, error) {
 	var articles []models.Article
 	key := "articles:all"
 
@@ -49,7 +50,7 @@ func (s *articleService) GetAllArticles() ([]models.Article, error) {
 	}
 
 	// DB Fallback
-	articles, err := s.repo.FindAll()
+	articles, err := s.repo.FindAll(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -59,7 +60,7 @@ func (s *articleService) GetAllArticles() ([]models.Article, error) {
 	return articles, nil
 }
 
-func (s *articleService) GetArticleByID(id uint) (*models.Article, error) {
+func (s *articleService) GetArticleByID(ctx context.Context, id uint) (*models.Article, error) {
 	var article models.Article
 	key := fmt.Sprintf("articles:id:%d", id)
 
@@ -69,7 +70,7 @@ func (s *articleService) GetArticleByID(id uint) (*models.Article, error) {
 	}
 
 	// DB Fallback
-	result, err := s.repo.FindByID(id)
+	result, err := s.repo.FindByID(ctx, id)
 	if err != nil {
 		return nil, err
 	}
@@ -79,8 +80,8 @@ func (s *articleService) GetArticleByID(id uint) (*models.Article, error) {
 	return result, nil
 }
 
-func (s *articleService) UpdateArticle(id uint, articleData *models.Article) error {
-	existing, err := s.repo.FindByID(id)
+func (s *articleService) UpdateArticle(ctx context.Context, id uint, articleData *models.Article) error {
+	existing, err := s.repo.FindByID(ctx, id)
 	if err != nil {
 		return err
 	}
@@ -89,7 +90,7 @@ func (s *articleService) UpdateArticle(id uint, articleData *models.Article) err
 	existing.ThumbnailURL = articleData.ThumbnailURL
 	existing.IsPublished = articleData.IsPublished
 	
-	err = s.repo.Update(existing)
+	err = s.repo.Update(ctx, existing)
 	if err == nil {
 		s.cache.Delete("articles:all")
 		s.cache.Delete(fmt.Sprintf("articles:id:%d", id))
@@ -97,8 +98,8 @@ func (s *articleService) UpdateArticle(id uint, articleData *models.Article) err
 	return err
 }
 
-func (s *articleService) DeleteArticle(id uint) error {
-	err := s.repo.Delete(id)
+func (s *articleService) DeleteArticle(ctx context.Context, id uint) error {
+	err := s.repo.Delete(ctx, id)
 	if err == nil {
 		s.cache.Delete("articles:all")
 		s.cache.Delete(fmt.Sprintf("articles:id:%d", id))

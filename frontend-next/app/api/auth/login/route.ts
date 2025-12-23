@@ -1,3 +1,4 @@
+import { BACKEND_API_URL } from "@/lib/config";
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 
@@ -6,9 +7,7 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { username, password } = body;
 
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api";
-
-    const res = await fetch(`${apiUrl}/login`, {
+    const res = await fetch(`${BACKEND_API_URL}/login`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -24,8 +23,8 @@ export async function POST(request: Request) {
       );
     }
 
-    const data = await res.json();
-    const token = data.token;
+    const jsonResponse = await res.json();
+    const token = jsonResponse.data?.token;
 
     if (!token) {
       throw new Error("Token not found in response");

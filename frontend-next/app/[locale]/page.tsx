@@ -1,10 +1,10 @@
 import LandingPage from "@/components/landing/LandingPage";
 import { Article } from "@/types";
+import { BACKEND_API_URL } from "@/lib/config";
 
 async function getArticles(): Promise<Article[]> {
   try {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api";
-    const res = await fetch(`${apiUrl}/articles`, {
+    const res = await fetch(`${BACKEND_API_URL}/articles`, {
       next: { revalidate: 60 },
     });
     if (!res.ok) {

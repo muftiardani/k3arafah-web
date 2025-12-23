@@ -1,10 +1,10 @@
 package services
 
 import (
+	"backend-go/config"
 	"context"
 	"errors"
 	"mime/multipart"
-	"os"
 
 	"github.com/cloudinary/cloudinary-go/v2"
 	"github.com/cloudinary/cloudinary-go/v2/api/uploader"
@@ -19,7 +19,7 @@ type mediaService struct {
 }
 
 func NewMediaService() (MediaService, error) {
-	cldURL := os.Getenv("CLOUDINARY_URL")
+	cldURL := config.AppConfig.CloudinaryURL
 	if cldURL == "" {
 		return nil, errors.New("CLOUDINARY_URL is not set")
 	}

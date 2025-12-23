@@ -33,7 +33,7 @@ func (h *ArticleHandler) Create(c *gin.Context) {
 		return
 	}
 	
-	if err := h.service.CreateArticle(&article); err != nil {
+	if err := h.service.CreateArticle(c.Request.Context(), &article); err != nil {
 		utils.ErrorResponse(c, http.StatusInternalServerError, "Failed to create article", err.Error())
 		return
 	}
@@ -42,7 +42,7 @@ func (h *ArticleHandler) Create(c *gin.Context) {
 }
 
 func (h *ArticleHandler) GetAll(c *gin.Context) {
-	articles, err := h.service.GetAllArticles()
+	articles, err := h.service.GetAllArticles(c.Request.Context())
 	if err != nil {
 		utils.ErrorResponse(c, http.StatusInternalServerError, "Failed to fetch articles", err.Error())
 		return
@@ -52,7 +52,7 @@ func (h *ArticleHandler) GetAll(c *gin.Context) {
 
 func (h *ArticleHandler) GetDetail(c *gin.Context) {
 	id, _ := strconv.Atoi(c.Param("id"))
-	article, err := h.service.GetArticleByID(uint(id))
+	article, err := h.service.GetArticleByID(c.Request.Context(), uint(id))
 	if err != nil {
 		utils.ErrorResponse(c, http.StatusNotFound, "Article not found", err.Error())
 		return
@@ -68,7 +68,7 @@ func (h *ArticleHandler) Update(c *gin.Context) {
 		return
 	}
 
-	if err := h.service.UpdateArticle(uint(id), &article); err != nil {
+	if err := h.service.UpdateArticle(c.Request.Context(), uint(id), &article); err != nil {
 		utils.ErrorResponse(c, http.StatusInternalServerError, "Failed to update article", err.Error())
 		return
 	}
@@ -77,7 +77,7 @@ func (h *ArticleHandler) Update(c *gin.Context) {
 
 func (h *ArticleHandler) Delete(c *gin.Context) {
 	id, _ := strconv.Atoi(c.Param("id"))
-	if err := h.service.DeleteArticle(uint(id)); err != nil {
+	if err := h.service.DeleteArticle(c.Request.Context(), uint(id)); err != nil {
 		utils.ErrorResponse(c, http.StatusInternalServerError, "Failed to delete article", err.Error())
 		return
 	}

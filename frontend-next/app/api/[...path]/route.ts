@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api";
+import { BACKEND_API_URL } from "@/lib/config";
 
 async function proxy(request: NextRequest, context: { params: Promise<{ path: string[] }> }) {
   const params = await context.params;
   const path = params.path.join("/");
-  const url = `${BACKEND_URL}/${path}${request.nextUrl.search}`;
+  const url = `${BACKEND_API_URL}/${path}${request.nextUrl.search}`;
   const token = request.cookies.get("token")?.value;
 
   const headers: HeadersInit = {

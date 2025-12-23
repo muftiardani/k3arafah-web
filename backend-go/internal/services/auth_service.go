@@ -1,10 +1,11 @@
 package services
 
 import (
+	"backend-go/config"
 	"backend-go/internal/models"
 	"backend-go/internal/repository"
+	"context"
 	"errors"
-	"os"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -12,8 +13,8 @@ import (
 )
 
 type AuthService interface {
-	RegisterAdmin(username, password string) error
-	Login(username, password string) (string, error)
+	RegisterAdmin(ctx context.Context, username, password string) error
+	Login(ctx context.Context, username, password string) (string, error)
 }
 
 type authService struct {
@@ -24,7 +25,7 @@ func NewAuthService(repo repository.UserRepository) AuthService {
 	return &authService{repo}
 }
 
-func (s *authService) RegisterAdmin(username, password string) error {
+func (s *authService) RegisterAdmin(ctx context.Context, username, password string) error {
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
 		return err
@@ -35,11 +36,11 @@ func (s *authService) RegisterAdmin(username, password string) error {
 		Password: string(hashedPassword),
 	}
 
-	return s.repo.CreateUser(user)
+	return s.repo.CreateUser(ctx, user)
 }
 
-func (s *authService) Login(username, password string) (string, error) {
-	user, err := s.repo.FindByUsername(username)
+func (s *authService) Login(ctx context.Context, username, password string) (string, error) {
+	user, err := s.repo.FindByUsername(ctx, username)
 	if err != nil {
 		return "", errors.New("invalid username or password")
 	}
@@ -55,7 +56,7 @@ func (s *authService) Login(username, password string) (string, error) {
 		"exp":     time.Now().Add(time.Hour * 24).Unix(),
 	})
 
-	tokenString, err := token.SignedString([]byte(os.Getenv("JWT_SECRET")))
+	tokenString, err := token.SignedString([]byte(config.AppConfig.JWTSecret))
 	if err != nil {
 		return "", err
 	}

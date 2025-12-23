@@ -1,10 +1,11 @@
 package services_test
 
 import (
+	"backend-go/config"
 	"backend-go/internal/models"
 	"backend-go/internal/services"
+	"context"
 	"errors"
-	"os"
 	"testing"
 
 	"golang.org/x/crypto/bcrypt"
@@ -21,7 +22,7 @@ func newMockRepo() *mockUserRepository {
 	}
 }
 
-func (m *mockUserRepository) CreateUser(user *models.User) error {
+func (m *mockUserRepository) CreateUser(ctx context.Context, user *models.User) error {
 	if _, exists := m.users[user.Username]; exists {
 		return errors.New("user already exists")
 	}
@@ -31,7 +32,7 @@ func (m *mockUserRepository) CreateUser(user *models.User) error {
 	return nil
 }
 
-func (m *mockUserRepository) FindByUsername(username string) (*models.User, error) {
+func (m *mockUserRepository) FindByUsername(ctx context.Context, username string) (*models.User, error) {
 	if user, exists := m.users[username]; exists {
 		return user, nil
 	}
@@ -42,40 +43,41 @@ func (m *mockUserRepository) FindByUsername(username string) (*models.User, erro
 func TestAuthService_RegisterAdmin(t *testing.T) {
 	repo := newMockRepo()
 	service := services.NewAuthService(repo)
+	ctx := context.Background()
 
 	// Test Success
-	err := service.RegisterAdmin("admin", "password123")
+	err := service.RegisterAdmin(ctx, "admin", "password123")
 	if err != nil {
 		t.Errorf("expected no error, got %v", err)
 	}
 
 	// Verify Password Hashing
-	user, _ := repo.FindByUsername("admin")
+	user, _ := repo.FindByUsername(ctx, "admin")
 	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte("password123"))
 	if err != nil {
 		t.Errorf("password was not hashed correctly")
 	}
 
 	// Test Duplicate
-	err = service.RegisterAdmin("admin", "newpass")
+	err = service.RegisterAdmin(ctx, "admin", "newpass")
 	if err == nil {
 		t.Error("expected error for duplicate user, got nil")
 	}
 }
 
 func TestAuthService_Login(t *testing.T) {
-	// Setup Environment for JWT
-	os.Setenv("JWT_SECRET", "supersecret")
-	defer os.Unsetenv("JWT_SECRET")
+	// Setup Config for JWT
+	config.AppConfig.JWTSecret = "supersecret"
 
 	repo := newMockRepo()
 	service := services.NewAuthService(repo)
+	ctx := context.Background()
 
 	// Seed User
-	service.RegisterAdmin("user1", "correctpass")
+	service.RegisterAdmin(ctx, "user1", "correctpass")
 
 	// Test Success
-	token, err := service.Login("user1", "correctpass")
+	token, err := service.Login(ctx, "user1", "correctpass")
 	if err != nil {
 		t.Errorf("login failed: %v", err)
 	}
@@ -84,13 +86,13 @@ func TestAuthService_Login(t *testing.T) {
 	}
 
 	// Test Wrong Password
-	_, err = service.Login("user1", "wrongpass")
+	_, err = service.Login(ctx, "user1", "wrongpass")
 	if err == nil {
 		t.Error("expected error for wrong password")
 	}
 
 	// Test Non-existent User
-	_, err = service.Login("ghost", "pass")
+	_, err = service.Login(ctx, "ghost", "pass")
 	if err == nil {
 		t.Error("expected error for non-existent user")
 	}

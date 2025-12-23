@@ -1,7 +1,7 @@
 package logger
 
 import (
-	"os"
+	"backend-go/config"
 
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
@@ -10,21 +10,21 @@ import (
 var Log *zap.Logger
 
 func Init() {
-	var config zap.Config
+	var zapConfig zap.Config
 
-	env := os.Getenv("ENV")
+	env := config.AppConfig.Environment
 	if env == "production" {
-		config = zap.NewProductionConfig()
-		config.EncoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder
+		zapConfig = zap.NewProductionConfig()
+		zapConfig.EncoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder
 	} else {
-		config = zap.NewDevelopmentConfig()
-		config.EncoderConfig.EncodeLevel = zapcore.CapitalColorLevelEncoder
-		config.EncoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder
-		config.EncoderConfig.EncodeCaller = zapcore.ShortCallerEncoder
+		zapConfig = zap.NewDevelopmentConfig()
+		zapConfig.EncoderConfig.EncodeLevel = zapcore.CapitalColorLevelEncoder
+		zapConfig.EncoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder
+		zapConfig.EncoderConfig.EncodeCaller = zapcore.ShortCallerEncoder
 	}
 
 	var err error
-	Log, err = config.Build()
+	Log, err = zapConfig.Build()
 	if err != nil {
 		panic("Failed to initialize logger: " + err.Error())
 	}

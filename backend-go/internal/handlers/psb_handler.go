@@ -25,7 +25,7 @@ func (h *PSBHandler) Register(c *gin.Context) {
 		return
 	}
 
-	if err := h.service.RegisterSantri(&santri); err != nil {
+	if err := h.service.RegisterSantri(c.Request.Context(), &santri); err != nil {
 		utils.ErrorResponse(c, http.StatusInternalServerError, "Failed to register santri", err.Error())
 		return
 	}
@@ -34,7 +34,7 @@ func (h *PSBHandler) Register(c *gin.Context) {
 }
 
 func (h *PSBHandler) GetAll(c *gin.Context) {
-	santris, err := h.service.GetAllRegistrants()
+	santris, err := h.service.GetAllRegistrants(c.Request.Context())
 	if err != nil {
 		utils.ErrorResponse(c, http.StatusInternalServerError, "Failed to fetch data", err.Error())
 		return
@@ -45,7 +45,7 @@ func (h *PSBHandler) GetAll(c *gin.Context) {
 
 func (h *PSBHandler) GetDetail(c *gin.Context) {
 	id, _ := strconv.Atoi(c.Param("id"))
-	santri, err := h.service.GetRegistrantID(uint(id))
+	santri, err := h.service.GetRegistrantID(c.Request.Context(), uint(id))
 	if err != nil {
 		utils.ErrorResponse(c, http.StatusNotFound, "Santri not found", err.Error())
 		return
@@ -65,7 +65,7 @@ func (h *PSBHandler) UpdateStatus(c *gin.Context) {
 		return
 	}
 
-	if err := h.service.UpdateStatus(uint(id), input.Status); err != nil {
+	if err := h.service.UpdateStatus(c.Request.Context(), uint(id), input.Status); err != nil {
 		utils.ErrorResponse(c, http.StatusInternalServerError, "Failed to update status", err.Error())
 		return
 	}

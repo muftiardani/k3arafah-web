@@ -10,10 +10,10 @@ import (
 	"time"
 
 	"backend-go/config"
+	"backend-go/internal/db"
 	"backend-go/internal/handlers"
 	"backend-go/internal/logger"
 	"backend-go/internal/middleware"
-	"backend-go/internal/models"
 	"backend-go/internal/repository"
 	"backend-go/internal/services"
 
@@ -70,12 +70,14 @@ func main() {
 
 	// Check for migration flag
 	if *migrateFlag {
-		logger.Info("Running Database Migration...")
-		err := config.DB.AutoMigrate(&models.User{}, &models.Santri{}, &models.Article{})
-		if err != nil {
-			logger.Fatal("Database migration failed", zap.Error(err))
-		}
-		logger.Info("Migration completed successfully.")
+		logger.Info("Running Database Migration (Versioned)...")
+		
+		// Call versioned migration
+		db.RunMigrations()
+		
+		// We don't return here because usually we want the server to start after migration,
+		// or maybe we DO want to return if it's a CLI task.
+		// The original code had 'return', so I will keep 'return' to mimic "migrate-only" mode.
 		return
 	}
 
@@ -145,7 +147,7 @@ func main() {
 	}
 
 	// Run Server
-	port := os.Getenv("PORT")
+	port := config.AppConfig.Port
 	if port == "" {
 		port = "8080"
 	}

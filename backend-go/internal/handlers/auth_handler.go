@@ -51,7 +51,7 @@ func (h *AuthHandler) Register(c *gin.Context) {
 		return
 	}
 
-	if err := h.service.RegisterAdmin(input.Username, input.Password); err != nil {
+	if err := h.service.RegisterAdmin(c.Request.Context(), input.Username, input.Password); err != nil {
 		utils.ErrorResponse(c, http.StatusInternalServerError, "Failed to create user", err.Error())
 		return
 	}
@@ -83,7 +83,7 @@ func (h *AuthHandler) Login(c *gin.Context) {
 		return
 	}
 
-	token, err := h.service.Login(input.Username, input.Password)
+	token, err := h.service.Login(c.Request.Context(), input.Username, input.Password)
 	if err != nil {
 		utils.ErrorResponse(c, http.StatusUnauthorized, "Invalid credentials", err.Error())
 		return

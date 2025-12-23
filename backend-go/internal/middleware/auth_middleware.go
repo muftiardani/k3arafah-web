@@ -1,9 +1,9 @@
 package middleware
 
 import (
+	"backend-go/config"
 	"fmt"
 	"net/http"
-	"os"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -30,7 +30,7 @@ func AuthMiddleware() gin.HandlerFunc {
 			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 				return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 			}
-			return []byte(os.Getenv("JWT_SECRET")), nil
+			return []byte(config.AppConfig.JWTSecret), nil
 		})
 
 		if err != nil || !token.Valid {
