@@ -4,6 +4,7 @@ import (
 	"backend-go/internal/services"
 	"backend-go/internal/utils"
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -16,11 +17,6 @@ func NewAuthHandler(service services.AuthService) *AuthHandler {
 	return &AuthHandler{service}
 }
 
-type RegisterRequest struct {
-	Username string `json:"username" validate:"required"`
-	Password string `json:"password" validate:"required,min=6"`
-}
-
 type LoginRequest struct {
 	Username string `json:"username" validate:"required"`
 	Password string `json:"password" validate:"required"`
@@ -29,36 +25,6 @@ type LoginRequest struct {
 // Register godoc
 // @Summary      Register a new admin
 // @Description  Register a new admin user (Development only)
-// @Tags         auth
-// @Accept       json
-// @Produce      json
-// @Param        input body RegisterRequest true "Register Input"
-// @Success      201  {object} map[string]string
-// @Failure      400  {object} map[string]string
-// @Failure      500  {object} map[string]string
-// @Router       /register-admin [post]
-// @Router       /register-admin [post]
-func (h *AuthHandler) Register(c *gin.Context) {
-	var input RegisterRequest
-
-	if err := c.ShouldBindJSON(&input); err != nil {
-		utils.ErrorResponse(c, http.StatusBadRequest, "Invalid JSON format", err.Error())
-		return
-	}
-
-	if err := utils.ValidateStruct(input); err != nil {
-		utils.ErrorResponse(c, http.StatusBadRequest, "Validation failed", err.Error())
-		return
-	}
-
-	if err := h.service.RegisterAdmin(c.Request.Context(), input.Username, input.Password); err != nil {
-		utils.ErrorResponse(c, http.StatusInternalServerError, "Failed to create user", err.Error())
-		return
-	}
-
-	utils.SuccessResponse(c, http.StatusCreated, "User registered successfully", nil)
-}
-
 // Login godoc
 // @Summary      Login admin
 // @Description  Login with username and password to get JWT token
@@ -90,4 +56,48 @@ func (h *AuthHandler) Login(c *gin.Context) {
 	}
 
 	utils.SuccessResponse(c, http.StatusOK, "Login successful", gin.H{"token": token})
+}
+
+func (h *AuthHandler) CreateAdmin(c *gin.Context) {
+	var input struct {
+		Username string `json:"username" binding:"required"`
+		Password string `json:"password" binding:"required,min=6"`
+		Role     string `json:"role"` // Optional
+	}
+
+	if err := c.ShouldBindJSON(&input); err != nil {
+		utils.ErrorResponse(c, http.StatusBadRequest, "Invalid input", err.Error())
+		return
+	}
+
+	if err := h.service.RegisterAdmin(c.Request.Context(), input.Username, input.Password, input.Role); err != nil {
+		utils.ErrorResponse(c, http.StatusInternalServerError, "Failed to create admin", err.Error())
+		return
+	}
+
+	utils.SuccessResponse(c, http.StatusCreated, "Admin created successfully", nil)
+}
+
+func (h *AuthHandler) GetAllAdmins(c *gin.Context) {
+	admins, err := h.service.GetAllAdmins(c.Request.Context())
+	if err != nil {
+		utils.ErrorResponse(c, http.StatusInternalServerError, "Failed to fetch admins", err.Error())
+		return
+	}
+	utils.SuccessResponse(c, http.StatusOK, "Admins fetched successfully", admins)
+}
+
+func (h *AuthHandler) DeleteAdmin(c *gin.Context) {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		utils.ErrorResponse(c, http.StatusBadRequest, "Invalid ID", err.Error())
+		return
+	}
+
+	if err := h.service.DeleteAdmin(c.Request.Context(), uint(id)); err != nil {
+		utils.ErrorResponse(c, http.StatusInternalServerError, "Failed to delete admin", err.Error())
+		return
+	}
+
+	utils.SuccessResponse(c, http.StatusOK, "Admin deleted successfully", nil)
 }

@@ -10,6 +10,10 @@ import (
 type UserRepository interface {
 	CreateUser(ctx context.Context, user *models.User) error
 	FindByUsername(ctx context.Context, username string) (*models.User, error)
+	FindAll(ctx context.Context) ([]models.User, error)
+	FindByID(ctx context.Context, id uint) (*models.User, error)
+	UpdateUser(ctx context.Context, user *models.User) error
+	DeleteUser(ctx context.Context, id uint) error
 }
 
 type userRepository struct {
@@ -28,4 +32,24 @@ func (r *userRepository) FindByUsername(ctx context.Context, username string) (*
 	var user models.User
 	err := r.db.WithContext(ctx).Where("username = ?", username).First(&user).Error
 	return &user, err
+}
+
+func (r *userRepository) FindAll(ctx context.Context) ([]models.User, error) {
+	var users []models.User
+	err := r.db.WithContext(ctx).Find(&users).Error
+	return users, err
+}
+
+func (r *userRepository) FindByID(ctx context.Context, id uint) (*models.User, error) {
+	var user models.User
+	err := r.db.WithContext(ctx).First(&user, id).Error
+	return &user, err
+}
+
+func (r *userRepository) UpdateUser(ctx context.Context, user *models.User) error {
+	return r.db.WithContext(ctx).Save(user).Error
+}
+
+func (r *userRepository) DeleteUser(ctx context.Context, id uint) error {
+	return r.db.WithContext(ctx).Delete(&models.User{}, id).Error
 }

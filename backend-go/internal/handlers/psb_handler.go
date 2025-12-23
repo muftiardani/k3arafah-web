@@ -72,3 +72,24 @@ func (h *PSBHandler) UpdateStatus(c *gin.Context) {
 
 	utils.SuccessResponse(c, http.StatusOK, "Status updated successfully", nil)
 }
+
+func (h *PSBHandler) Verify(c *gin.Context) {
+	id, _ := strconv.Atoi(c.Param("id"))
+	var input struct {
+		NIS       string `json:"nis" binding:"required"`
+		Class     string `json:"class" binding:"required"`
+		EntryYear int    `json:"entry_year" binding:"required"`
+	}
+
+	if err := c.ShouldBindJSON(&input); err != nil {
+		utils.ErrorResponse(c, http.StatusBadRequest, "Invalid input", err.Error())
+		return
+	}
+
+	if err := h.service.VerifySantri(c.Request.Context(), uint(id), input.NIS, input.Class, input.EntryYear); err != nil {
+		utils.ErrorResponse(c, http.StatusInternalServerError, "Failed to verify santri", err.Error())
+		return
+	}
+
+	utils.SuccessResponse(c, http.StatusOK, "Santri verified and accepted successfully", nil)
+}

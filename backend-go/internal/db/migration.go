@@ -19,7 +19,7 @@ func RunMigrations() {
 	)
 
 	log.Println("Initiating database migration...")
-	
+
 	// Create migration instance
 	// Ensure the "migrations" folder is in the root where the binary is executed
 	m, err := migrate.New(

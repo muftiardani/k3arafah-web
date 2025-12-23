@@ -44,8 +44,33 @@ func AuthMiddleware() gin.HandlerFunc {
 			if userID, ok := claims["user_id"].(float64); ok {
 				c.Set("user_id", uint(userID))
 			}
+			if role, ok := claims["role"].(string); ok {
+				c.Set("role", role)
+			}
 		}
 
 		c.Next()
+	}
+}
+
+// RBACMiddleware enforces role-based access control
+func RBACMiddleware(allowedRoles ...string) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		userRole, exists := c.Get("role")
+		if !exists {
+			c.JSON(http.StatusForbidden, gin.H{"error": "Role not found"})
+			c.Abort()
+			return
+		}
+
+		for _, role := range allowedRoles {
+			if role == userRole.(string) {
+				c.Next()
+				return
+			}
+		}
+
+		c.JSON(http.StatusForbidden, gin.H{"error": "Access denied"})
+		c.Abort()
 	}
 }

@@ -32,7 +32,7 @@ func (s *articleService) CreateArticle(ctx context.Context, article *models.Arti
 	slug = strings.ReplaceAll(slug, "?", "") // basic cleanup
 	article.Slug = slug
 	article.CreatedAt = time.Now()
-	
+
 	err := s.repo.Create(ctx, article)
 	if err == nil {
 		s.cache.Delete("articles:all") // Invalidate list
@@ -89,7 +89,7 @@ func (s *articleService) UpdateArticle(ctx context.Context, id uint, articleData
 	existing.Content = articleData.Content
 	existing.ThumbnailURL = articleData.ThumbnailURL
 	existing.IsPublished = articleData.IsPublished
-	
+
 	err = s.repo.Update(ctx, existing)
 	if err == nil {
 		s.cache.Delete("articles:all")

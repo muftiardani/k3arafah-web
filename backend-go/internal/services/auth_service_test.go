@@ -39,6 +39,38 @@ func (m *mockUserRepository) FindByUsername(ctx context.Context, username string
 	return nil, errors.New("record not found")
 }
 
+func (m *mockUserRepository) FindAll(ctx context.Context) ([]models.User, error) {
+	var users []models.User
+	for _, u := range m.users {
+		users = append(users, *u)
+	}
+	return users, nil
+}
+
+func (m *mockUserRepository) FindByID(ctx context.Context, id uint) (*models.User, error) {
+	for _, u := range m.users {
+		if u.ID == id {
+			return u, nil
+		}
+	}
+	return nil, errors.New("record not found")
+}
+
+func (m *mockUserRepository) UpdateUser(ctx context.Context, user *models.User) error {
+	m.users[user.Username] = user
+	return nil
+}
+
+func (m *mockUserRepository) DeleteUser(ctx context.Context, id uint) error {
+	for k, u := range m.users {
+		if u.ID == id {
+			delete(m.users, k)
+			return nil
+		}
+	}
+	return errors.New("record not found")
+}
+
 // Test Suite
 func TestAuthService_RegisterAdmin(t *testing.T) {
 	repo := newMockRepo()
@@ -46,7 +78,7 @@ func TestAuthService_RegisterAdmin(t *testing.T) {
 	ctx := context.Background()
 
 	// Test Success
-	err := service.RegisterAdmin(ctx, "admin", "password123")
+	err := service.RegisterAdmin(ctx, "admin", "password123", "")
 	if err != nil {
 		t.Errorf("expected no error, got %v", err)
 	}
@@ -59,7 +91,7 @@ func TestAuthService_RegisterAdmin(t *testing.T) {
 	}
 
 	// Test Duplicate
-	err = service.RegisterAdmin(ctx, "admin", "newpass")
+	err = service.RegisterAdmin(ctx, "admin", "newpass", "")
 	if err == nil {
 		t.Error("expected error for duplicate user, got nil")
 	}
@@ -74,7 +106,7 @@ func TestAuthService_Login(t *testing.T) {
 	ctx := context.Background()
 
 	// Seed User
-	service.RegisterAdmin(ctx, "user1", "correctpass")
+	service.RegisterAdmin(ctx, "user1", "correctpass", "")
 
 	// Test Success
 	token, err := service.Login(ctx, "user1", "correctpass")

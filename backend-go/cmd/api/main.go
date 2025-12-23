@@ -71,10 +71,10 @@ func main() {
 	// Check for migration flag
 	if *migrateFlag {
 		logger.Info("Running Database Migration (Versioned)...")
-		
+
 		// Call versioned migration
 		db.RunMigrations()
-		
+
 		// We don't return here because usually we want the server to start after migration,
 		// or maybe we DO want to return if it's a CLI task.
 		// The original code had 'return', so I will keep 'return' to mimic "migrate-only" mode.
@@ -96,6 +96,7 @@ func main() {
 	userRepo := repository.NewUserRepository(config.DB)
 	santriRepo := repository.NewSantriRepository(config.DB)
 	articleRepo := repository.NewArticleRepository(config.DB)
+	galleryRepo := repository.NewGalleryRepository(config.DB)
 
 	mediaService, err := services.NewMediaService()
 	if err != nil {
@@ -109,21 +110,24 @@ func main() {
 	authService := services.NewAuthService(userRepo)
 	psbService := services.NewPSBService(santriRepo)
 	articleService := services.NewArticleService(articleRepo, cacheService)
+	dashboardService := services.NewDashboardService(santriRepo, articleRepo, userRepo)
+	galleryService := services.NewGalleryService(galleryRepo, mediaService)
 
 	authHandler := handlers.NewAuthHandler(authService)
 	psbHandler := handlers.NewPSBHandler(psbService)
 	articleHandler := handlers.NewArticleHandler(articleService)
 	mediaHandler := handlers.NewMediaHandler(mediaService)
+	dashboardHandler := handlers.NewDashboardHandler(dashboardService)
+	galleryHandler := handlers.NewGalleryHandler(galleryService)
 
 	// Rate Limiters
-	loginLimiter := middleware.RateLimitMiddleware(1) // 1 request / second
+	loginLimiter := middleware.RateLimitMiddleware(1)    // 1 request / second
 	uploadLimiter := middleware.RateLimitMiddleware(0.5) // 0.5 request / second (1 req per 2 sec)
 
 	// Routes
 	api := r.Group("/api")
 	{
 		// Public Routes
-		api.POST("/register-admin", authHandler.Register) // Dev only: remove in prod
 		api.POST("/login", loginLimiter, authHandler.Login) // Rate Limited
 		api.POST("/psb/register", psbHandler.Register)
 		api.GET("/articles", articleHandler.GetAll)
@@ -138,11 +142,32 @@ func main() {
 			protected.GET("/psb/registrants", psbHandler.GetAll)
 			protected.GET("/psb/registrants/:id", psbHandler.GetDetail)
 			protected.PUT("/psb/registrants/:id/status", psbHandler.UpdateStatus)
+			protected.PUT("/psb/registrants/:id/verify", psbHandler.Verify)
+
+			// Dashboard Routes
+			protected.GET("/dashboard/stats", dashboardHandler.GetStats)
 
 			// CMS Routes
 			protected.POST("/articles", articleHandler.Create)
 			protected.PUT("/articles/:id", articleHandler.Update)
 			protected.DELETE("/articles/:id", articleHandler.Delete)
+
+			// Gallery Routes
+			protected.GET("/galleries", galleryHandler.GetAll)
+			protected.GET("/galleries/:id", galleryHandler.GetDetail)
+			protected.POST("/galleries", galleryHandler.Create)
+			protected.DELETE("/galleries/:id", galleryHandler.Delete)
+			protected.POST("/galleries/:id/photos", galleryHandler.UploadPhotos)
+			protected.DELETE("/galleries/photos/:photo_id", galleryHandler.DeletePhoto)
+
+			// Super Admin Routes
+			superAdmin := protected.Group("/")
+			superAdmin.Use(middleware.RBACMiddleware("super_admin"))
+			{
+				superAdmin.POST("/admins", authHandler.CreateAdmin)
+				superAdmin.GET("/admins", authHandler.GetAllAdmins)
+				superAdmin.DELETE("/admins/:id", authHandler.DeleteAdmin)
+			}
 		}
 	}
 

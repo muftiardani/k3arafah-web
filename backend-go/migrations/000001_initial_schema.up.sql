@@ -1,4 +1,4 @@
-CREATE TABLE users (
+CREATE TABLE IF NOT EXISTS users (
     id SERIAL PRIMARY KEY,
     username VARCHAR(255) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
@@ -7,9 +7,9 @@ CREATE TABLE users (
     deleted_at TIMESTAMP WITH TIME ZONE
 );
 
-CREATE INDEX idx_users_deleted_at ON users(deleted_at);
+CREATE INDEX IF NOT EXISTS idx_users_deleted_at ON users(deleted_at);
 
-CREATE TABLE santris (
+CREATE TABLE IF NOT EXISTS santris (
     id SERIAL PRIMARY KEY,
     full_name VARCHAR(255) NOT NULL,
     nik VARCHAR(50) UNIQUE,
@@ -26,9 +26,9 @@ CREATE TABLE santris (
     deleted_at TIMESTAMP WITH TIME ZONE
 );
 
-CREATE INDEX idx_santris_deleted_at ON santris(deleted_at);
+CREATE INDEX IF NOT EXISTS idx_santris_deleted_at ON santris(deleted_at);
 
-CREATE TABLE articles (
+CREATE TABLE IF NOT EXISTS articles (
     id SERIAL PRIMARY KEY,
     title VARCHAR(255) NOT NULL,
     slug VARCHAR(255) UNIQUE,
@@ -41,5 +41,5 @@ CREATE TABLE articles (
     deleted_at TIMESTAMP WITH TIME ZONE
 );
 
-CREATE INDEX idx_articles_slug ON articles(slug);
-CREATE INDEX idx_articles_deleted_at ON articles(deleted_at);
+CREATE INDEX IF NOT EXISTS idx_articles_slug ON articles(slug);
+CREATE INDEX IF NOT EXISTS idx_articles_deleted_at ON articles(deleted_at);

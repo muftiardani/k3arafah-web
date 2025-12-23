@@ -34,7 +34,7 @@ func (h *MediaHandler) Upload(c *gin.Context) {
 	// Get folder from form or default to "general"
 	folder := c.DefaultPostForm("folder", "general")
 
-	url, err := h.service.UploadImage(src, "k3arafah/"+folder)
+	url, err := h.service.UploadImage(c.Request.Context(), src, "k3arafah/"+folder)
 	if err != nil {
 		utils.ErrorResponse(c, http.StatusInternalServerError, "Failed to upload image", err.Error())
 		return

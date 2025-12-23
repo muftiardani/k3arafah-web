@@ -32,7 +32,7 @@ func (h *ArticleHandler) Create(c *gin.Context) {
 		utils.ErrorResponse(c, http.StatusUnauthorized, "Unauthorized", nil)
 		return
 	}
-	
+
 	if err := h.service.CreateArticle(c.Request.Context(), &article); err != nil {
 		utils.ErrorResponse(c, http.StatusInternalServerError, "Failed to create article", err.Error())
 		return

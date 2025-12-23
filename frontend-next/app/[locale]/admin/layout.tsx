@@ -2,7 +2,16 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { LayoutDashboard, Users, FileText, LogOut, Menu } from "lucide-react";
+import {
+  LayoutDashboard,
+  Users,
+  FileText,
+  LogOut,
+  Menu,
+  Images,
+  GraduationCap,
+  ShieldAlert,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
@@ -81,13 +90,22 @@ function SidebarContent({
           Dashboard
         </Link>
         <Link
+          href="/admin/students"
+          className={`hover:text-primary flex items-center gap-3 rounded-lg px-3 py-2 transition-all ${
+            pathname === "/admin/students" ? "bg-muted text-primary" : "text-muted-foreground"
+          }`}
+        >
+          <GraduationCap className="h-4 w-4" />
+          Data Santri
+        </Link>
+        <Link
           href="/admin/registrants"
           className={`hover:text-primary flex items-center gap-3 rounded-lg px-3 py-2 transition-all ${
             pathname === "/admin/registrants" ? "bg-muted text-primary" : "text-muted-foreground"
           }`}
         >
           <Users className="h-4 w-4" />
-          Data Santri
+          Data Pendaftar (PSB)
         </Link>
         <Link
           href="/admin/articles"
@@ -97,6 +115,26 @@ function SidebarContent({
         >
           <FileText className="h-4 w-4" />
           Berita / Artikel
+        </Link>
+        <Link
+          href="/admin/gallery"
+          className={`hover:text-primary flex items-center gap-3 rounded-lg px-3 py-2 transition-all ${
+            pathname.startsWith("/admin/gallery")
+              ? "bg-muted text-primary"
+              : "text-muted-foreground"
+          }`}
+        >
+          <Images className="h-4 w-4" />
+          Galeri Kegiatan
+        </Link>
+        <Link
+          href="/admin/users"
+          className={`hover:text-primary flex items-center gap-3 rounded-lg px-3 py-2 transition-all ${
+            pathname === "/admin/users" ? "bg-muted text-primary" : "text-muted-foreground"
+          }`}
+        >
+          <ShieldAlert className="h-4 w-4" />
+          Manajemen User
         </Link>
       </nav>
       <div className="mt-auto p-4">

@@ -11,7 +11,7 @@ import (
 )
 
 type MediaService interface {
-	UploadImage(file multipart.File, folder string) (string, error)
+	UploadImage(ctx context.Context, file multipart.File, folder string) (string, error)
 }
 
 type mediaService struct {
@@ -32,9 +32,7 @@ func NewMediaService() (MediaService, error) {
 	return &mediaService{cld}, nil
 }
 
-func (s *mediaService) UploadImage(file multipart.File, folder string) (string, error) {
-	ctx := context.Background()
-
+func (s *mediaService) UploadImage(ctx context.Context, file multipart.File, folder string) (string, error) {
 	// Upload to Cloudinary
 	uploadResult, err := s.cld.Upload.Upload(ctx, file, uploader.UploadParams{
 		Folder: folder,
