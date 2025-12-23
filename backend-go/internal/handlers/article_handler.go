@@ -3,6 +3,7 @@ package handlers
 import (
 	"backend-go/internal/models"
 	"backend-go/internal/services"
+	"backend-go/internal/utils"
 	"net/http"
 	"strconv"
 
@@ -20,7 +21,7 @@ func NewArticleHandler(service services.ArticleService) *ArticleHandler {
 func (h *ArticleHandler) Create(c *gin.Context) {
 	var article models.Article
 	if err := c.ShouldBindJSON(&article); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		utils.ErrorResponse(c, http.StatusBadRequest, "Invalid input", err.Error())
 		return
 	}
 
@@ -28,60 +29,57 @@ func (h *ArticleHandler) Create(c *gin.Context) {
 	if userID, exists := c.Get("user_id"); exists {
 		article.AuthorID = userID.(uint)
 	} else {
-		// Fallback for dev/test or if middleware didn't set it (shouldn't happen with auth)
-		// For now we error or set to 1 if we know admin exists
-		// But better to return unauthorized if not found
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		utils.ErrorResponse(c, http.StatusUnauthorized, "Unauthorized", nil)
 		return
 	}
 	
 	if err := h.service.CreateArticle(&article); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create article"})
+		utils.ErrorResponse(c, http.StatusInternalServerError, "Failed to create article", err.Error())
 		return
 	}
 
-	c.JSON(http.StatusCreated, gin.H{"message": "Article created successfully", "data": article})
+	utils.SuccessResponse(c, http.StatusCreated, "Article created successfully", article)
 }
 
 func (h *ArticleHandler) GetAll(c *gin.Context) {
 	articles, err := h.service.GetAllArticles()
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch articles"})
+		utils.ErrorResponse(c, http.StatusInternalServerError, "Failed to fetch articles", err.Error())
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"data": articles})
+	utils.SuccessResponse(c, http.StatusOK, "Articles fetched successfully", articles)
 }
 
 func (h *ArticleHandler) GetDetail(c *gin.Context) {
 	id, _ := strconv.Atoi(c.Param("id"))
 	article, err := h.service.GetArticleByID(uint(id))
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "Article not found"})
+		utils.ErrorResponse(c, http.StatusNotFound, "Article not found", err.Error())
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"data": article})
+	utils.SuccessResponse(c, http.StatusOK, "Article detail fetched successfully", article)
 }
 
 func (h *ArticleHandler) Update(c *gin.Context) {
 	id, _ := strconv.Atoi(c.Param("id"))
 	var article models.Article
 	if err := c.ShouldBindJSON(&article); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		utils.ErrorResponse(c, http.StatusBadRequest, "Invalid input", err.Error())
 		return
 	}
 
 	if err := h.service.UpdateArticle(uint(id), &article); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update article"})
+		utils.ErrorResponse(c, http.StatusInternalServerError, "Failed to update article", err.Error())
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"message": "Article updated successfully"})
+	utils.SuccessResponse(c, http.StatusOK, "Article updated successfully", nil)
 }
 
 func (h *ArticleHandler) Delete(c *gin.Context) {
 	id, _ := strconv.Atoi(c.Param("id"))
 	if err := h.service.DeleteArticle(uint(id)); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete article"})
+		utils.ErrorResponse(c, http.StatusInternalServerError, "Failed to delete article", err.Error())
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"message": "Article deleted successfully"})
+	utils.SuccessResponse(c, http.StatusOK, "Article deleted successfully", nil)
 }

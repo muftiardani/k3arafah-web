@@ -1,12 +1,17 @@
 package main
 
 import (
+	"context"
 	"flag"
-	"log"
+	"net/http"
 	"os"
+	"os/signal"
+	"syscall"
+	"time"
 
 	"backend-go/config"
 	"backend-go/internal/handlers"
+	"backend-go/internal/logger"
 	"backend-go/internal/middleware"
 	"backend-go/internal/models"
 	"backend-go/internal/repository"
@@ -18,7 +23,7 @@ import (
 
 	_ "backend-go/docs" // Import generated docs
 
-	"github.com/joho/godotenv"
+	"go.uber.org/zap"
 )
 
 // @title           K3 Arafah Web API
@@ -44,31 +49,45 @@ func main() {
 	migrateFlag := flag.Bool("migrate", false, "Run database migration")
 	flag.Parse()
 
-	// Load .env file
-	if err := godotenv.Load(); err != nil {
-		log.Println("No .env file found, using system environment variables")
+	// Load Config & Env
+	if err := config.LoadConfig(); err != nil {
+		// We can't use the custom logger yet because we might need config to init it?
+		// Actually our logger is simple, but let's stick to stdlib log for startup panic
+		// Or assume if logger init doesn't need config, we can init logger first then config.
+		// However, plan said "Call config.LoadConfig() at the very beginning".
+		// But logger.Init() checks 'ENV' var directly.
+		// Let's print to stdout if config fails.
+		println("Error loading config:", err.Error())
+		os.Exit(1)
 	}
+
+	// Init Logger
+	logger.Init()
+	logger.Info("Starting application...")
 
 	// Connect to Database
 	config.ConnectDB()
 
 	// Check for migration flag
 	if *migrateFlag {
-		log.Println("Running Database Migration...")
+		logger.Info("Running Database Migration...")
 		err := config.DB.AutoMigrate(&models.User{}, &models.Santri{}, &models.Article{})
 		if err != nil {
-			log.Fatal("Database migration failed:", err)
+			logger.Fatal("Database migration failed", zap.Error(err))
 		}
-		log.Println("Migration completed successfully.")
+		logger.Info("Migration completed successfully.")
 		return
 	}
 
 	// Setup Router
-	r := gin.Default()
+	r := gin.New()
+	r.Use(gin.Recovery())
+	r.Use(middleware.LoggerMiddleware())
+	r.Use(middleware.ErrorHandlerMiddleware())
+	r.Use(middleware.CORSMiddleware())
 
 	// Swagger Configuration
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
-	r.Use(middleware.CORSMiddleware())
 
 	// Init Layers
 	userRepo := repository.NewUserRepository(config.DB)
@@ -113,5 +132,38 @@ func main() {
 	if port == "" {
 		port = "8080"
 	}
-	r.Run(":" + port)
+
+	srv := &http.Server{
+		Addr:    ":" + port,
+		Handler: r,
+	}
+
+	// Initializing the server in a goroutine so that
+	// it won't block the graceful shutdown handling below
+	go func() {
+		logger.Info("Server running", zap.String("port", port))
+		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			logger.Fatal("listen: %s\n", zap.Error(err))
+		}
+	}()
+
+	// Wait for interrupt signal to gracefully shutdown the server with
+	// a timeout of 5 seconds.
+	quit := make(chan os.Signal, 1)
+	// kill (no param) default send syscall.SIGTERM
+	// kill -2 is syscall.SIGINT
+	// kill -9 is syscall.SIGKILL but can't be catch, so don't need add it
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+	<-quit
+	logger.Info("Shutting down server...")
+
+	// The context is used to inform the server it has 5 seconds to finish
+	// the request it is currently handling
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	if err := srv.Shutdown(ctx); err != nil {
+		logger.Fatal("Server forced to shutdown:", zap.Error(err))
+	}
+
+	logger.Info("Server exiting")
 }

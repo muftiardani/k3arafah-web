@@ -7,6 +7,7 @@ import { Footer } from "@/components/layout/Footer";
 import { Toaster } from "@/components/ui/sonner";
 import QueryProvider from "@/components/providers/QueryProvider";
 import "../globals.css"; // Uppercase dir ..
+import { GlobalLoader } from "@/components/global-loader";
 
 const outfit = Outfit({
   subsets: ["latin"],
@@ -35,6 +36,7 @@ export default async function LocaleLayout({
       <body className={`${outfit.variable} flex min-h-screen flex-col font-sans antialiased`}>
         <NextIntlClientProvider messages={messages}>
           <QueryProvider>
+            <GlobalLoader />
             <Navbar />
             <main className="flex-1">{children}</main>
             <Footer />
@@ -46,8 +48,44 @@ export default async function LocaleLayout({
   );
 }
 
-// Metadata needs to be generated or static
-export const metadata = {
-  title: "Pondok Pesantren K3 Arafah",
-  description: "Web Resmi Pondok Pesantren K3 Arafah",
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  metadataBase: new URL("https://k3arafah.com"), // Ganti dengan domain asli nanti
+  title: {
+    default: "Pondok Pesantren K3 Arafah",
+    template: "%s | K3 Arafah",
+  },
+  description:
+    "Web Resmi Pondok Pesantren K3 Arafah - Membangun Generasi Qur'ani yang Berakhlak Mulia",
+  keywords: ["Pesantren", "K3 Arafah", "Pondok", "Islam", "Pendidikan", "Santri"],
+  authors: [{ name: "Pondok Pesantren K3 Arafah" }],
+  creator: "Tim IT K3 Arafah",
+  openGraph: {
+    type: "website",
+    locale: "id_ID",
+    url: "https://k3arafah.com",
+    title: "Pondok Pesantren K3 Arafah",
+    description: "Membangun Generasi Qur'ani yang Berakhlak Mulia",
+    siteName: "Pondok Pesantren K3 Arafah",
+    images: [
+      {
+        url: "/og-image.jpg", // Pastikan file ini ada di public nanti
+        width: 1200,
+        height: 630,
+        alt: "Pondok Pesantren K3 Arafah",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Pondok Pesantren K3 Arafah",
+    description: "Membangun Generasi Qur'ani yang Berakhlak Mulia",
+    images: ["/og-image.jpg"],
+  },
+  icons: {
+    icon: "/favicon.ico",
+    shortcut: "/favicon-16x16.png",
+    apple: "/apple-touch-icon.png",
+  },
 };

@@ -37,25 +37,26 @@ type LoginRequest struct {
 // @Failure      400  {object} map[string]string
 // @Failure      500  {object} map[string]string
 // @Router       /register-admin [post]
+// @Router       /register-admin [post]
 func (h *AuthHandler) Register(c *gin.Context) {
 	var input RegisterRequest
 
 	if err := c.ShouldBindJSON(&input); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid JSON format"})
+		utils.ErrorResponse(c, http.StatusBadRequest, "Invalid JSON format", err.Error())
 		return
 	}
 
 	if err := utils.ValidateStruct(input); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		utils.ErrorResponse(c, http.StatusBadRequest, "Validation failed", err.Error())
 		return
 	}
 
 	if err := h.service.RegisterAdmin(input.Username, input.Password); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create user"})
+		utils.ErrorResponse(c, http.StatusInternalServerError, "Failed to create user", err.Error())
 		return
 	}
 
-	c.JSON(http.StatusCreated, gin.H{"message": "User registered successfully"})
+	utils.SuccessResponse(c, http.StatusCreated, "User registered successfully", nil)
 }
 
 // Login godoc
@@ -73,20 +74,20 @@ func (h *AuthHandler) Login(c *gin.Context) {
 	var input LoginRequest
 
 	if err := c.ShouldBindJSON(&input); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid JSON format"})
+		utils.ErrorResponse(c, http.StatusBadRequest, "Invalid JSON format", err.Error())
 		return
 	}
 
 	if err := utils.ValidateStruct(input); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		utils.ErrorResponse(c, http.StatusBadRequest, "Validation failed", err.Error())
 		return
 	}
 
 	token, err := h.service.Login(input.Username, input.Password)
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid credentials"})
+		utils.ErrorResponse(c, http.StatusUnauthorized, "Invalid credentials", err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"token": token})
+	utils.SuccessResponse(c, http.StatusOK, "Login successful", gin.H{"token": token})
 }

@@ -3,6 +3,7 @@ package handlers
 import (
 	"backend-go/internal/models"
 	"backend-go/internal/services"
+	"backend-go/internal/utils"
 	"net/http"
 	"strconv"
 
@@ -20,37 +21,37 @@ func NewPSBHandler(service services.PSBService) *PSBHandler {
 func (h *PSBHandler) Register(c *gin.Context) {
 	var santri models.Santri
 	if err := c.ShouldBindJSON(&santri); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		utils.ErrorResponse(c, http.StatusBadRequest, "Invalid input", err.Error())
 		return
 	}
 
 	if err := h.service.RegisterSantri(&santri); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to register santri"})
+		utils.ErrorResponse(c, http.StatusInternalServerError, "Failed to register santri", err.Error())
 		return
 	}
 
-	c.JSON(http.StatusCreated, gin.H{"message": "Registration successful", "data": santri})
+	utils.SuccessResponse(c, http.StatusCreated, "Registration successful", santri)
 }
 
 func (h *PSBHandler) GetAll(c *gin.Context) {
 	santris, err := h.service.GetAllRegistrants()
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch data"})
+		utils.ErrorResponse(c, http.StatusInternalServerError, "Failed to fetch data", err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"data": santris})
+	utils.SuccessResponse(c, http.StatusOK, "Data fetched successfully", santris)
 }
 
 func (h *PSBHandler) GetDetail(c *gin.Context) {
 	id, _ := strconv.Atoi(c.Param("id"))
 	santri, err := h.service.GetRegistrantID(uint(id))
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "Santri not found"})
+		utils.ErrorResponse(c, http.StatusNotFound, "Santri not found", err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"data": santri})
+	utils.SuccessResponse(c, http.StatusOK, "Detail fetched successfully", santri)
 }
 
 func (h *PSBHandler) UpdateStatus(c *gin.Context) {
@@ -60,14 +61,14 @@ func (h *PSBHandler) UpdateStatus(c *gin.Context) {
 	}
 
 	if err := c.ShouldBindJSON(&input); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		utils.ErrorResponse(c, http.StatusBadRequest, "Invalid status input", err.Error())
 		return
 	}
 
 	if err := h.service.UpdateStatus(uint(id), input.Status); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update status"})
+		utils.ErrorResponse(c, http.StatusInternalServerError, "Failed to update status", err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "Status updated successfully"})
+	utils.SuccessResponse(c, http.StatusOK, "Status updated successfully", nil)
 }
