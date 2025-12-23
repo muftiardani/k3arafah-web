@@ -40,7 +40,7 @@ export default function CreateGalleryPage() {
         headers: { "Content-Type": "multipart/form-data" },
       });
       toast.success("Album berhasil dibuat");
-      router.push("/admin/gallery");
+      router.push("/gallery");
     } catch (error) {
       console.error(error);
       toast.error("Gagal membuat album");
@@ -53,7 +53,7 @@ export default function CreateGalleryPage() {
     <div className="mx-auto flex max-w-2xl flex-col gap-6">
       <div className="flex items-center gap-4">
         <Button variant="ghost" size="icon" asChild>
-          <Link href="/admin/gallery">
+          <Link href="/gallery">
             <ArrowLeft className="h-4 w-4" />
           </Link>
         </Button>
@@ -95,7 +95,7 @@ export default function CreateGalleryPage() {
 
           <div className="flex justify-end gap-3 pt-4">
             <Button type="button" variant="outline" asChild>
-              <Link href="/admin/gallery">Batal</Link>
+              <Link href="/gallery">Batal</Link>
             </Button>
             <Button type="submit" disabled={loading}>
               {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}

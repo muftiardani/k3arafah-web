@@ -22,9 +22,6 @@ type LoginRequest struct {
 	Password string `json:"password" validate:"required"`
 }
 
-// Register godoc
-// @Summary      Register a new admin
-// @Description  Register a new admin user (Development only)
 // Login godoc
 // @Summary      Login admin
 // @Description  Login with username and password to get JWT token

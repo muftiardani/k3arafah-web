@@ -6,10 +6,17 @@ import { Menu } from "lucide-react";
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { LanguageSwitcher } from "../LanguageSwitcher";
+import { usePathname } from "next/navigation";
 
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const t = useTranslations("Navbar");
+  const pathname = usePathname();
+
+  // Hide Navbar on admin pages
+  if (pathname.includes("/admin")) {
+    return null;
+  }
 
   return (
     <header className="border-border/40 bg-background/80 supports-backdrop-filter:bg-background/60 sticky top-0 z-50 w-full border-b backdrop-blur-md">

@@ -9,27 +9,38 @@ export function middleware(request: NextRequest) {
   const token = request.cookies.get("token")?.value;
   const { pathname } = request.nextUrl;
 
-  // Define protected routes (regex to match with or without locale)
-  // Matches: /admin, /en/admin, /psb/registrants, /ar/psb/registrants
-  const protectedPaths = ["/admin", "/psb/registrants"];
+  // Define protected routes chunks
+  const protectedRoutes = [
+    "/dashboard",
+    "/students",
+    "/registrants",
+    "/articles",
+    "/users",
+    "/gallery",
+  ];
 
   // Helper to remove locale from path to check against protected routes
-  const pathWithoutLocale = pathname.replace(/^\/(id|en|ar)/, "") || "/";
+  let pathWithoutLocale = pathname.replace(/^\/(id|en|ar)/, "") || "/";
+  if (pathWithoutLocale.length > 1 && pathWithoutLocale.endsWith("/")) {
+    pathWithoutLocale = pathWithoutLocale.slice(0, -1);
+  }
 
-  const isProtected = protectedPaths.some((route) => pathWithoutLocale.startsWith(route));
+  const isProtected = protectedRoutes.some(
+    (route) => pathWithoutLocale === route || pathWithoutLocale.startsWith(`${route}/`)
+  );
 
-  // Exclude login page from protection
-  const isLoginPage = pathWithoutLocale === "/admin/login";
+  // Exclude login itself (redundant if using positive list logic above but safe)
+  const isLoginPage = pathWithoutLocale === "/login";
 
   if (isProtected && !isLoginPage && !token) {
     // Redirect to login page, preserving locale if present
     const localeMatch = pathname.match(/^\/(id|en|ar)/);
     const locale = localeMatch ? localeMatch[0] : "/id";
 
-    // Ensure locale doesn't have double slash if it was empty string (though regex above prevents it)
+    // Ensure locale doesn't have double slash if it was empty string
     const normalizedLocale = locale === "/" ? "/id" : locale;
 
-    const loginUrl = new URL(`${normalizedLocale}/admin/login`, request.url);
+    const loginUrl = new URL(`${normalizedLocale}/login`, request.url);
     return NextResponse.redirect(loginUrl);
   }
 

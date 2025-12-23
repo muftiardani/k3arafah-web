@@ -51,12 +51,6 @@ func main() {
 
 	// Load Config & Env
 	if err := config.LoadConfig(); err != nil {
-		// We can't use the custom logger yet because we might need config to init it?
-		// Actually our logger is simple, but let's stick to stdlib log for startup panic
-		// Or assume if logger init doesn't need config, we can init logger first then config.
-		// However, plan said "Call config.LoadConfig() at the very beginning".
-		// But logger.Init() checks 'ENV' var directly.
-		// Let's print to stdout if config fails.
 		println("Error loading config:", err.Error())
 		os.Exit(1)
 	}
@@ -74,10 +68,6 @@ func main() {
 
 		// Call versioned migration
 		db.RunMigrations()
-
-		// We don't return here because usually we want the server to start after migration,
-		// or maybe we DO want to return if it's a CLI task.
-		// The original code had 'return', so I will keep 'return' to mimic "migrate-only" mode.
 		return
 	}
 
@@ -191,12 +181,7 @@ func main() {
 		}
 	}()
 
-	// Wait for interrupt signal to gracefully shutdown the server with
-	// a timeout of 5 seconds.
 	quit := make(chan os.Signal, 1)
-	// kill (no param) default send syscall.SIGTERM
-	// kill -2 is syscall.SIGINT
-	// kill -9 is syscall.SIGKILL but can't be catch, so don't need add it
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
 	logger.Info("Shutting down server...")

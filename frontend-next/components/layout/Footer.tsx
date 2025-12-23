@@ -1,6 +1,16 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 export function Footer() {
+  const pathname = usePathname();
+
+  // Hide Footer on admin pages
+  if (pathname.includes("/admin")) {
+    return null;
+  }
+
   return (
     <footer className="bg-muted/40 border-t">
       <div className="container px-4 py-8 sm:px-8">
@@ -25,7 +35,7 @@ export function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/admin/login" className="hover:underline">
+                <Link href="/login" className="hover:underline">
                   Login Admin
                 </Link>
               </li>

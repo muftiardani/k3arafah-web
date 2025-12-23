@@ -2,8 +2,6 @@ import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { Outfit } from "next/font/google"; // Keep font here or in root?
-import { Navbar } from "@/components/layout/Navbar";
-import { Footer } from "@/components/layout/Footer";
 import { Toaster } from "@/components/ui/sonner";
 import QueryProvider from "@/components/providers/QueryProvider";
 import "../globals.css"; // Uppercase dir ..
@@ -37,9 +35,7 @@ export default async function LocaleLayout({
         <NextIntlClientProvider messages={messages}>
           <QueryProvider>
             <GlobalLoader />
-            <Navbar />
             <main className="flex-1">{children}</main>
-            <Footer />
             <Toaster />
           </QueryProvider>
         </NextIntlClientProvider>

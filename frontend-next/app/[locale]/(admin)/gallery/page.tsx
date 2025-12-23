@@ -54,7 +54,7 @@ export default function GalleryPage() {
           <p className="text-muted-foreground">Kelola album foto kegiatan pondok.</p>
         </div>
         <Button asChild>
-          <Link href="/admin/gallery/create">
+          <Link href="/gallery/create">
             <Plus className="mr-2 h-4 w-4" /> Buat Album Baru
           </Link>
         </Button>
@@ -94,7 +94,7 @@ export default function GalleryPage() {
                 </p>
                 <div className="mt-4 flex items-center justify-end gap-2">
                   <Button asChild variant="secondary" size="sm">
-                    <Link href={`/admin/gallery/${gallery.id}`}>
+                    <Link href={`/gallery/${gallery.id}`}>
                       <Eye className="mr-2 h-3 w-3" /> Detail & Foto
                     </Link>
                   </Button>

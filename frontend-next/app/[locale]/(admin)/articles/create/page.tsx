@@ -48,7 +48,7 @@ export default function CreateArticlePage() {
     try {
       await api.post("/articles", values);
       toast.success("Artikel berhasil dibuat");
-      router.push("/admin/articles");
+      router.push("/articles");
     } catch (error) {
       console.error(error);
       toast.error("Gagal membuat artikel");
