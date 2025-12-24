@@ -4,8 +4,8 @@ import (
 	"backend-go/config"
 	"backend-go/internal/models"
 	"backend-go/internal/repository"
+	"backend-go/internal/utils"
 	"context"
-	"errors"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -50,12 +50,13 @@ func (s *authService) RegisterAdmin(ctx context.Context, username, password, rol
 func (s *authService) Login(ctx context.Context, username, password string) (string, error) {
 	user, err := s.repo.FindByUsername(ctx, username)
 	if err != nil {
-		return "", errors.New("invalid username or password")
+		// Return generic unauthorized to avoid leaking verification details
+		return "", utils.ErrUnauthorized
 	}
 
 	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
 	if err != nil {
-		return "", errors.New("invalid username or password")
+		return "", utils.ErrUnauthorized
 	}
 
 	// Generate JWT

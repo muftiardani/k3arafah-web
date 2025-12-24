@@ -1,6 +1,20 @@
 package utils
 
-import "net/http"
+import (
+	"errors"
+	"net/http"
+
+	"gorm.io/gorm"
+)
+
+// Sentinel Errors (Static errors for equality checks)
+var (
+	ErrNotFound            = errors.New("record not found")
+	ErrConflict            = errors.New("record already exists")
+	ErrInternalServerError = errors.New("internal server error")
+	ErrUnauthorized        = errors.New("unauthorized action")
+	ErrForbidden           = errors.New("forbidden action")
+)
 
 type AppError struct {
 	Code    int    `json:"code"`
@@ -16,6 +30,17 @@ func NewAppError(code int, message string) *AppError {
 		Code:    code,
 		Message: message,
 	}
+}
+
+// MapDBError converts database errors to AppErrors or Sentinel Errors
+func HandleDBError(err error) error {
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return ErrNotFound
+	}
+	if errors.Is(err, gorm.ErrDuplicatedKey) {
+		return ErrConflict
+	}
+	return err
 }
 
 func NewBadRequestError(message string) *AppError {

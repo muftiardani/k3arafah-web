@@ -48,7 +48,8 @@ func (h *AuthHandler) Login(c *gin.Context) {
 
 	token, err := h.service.Login(c.Request.Context(), input.Username, input.Password)
 	if err != nil {
-		utils.ErrorResponse(c, http.StatusUnauthorized, "Invalid credentials", err.Error())
+		// ResponseWithError will maps ErrUnauthorized to 401
+		utils.ResponseWithError(c, err)
 		return
 	}
 
@@ -68,7 +69,7 @@ func (h *AuthHandler) CreateAdmin(c *gin.Context) {
 	}
 
 	if err := h.service.RegisterAdmin(c.Request.Context(), input.Username, input.Password, input.Role); err != nil {
-		utils.ErrorResponse(c, http.StatusInternalServerError, "Failed to create admin", err.Error())
+		utils.ResponseWithError(c, err)
 		return
 	}
 
@@ -78,7 +79,7 @@ func (h *AuthHandler) CreateAdmin(c *gin.Context) {
 func (h *AuthHandler) GetAllAdmins(c *gin.Context) {
 	admins, err := h.service.GetAllAdmins(c.Request.Context())
 	if err != nil {
-		utils.ErrorResponse(c, http.StatusInternalServerError, "Failed to fetch admins", err.Error())
+		utils.ResponseWithError(c, err)
 		return
 	}
 	utils.SuccessResponse(c, http.StatusOK, "Admins fetched successfully", admins)
@@ -92,7 +93,7 @@ func (h *AuthHandler) DeleteAdmin(c *gin.Context) {
 	}
 
 	if err := h.service.DeleteAdmin(c.Request.Context(), uint(id)); err != nil {
-		utils.ErrorResponse(c, http.StatusInternalServerError, "Failed to delete admin", err.Error())
+		utils.ResponseWithError(c, err)
 		return
 	}
 

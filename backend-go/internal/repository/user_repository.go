@@ -2,6 +2,7 @@ package repository
 
 import (
 	"backend-go/internal/models"
+	"backend-go/internal/utils"
 	"context"
 
 	"gorm.io/gorm"
@@ -25,31 +26,31 @@ func NewUserRepository(db *gorm.DB) UserRepository {
 }
 
 func (r *userRepository) CreateUser(ctx context.Context, user *models.User) error {
-	return r.db.WithContext(ctx).Create(user).Error
+	return utils.HandleDBError(r.db.WithContext(ctx).Create(user).Error)
 }
 
 func (r *userRepository) FindByUsername(ctx context.Context, username string) (*models.User, error) {
 	var user models.User
 	err := r.db.WithContext(ctx).Where("username = ?", username).First(&user).Error
-	return &user, err
+	return &user, utils.HandleDBError(err)
 }
 
 func (r *userRepository) FindAll(ctx context.Context) ([]models.User, error) {
 	var users []models.User
 	err := r.db.WithContext(ctx).Find(&users).Error
-	return users, err
+	return users, utils.HandleDBError(err)
 }
 
 func (r *userRepository) FindByID(ctx context.Context, id uint) (*models.User, error) {
 	var user models.User
 	err := r.db.WithContext(ctx).First(&user, id).Error
-	return &user, err
+	return &user, utils.HandleDBError(err)
 }
 
 func (r *userRepository) UpdateUser(ctx context.Context, user *models.User) error {
-	return r.db.WithContext(ctx).Save(user).Error
+	return utils.HandleDBError(r.db.WithContext(ctx).Save(user).Error)
 }
 
 func (r *userRepository) DeleteUser(ctx context.Context, id uint) error {
-	return r.db.WithContext(ctx).Delete(&models.User{}, id).Error
+	return utils.HandleDBError(r.db.WithContext(ctx).Delete(&models.User{}, id).Error)
 }

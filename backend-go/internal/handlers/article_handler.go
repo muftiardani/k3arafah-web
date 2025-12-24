@@ -29,12 +29,12 @@ func (h *ArticleHandler) Create(c *gin.Context) {
 	if userID, exists := c.Get("user_id"); exists {
 		article.AuthorID = userID.(uint)
 	} else {
-		utils.ErrorResponse(c, http.StatusUnauthorized, "Unauthorized", nil)
+		utils.ResponseWithError(c, utils.ErrUnauthorized)
 		return
 	}
 
 	if err := h.service.CreateArticle(c.Request.Context(), &article); err != nil {
-		utils.ErrorResponse(c, http.StatusInternalServerError, "Failed to create article", err.Error())
+		utils.ResponseWithError(c, err)
 		return
 	}
 
@@ -44,7 +44,7 @@ func (h *ArticleHandler) Create(c *gin.Context) {
 func (h *ArticleHandler) GetAll(c *gin.Context) {
 	articles, err := h.service.GetAllArticles(c.Request.Context())
 	if err != nil {
-		utils.ErrorResponse(c, http.StatusInternalServerError, "Failed to fetch articles", err.Error())
+		utils.ResponseWithError(c, err)
 		return
 	}
 	utils.SuccessResponse(c, http.StatusOK, "Articles fetched successfully", articles)
@@ -54,7 +54,7 @@ func (h *ArticleHandler) GetDetail(c *gin.Context) {
 	id, _ := strconv.Atoi(c.Param("id"))
 	article, err := h.service.GetArticleByID(c.Request.Context(), uint(id))
 	if err != nil {
-		utils.ErrorResponse(c, http.StatusNotFound, "Article not found", err.Error())
+		utils.ResponseWithError(c, err)
 		return
 	}
 	utils.SuccessResponse(c, http.StatusOK, "Article detail fetched successfully", article)
@@ -69,7 +69,7 @@ func (h *ArticleHandler) Update(c *gin.Context) {
 	}
 
 	if err := h.service.UpdateArticle(c.Request.Context(), uint(id), &article); err != nil {
-		utils.ErrorResponse(c, http.StatusInternalServerError, "Failed to update article", err.Error())
+		utils.ResponseWithError(c, err)
 		return
 	}
 	utils.SuccessResponse(c, http.StatusOK, "Article updated successfully", nil)
@@ -78,7 +78,7 @@ func (h *ArticleHandler) Update(c *gin.Context) {
 func (h *ArticleHandler) Delete(c *gin.Context) {
 	id, _ := strconv.Atoi(c.Param("id"))
 	if err := h.service.DeleteArticle(c.Request.Context(), uint(id)); err != nil {
-		utils.ErrorResponse(c, http.StatusInternalServerError, "Failed to delete article", err.Error())
+		utils.ResponseWithError(c, err)
 		return
 	}
 	utils.SuccessResponse(c, http.StatusOK, "Article deleted successfully", nil)
