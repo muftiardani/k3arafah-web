@@ -23,7 +23,6 @@ func (h *MediaHandler) Upload(c *gin.Context) {
 		return
 	}
 
-	// Open the file
 	src, err := file.Open()
 	if err != nil {
 		utils.ErrorResponse(c, http.StatusInternalServerError, "Failed to open file", err.Error())
@@ -31,7 +30,6 @@ func (h *MediaHandler) Upload(c *gin.Context) {
 	}
 	defer src.Close()
 
-	// Get folder from form or default to "general"
 	folder := c.DefaultPostForm("folder", "general")
 
 	url, err := h.service.UploadImage(c.Request.Context(), src, "k3arafah/"+folder)

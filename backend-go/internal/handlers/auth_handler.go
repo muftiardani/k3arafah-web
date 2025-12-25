@@ -37,7 +37,6 @@ func (h *AuthHandler) Login(c *gin.Context) {
 	var input LoginRequest
 
 	if err := c.ShouldBindJSON(&input); err != nil {
-		// ShouldBindJSON automatically checks 'binding' tags
 		utils.ErrorResponse(c, http.StatusBadRequest, "Invalid input or validation failed", err.Error())
 		return
 	}
@@ -48,15 +47,12 @@ func (h *AuthHandler) Login(c *gin.Context) {
 		return
 	}
 
-	// Set HttpOnly Cookie
-	// Name, Value, MaxAge, Path, Domain, Secure, HttpOnly
 	c.SetCookie("auth_token", token, 3600*24, "/", "", false, true)
 
 	utils.SuccessResponse(c, http.StatusOK, "Login successful", nil)
 }
 
 func (h *AuthHandler) Logout(c *gin.Context) {
-	// Clear Cookie
 	c.SetCookie("auth_token", "", -1, "/", "", false, true)
 	utils.SuccessResponse(c, http.StatusOK, "Logout successful", nil)
 }
@@ -65,7 +61,7 @@ func (h *AuthHandler) CreateAdmin(c *gin.Context) {
 	var input struct {
 		Username string `json:"username" binding:"required"`
 		Password string `json:"password" binding:"required,min=6"`
-		Role     string `json:"role"` // Optional
+		Role     string `json:"role"`
 	}
 
 	if err := c.ShouldBindJSON(&input); err != nil {

@@ -117,14 +117,14 @@ func main() {
 	galleryHandler := handlers.NewGalleryHandler(galleryService)
 
 	// Rate Limiters
-	loginLimiter := middleware.RateLimitMiddleware(1)    // 1 request / second
-	uploadLimiter := middleware.RateLimitMiddleware(0.5) // 0.5 request / second (1 req per 2 sec)
+	loginLimiter := middleware.RateLimitMiddleware(1)
+	uploadLimiter := middleware.RateLimitMiddleware(0.5)
 
 	// Routes
 	api := r.Group("/api")
 	{
 		// Public Routes
-		api.POST("/login", loginLimiter, authHandler.Login) // Rate Limited
+		api.POST("/login", loginLimiter, authHandler.Login)
 		api.POST("/logout", authHandler.Logout)
 		api.POST("/psb/register", psbHandler.Register)
 		api.GET("/articles", articleHandler.GetAll)
@@ -134,7 +134,7 @@ func main() {
 		protected := api.Group("/")
 		protected.Use(middleware.AuthMiddleware())
 		{
-			protected.POST("/upload", uploadLimiter, mediaHandler.Upload) // Rate Limited
+			protected.POST("/upload", uploadLimiter, mediaHandler.Upload)
 
 			protected.GET("/psb/registrants", psbHandler.GetAll)
 			protected.GET("/psb/registrants/:id", psbHandler.GetDetail)

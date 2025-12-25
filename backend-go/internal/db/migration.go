@@ -17,7 +17,6 @@ func MigrateDatabase(action string, version int) {
 		cfg.DBUser, cfg.DBPassword, cfg.DBHost, cfg.DBPort, cfg.DBName,
 	)
 
-	// Use embedded filesystem
 	sourceDriver, err := iofs.New(migrations.MigrationFS, ".")
 	if err != nil {
 		log.Fatal("Failed to create iofs source driver: ", err)
@@ -32,7 +31,6 @@ func MigrateDatabase(action string, version int) {
 		log.Fatal("Failed to create migration instance: ", err)
 	}
 
-    // Log current version
     curVer, dirty, err := m.Version()
     if err != nil && err != migrate.ErrNilVersion {
         log.Printf("Failed to get version: %v", err)

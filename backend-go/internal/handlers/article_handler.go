@@ -25,7 +25,6 @@ func (h *ArticleHandler) Create(c *gin.Context) {
 		return
 	}
 
-	// Get user_id from context
 	if userID, exists := c.Get("user_id"); exists {
 		article.AuthorID = userID.(uint)
 	} else {
