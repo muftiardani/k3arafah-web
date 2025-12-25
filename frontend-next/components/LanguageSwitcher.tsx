@@ -29,7 +29,6 @@ export function LanguageSwitcher() {
       <SelectContent align="end">
         <SelectItem value="id">Indonesia</SelectItem>
         <SelectItem value="en">English</SelectItem>
-        <SelectItem value="ar">العربية</SelectItem>
       </SelectContent>
     </Select>
   );

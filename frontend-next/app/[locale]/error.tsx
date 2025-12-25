@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { AlertTriangle, RotateCcw } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 export default function Error({
   error,
@@ -11,6 +12,7 @@ export default function Error({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
+  const t = useTranslations("Error");
   useEffect(() => {
     // Log the error to an error reporting service
     console.error(error);
@@ -22,15 +24,12 @@ export default function Error({
         <AlertTriangle className="h-10 w-10" />
       </div>
       <div className="space-y-2">
-        <h2 className="text-2xl font-bold tracking-tight">Something went wrong!</h2>
-        <p className="max-w-[500px] text-gray-500 dark:text-gray-400">
-          We encountered an unexpected error. Our team has been notified. Please try again or return
-          to the home page.
-        </p>
+        <h2 className="text-2xl font-bold tracking-tight">{t("title")}</h2>
+        <p className="max-w-[500px] text-gray-500 dark:text-gray-400">{t("description")}</p>
       </div>
       <Button onClick={reset} className="gap-2">
         <RotateCcw className="h-4 w-4" />
-        Try Again
+        {t("try_again")}
       </Button>
     </div>
   );

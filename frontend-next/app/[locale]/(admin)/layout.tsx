@@ -125,7 +125,7 @@ function SidebarContent({
       items: [
         {
           title: "Berita / Artikel",
-          href: "/articles",
+          href: "/dashboard/articles",
           icon: FileText,
         },
         {

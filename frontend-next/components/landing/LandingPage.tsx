@@ -37,6 +37,7 @@ export default function LandingPage({ articles }: LandingPageProps) {
   const tHero = useTranslations("Hero");
   const tPrograms = useTranslations("Programs");
   const tStats = useTranslations("Stats");
+  const tHome = useTranslations("Home");
 
   return (
     <div className="flex min-h-[calc(100vh-4rem)] flex-col">
@@ -215,11 +216,9 @@ export default function LandingPage({ articles }: LandingPageProps) {
         <div className="container px-4 md:px-6">
           <div className="mb-10 text-center">
             <h2 className="text-3xl font-bold tracking-tighter text-emerald-900 md:text-4xl dark:text-emerald-100">
-              Galeri Aktivitas
+              {tHome("gallery_title")}
             </h2>
-            <p className="text-muted-foreground mt-2">
-              Potret keseharian santri dalam menuntut ilmu.
-            </p>
+            <p className="text-muted-foreground mt-2">{tHome("gallery_desc")}</p>
           </div>
 
           <div className="grid auto-rows-[200px] grid-cols-2 gap-4 md:grid-cols-4">
@@ -274,11 +273,9 @@ export default function LandingPage({ articles }: LandingPageProps) {
             className="mb-10 flex flex-col items-center justify-center space-y-4 text-center"
           >
             <h2 className="text-3xl font-bold tracking-tighter text-emerald-900 md:text-4xl dark:text-emerald-100">
-              Kabar Pesantren
+              {tHome("news_title")}
             </h2>
-            <p className="text-muted-foreground max-w-[700px]">
-              Berita dan kegiatan terbaru dari Pondok Pesantren K3 Arafah.
-            </p>
+            <p className="text-muted-foreground max-w-[700px]">{tHome("news_desc")}</p>
           </motion.div>
 
           <motion.div
@@ -290,7 +287,7 @@ export default function LandingPage({ articles }: LandingPageProps) {
           >
             {articles.length === 0 ? (
               <p className="text-muted-foreground col-span-full text-center">
-                Belum ada berita terbaru.
+                {tHome("news_empty")}
               </p>
             ) : (
               articles

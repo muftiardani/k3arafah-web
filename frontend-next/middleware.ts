@@ -10,17 +10,10 @@ export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Define protected routes chunks
-  const protectedRoutes = [
-    "/dashboard",
-    "/students",
-    "/registrants",
-    "/articles",
-    "/users",
-    "/gallery",
-  ];
+  const protectedRoutes = ["/dashboard", "/students", "/registrants", "/users", "/gallery"];
 
   // Helper to remove locale from path to check against protected routes
-  let pathWithoutLocale = pathname.replace(/^\/(id|en|ar)/, "") || "/";
+  let pathWithoutLocale = pathname.replace(/^\/(id|en)/, "") || "/";
   if (pathWithoutLocale.length > 1 && pathWithoutLocale.endsWith("/")) {
     pathWithoutLocale = pathWithoutLocale.slice(0, -1);
   }
@@ -34,7 +27,7 @@ export function middleware(request: NextRequest) {
 
   if (isProtected && !isLoginPage && !token) {
     // Redirect to login page, preserving locale if present
-    const localeMatch = pathname.match(/^\/(id|en|ar)/);
+    const localeMatch = pathname.match(/^\/(id|en)/);
     const locale = localeMatch ? localeMatch[0] : "/id";
 
     // Ensure locale doesn't have double slash if it was empty string

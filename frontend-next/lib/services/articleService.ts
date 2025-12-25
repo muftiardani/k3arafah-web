@@ -41,8 +41,76 @@ export async function getArticleBySlug(slug: string): Promise<Article | null> {
       published_at: "2025-03-10T08:00:00Z",
       author: { name: "Ustadz Hanif" },
     },
+    {
+      id: 3,
+      slug: "prestasi-santri-tingkat-provinsi",
+      title: "Alhamdulillah, Santri K3 Arafah Raih Juara 1 MQK Provinsi",
+      excerpt: "Selamat kepada Ananda Fulan bin Fulan atas prestasinya...",
+      content: "<p>Detail prestasi...</p>",
+      image: "/images/prestasi.jpg",
+      published_at: "2025-02-15T08:00:00Z",
+      author: { name: "Admin" },
+    },
+    {
+      id: 4,
+      slug: "kunjungan-syeikh-mesir",
+      title: "Kunjungan Syeikh dari Universitas Al-Azhar Mesir",
+      excerpt: "Membangun kerjasama pendidikan internasional...",
+      content: "<p>Detail kunjungan...</p>",
+      image: "/images/kunjungan.jpg",
+      published_at: "2025-01-20T08:00:00Z",
+      author: { name: "Humas" },
+    },
   ];
 
   const article = articles.find((a) => a.slug === slug);
   return article || null;
+}
+
+export async function getAllArticles(): Promise<Article[]> {
+  // Simulate API delay
+  await new Promise((resolve) => setTimeout(resolve, 500));
+
+  return [
+    {
+      id: 1,
+      slug: "penerimaan-santri-baru-2025",
+      title: "Penerimaan Santri Baru Tahun Ajaran 2025/2026",
+      excerpt: "Pondok Pesantren K3 Arafah membuka pendaftaran santri baru...",
+      content: "<p>Detail konten pendaftaran...</p>",
+      image: "/images/psb-banner.jpg",
+      published_at: "2025-01-01T08:00:00Z",
+      author: { name: "Admin" },
+    },
+    {
+      id: 2,
+      slug: "kegiatan-ramadhan-di-pesantren",
+      title: "Semarak Kegiatan Ramadhan di Pesantren",
+      excerpt: "Berbagai kegiatan positif mengisi bulan suci Ramadhan...",
+      content: "<p>Detail kegiatan ramadhan...</p>",
+      image: "/images/ramadhan.jpg",
+      published_at: "2025-03-10T08:00:00Z",
+      author: { name: "Ustadz Hanif" },
+    },
+    {
+      id: 3,
+      slug: "prestasi-santri-tingkat-provinsi",
+      title: "Alhamdulillah, Santri K3 Arafah Raih Juara 1 MQK Provinsi",
+      excerpt: "Selamat kepada Ananda Fulan bin Fulan atas prestasinya...",
+      content: "<p>Detail prestasi...</p>",
+      image: "/images/prestasi.jpg",
+      published_at: "2025-02-15T08:00:00Z",
+      author: { name: "Admin" },
+    },
+    {
+      id: 4,
+      slug: "kunjungan-syeikh-mesir",
+      title: "Kunjungan Syeikh dari Universitas Al-Azhar Mesir",
+      excerpt: "Membangun kerjasama pendidikan internasional...",
+      content: "<p>Detail kunjungan...</p>",
+      image: "/images/kunjungan.jpg",
+      published_at: "2025-01-20T08:00:00Z",
+      author: { name: "Humas" },
+    },
+  ];
 }
