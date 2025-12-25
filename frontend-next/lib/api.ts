@@ -1,8 +1,11 @@
 import axios from "axios";
 import { useUIStore } from "@/store/useUIStore";
+import { BACKEND_API_URL } from "@/lib/config";
 
-// Point to Next.js API Routes (Proxy)
-const API_URL = "/api";
+const IS_SERVER = typeof window === "undefined";
+
+// Use absolute URL on Server (Backend Direct), Relative Proxy on Client
+const API_URL = IS_SERVER ? BACKEND_API_URL : "/api";
 
 export type ApiResponse<T = unknown> = {
   status: number;
@@ -20,11 +23,16 @@ const api = axios.create({
 // Request interceptor
 api.interceptors.request.use(
   (config) => {
-    useUIStore.getState().setLoading(true);
+    // Only toggle global loading spinner on Client Side
+    if (!IS_SERVER) {
+      useUIStore.getState().setLoading(true);
+    }
     return config;
   },
   (error) => {
-    useUIStore.getState().setLoading(false);
+    if (!IS_SERVER) {
+      useUIStore.getState().setLoading(false);
+    }
     return Promise.reject(error);
   }
 );
@@ -32,14 +40,16 @@ api.interceptors.request.use(
 // Response interceptor for error handling
 api.interceptors.response.use(
   (response) => {
-    useUIStore.getState().setLoading(false);
+    if (!IS_SERVER) {
+      useUIStore.getState().setLoading(false);
+    }
     return response;
   },
   (error) => {
-    useUIStore.getState().setLoading(false);
-    // Optional: Handle 401 globally by redirecting to /login
-    if (error.response && error.response.status === 401) {
-      if (typeof window !== "undefined") {
+    if (!IS_SERVER) {
+      useUIStore.getState().setLoading(false);
+      // Optional: Handle 401 globally by redirecting to /login
+      if (error.response && error.response.status === 401) {
         window.location.href = "/login";
       }
     }

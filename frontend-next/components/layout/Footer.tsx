@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import Image from "next/image";
 import { Facebook, Instagram, Youtube, MapPin, Phone, Mail } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { LanguageSwitcher } from "../LanguageSwitcher";
 
 export function Footer() {
   const pathname = usePathname();
@@ -136,10 +137,13 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="text-muted-foreground mt-12 border-t border-slate-200 pt-8 text-center text-sm dark:border-slate-800">
-          <p>
+        <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-slate-200 pt-8 text-center text-sm sm:flex-row dark:border-slate-800">
+          <p className="text-muted-foreground">
             &copy; {new Date().getFullYear()} {t("rights_reserved")}
           </p>
+          <div className="hidden sm:block">
+            <LanguageSwitcher />
+          </div>
         </div>
       </div>
     </footer>

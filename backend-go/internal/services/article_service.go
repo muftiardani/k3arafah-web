@@ -65,19 +65,8 @@ func (s *articleService) GetAllArticles(ctx context.Context) ([]models.Article, 
 
 func (s *articleService) GetAllArticlesPaginated(ctx context.Context, page, limit int) ([]models.Article, int64, error) {
 	var articles []models.Article
-	// We cache only first page for performance boost on landing page
-	// or caching all pages with shorter TTL
 	key := fmt.Sprintf("articles:page:%d:limit:%d", page, limit)
 
-	// Attempt to get from cache (we need a struct that holds items + total to cache properly)
-	// But since the return signature is separate, we might skip caching for complex pagination 
-	// or cache specifically items and total.
-	
-	// For simplicity in this iteration, let's cache the whole result struct if we defined one, 
-	// but here we return (items, total).
-	// Let's Skip caching for pagination for a moment or implement it properly.
-	// Implementing simple caching:
-	
 	type CachedResult struct {
 		Articles []models.Article
 		Total    int64
@@ -158,8 +147,6 @@ func (s *articleService) DeleteArticle(ctx context.Context, id uint) error {
 	if err == nil {
 		s.cache.Delete(utils.CacheKeyArticlesAll)
 		s.cache.Delete(fmt.Sprintf(utils.CacheKeyArticlesIDPattern, id))
-		// For simplicity, invalidate all slug caches or requires fetching before delete.
-		// Using pattern delete for safety here.
 		s.cache.DeleteByPattern("articles:slug:*")
         s.cache.DeleteByPattern("articles:page:*")
 	}

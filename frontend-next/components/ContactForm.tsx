@@ -54,7 +54,7 @@ export default function ContactForm() {
     setIsSubmitting(true);
     // Simulate API call
     await new Promise((resolve) => setTimeout(resolve, 1000));
-    console.log(values);
+
     toast.success("Pesan Anda telah terkirim!");
     form.reset();
     setIsSubmitting(false);

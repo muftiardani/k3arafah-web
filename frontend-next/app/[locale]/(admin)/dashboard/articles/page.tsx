@@ -232,7 +232,7 @@ function ArticlesTable({
               </TableCell>
               <TableCell className="flex justify-end gap-2 text-right">
                 <Button variant="ghost" size="icon" asChild>
-                  <Link href={`/articles/edit/${item.id}`}>
+                  <Link href={`/dashboard/articles/edit/${item.id}`}>
                     {" "}
                     {/* Assuming edit page exists or will exist, keeping link clean */}
                     <Pencil className="text-muted-foreground hover:text-foreground h-4 w-4" />

@@ -2,7 +2,6 @@ import api from "@/lib/api";
 import axios from "axios";
 import { notFound } from "next/navigation";
 
-// Tipe data sesuai response JSON dari Backend Go
 type BackendArticle = {
   id: number;
   title: string;
@@ -20,7 +19,6 @@ type BackendArticle = {
   updated_at: string;
 };
 
-// Tipe data yang digunakan oleh UI Frontend
 export type Article = {
   id: number;
   slug: string;
@@ -54,9 +52,6 @@ export type PaginatedResponse<T> = {
   meta: PaginationMeta;
 };
 
-/**
- * Helper untuk membersihkan tag HTML dan memotong text untuk excerpt
- */
 function createExcerpt(htmlContent: string, maxLength: number = 150): string {
   if (!htmlContent) return "";
   // Hapus semua tag HTML
@@ -75,9 +70,9 @@ function transformArticle(item: BackendArticle): Article {
     title: item.title,
     excerpt: createExcerpt(item.content),
     content: item.content,
-    image: item.thumbnail_url || "/images/placeholder.jpg", // Fallback image
+    image: item.thumbnail_url || "/images/placeholder.jpg",
     is_published: item.is_published,
-    published_at: item.created_at, // Menggunakan created_at sebagai published_at
+    published_at: item.created_at,
     author_id: item.author_id,
     created_at: item.created_at,
     updated_at: item.updated_at,
@@ -94,7 +89,6 @@ function transformArticle(item: BackendArticle): Article {
 export async function getAllArticles(): Promise<Article[]> {
   try {
     const response = await api.get("/articles");
-    // Asumsi response backend: { status: true, message: "...", data: [...] }
     if (response.data && Array.isArray(response.data.data)) {
       return response.data.data.map(transformArticle);
     }
@@ -119,7 +113,6 @@ export async function getPaginatedArticles(
         meta: resData.meta,
       };
     }
-    // Fallback if structure mismatch
     return { items: [], meta: { page, limit, total_items: 0, total_pages: 0 } };
   } catch (error) {
     console.error("Failed to fetch paginated articles:", error);

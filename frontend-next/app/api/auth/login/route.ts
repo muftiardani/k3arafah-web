@@ -43,7 +43,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Login Proxy Error:", error);
-    // console.log("Target API URL used:", apiUrl); // apiUrl is not in scope here, need to move it up or re-log if needed, but error log should suffice for fetch issues.
+
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }

@@ -67,7 +67,6 @@ func (h *ArticleHandler) GetAll(c *gin.Context) {
 		return
 	}
 
-	// Legacy behavior: Fetch All
 	articles, err := h.service.GetAllArticles(c.Request.Context())
 	if err != nil {
 		utils.ResponseWithError(c, err)

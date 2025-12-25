@@ -19,7 +19,6 @@ export default function ArticlesContent({ initialArticles = [] }: ArticlesConten
   const [page, setPage] = useState(1);
   const LIMIT = 6;
 
-  // React Query Implementation
   const { data, isLoading, isError, isPlaceholderData } = useQuery({
     queryKey: ["articles", page],
     queryFn: () => getPaginatedArticles(page, LIMIT),
@@ -68,7 +67,6 @@ export default function ArticlesContent({ initialArticles = [] }: ArticlesConten
       <section className="py-16 md:py-24">
         <div className="container px-4 md:px-6">
           {isLoading ? (
-            // Loading Skeleton
             <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
               {[1, 2, 3, 4, 5, 6].map((i) => (
                 <div
@@ -149,7 +147,6 @@ export default function ArticlesContent({ initialArticles = [] }: ArticlesConten
                 ))}
               </motion.div>
 
-              {/* Pagination Controls */}
               {meta && meta.total_pages > 1 && (
                 <div className="mt-16 flex items-center justify-center gap-4">
                   <button
