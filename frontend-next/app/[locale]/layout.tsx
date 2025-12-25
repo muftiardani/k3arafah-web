@@ -81,9 +81,15 @@ export const metadata: Metadata = {
     description: "Membangun Generasi Qur'ani yang Berakhlak Mulia",
     images: ["/og-image.png"],
   },
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "K3 Arafah",
+  },
   icons: {
     icon: "/favicon.ico",
     shortcut: "/favicon-16x16.png",
-    apple: "/apple-touch-icon.png",
+    apple: "/apple-touch-icon.png", // Ensure this image exists or use logo.png
   },
 };

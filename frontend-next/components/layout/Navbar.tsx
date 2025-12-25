@@ -7,7 +7,7 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { LanguageSwitcher } from "../LanguageSwitcher";
 import { usePathname } from "next/navigation";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
 import Image from "next/image";
 
 export function Navbar() {
@@ -103,6 +103,7 @@ export function Navbar() {
               </Button>
             </SheetTrigger>
             <SheetContent side="left" className="w-[300px] sm:w-[400px]">
+              <SheetTitle className="sr-only">Mobile Menu</SheetTitle>
               <div className="flex flex-col gap-6 py-6">
                 <Link
                   href="/"

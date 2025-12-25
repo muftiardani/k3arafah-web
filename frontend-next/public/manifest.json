@@ -1,0 +1,21 @@
+{
+  "name": "Pondok Pesantren K3 Arafah",
+  "short_name": "K3 Arafah",
+  "description": "Membangun Generasi Qur'ani yang Berakhlak Mulia",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#16a34a",
+  "icons": [
+    {
+      "src": "/logo.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/logo.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
