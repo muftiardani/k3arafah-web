@@ -17,6 +17,7 @@ import { Plus, Pencil, Trash2, Search, FileText, Globe, Lock } from "lucide-reac
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { useTranslations, useLocale } from "next-intl";
 
 interface Article {
   id: number;
@@ -27,6 +28,8 @@ interface Article {
 }
 
 export default function ArticlesPage() {
+  const t = useTranslations("Dashboard.ArticlesPage");
+  const locale = useLocale();
   const [articles, setArticles] = useState<Article[]>([]);
   // const [filteredArticles, setFilteredArticles] = useState<Article[]>([]); // Derived state, use useMemo instead
   const [loading, setLoading] = useState(true);
@@ -61,13 +64,13 @@ export default function ArticlesPage() {
   });
 
   const deleteArticle = async (id: number) => {
-    if (!confirm("Are you sure you want to delete this article?")) return;
+    if (!confirm(t("delete_confirm"))) return;
     try {
       await api.delete(`/articles/${id}`);
-      toast.success("Artikel berhasil dihapus");
+      toast.success(t("toast_deleted"));
       fetchArticles(); // Refresh
     } catch {
-      toast.error("Gagal menghapus artikel");
+      toast.error(t("toast_failed"));
     }
   };
 
@@ -87,12 +90,12 @@ export default function ArticlesPage() {
     <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Berita & Artikel</h1>
-          <p className="text-muted-foreground">Kelola konten berita dan artikel untuk website.</p>
+          <h1 className="text-2xl font-bold tracking-tight">{t("title")}</h1>
+          <p className="text-muted-foreground">{t("description")}</p>
         </div>
         <Button asChild>
           <Link href="/articles/create">
-            <Plus className="mr-2 h-4 w-4" /> Tambah Artikel
+            <Plus className="mr-2 h-4 w-4" /> {t("add_new")}
           </Link>
         </Button>
       </div>
@@ -113,7 +116,7 @@ export default function ArticlesPage() {
                     activeTab === "all" ? "bg-background hover:bg-background shadow-sm" : ""
                   }
                 >
-                  Semua
+                  {t("tabs.all")}
                 </Button>
                 <Button
                   variant={activeTab === "published" ? "secondary" : "ghost"}
@@ -123,7 +126,7 @@ export default function ArticlesPage() {
                     activeTab === "published" ? "bg-background hover:bg-background shadow-sm" : ""
                   }
                 >
-                  Published
+                  {t("tabs.published")}
                 </Button>
                 <Button
                   variant={activeTab === "draft" ? "secondary" : "ghost"}
@@ -133,7 +136,7 @@ export default function ArticlesPage() {
                     activeTab === "draft" ? "bg-background hover:bg-background shadow-sm" : ""
                   }
                 >
-                  Draft
+                  {t("tabs.draft")}
                 </Button>
               </div>
 
@@ -141,7 +144,7 @@ export default function ArticlesPage() {
                 <Search className="text-muted-foreground absolute top-2.5 left-2.5 h-4 w-4" />
                 <Input
                   type="search"
-                  placeholder="Cari judul artikel..."
+                  placeholder={t("search")}
                   className="pl-8"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
@@ -149,7 +152,12 @@ export default function ArticlesPage() {
               </div>
             </div>
 
-            <ArticlesTable articles={filteredArticles} onDelete={deleteArticle} />
+            <ArticlesTable
+              articles={filteredArticles}
+              onDelete={deleteArticle}
+              t={t}
+              locale={locale}
+            />
           </div>
         </CardContent>
       </Card>
@@ -160,15 +168,19 @@ export default function ArticlesPage() {
 function ArticlesTable({
   articles,
   onDelete,
+  t,
+  locale,
 }: {
   articles: Article[];
   onDelete: (id: number) => void;
+  t: any;
+  locale: string;
 }) {
   if (articles.length === 0) {
     return (
       <div className="text-muted-foreground flex flex-col items-center justify-center py-12 text-center">
         <FileText className="mb-4 h-12 w-12 opacity-20" />
-        <p>Tidak ada artikel yang ditemukan.</p>
+        <p>{t("empty")}</p>
       </div>
     );
   }
@@ -178,10 +190,10 @@ function ArticlesTable({
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead className="w-[400px]">Judul</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead>Tanggal</TableHead>
-            <TableHead className="text-right">Aksi</TableHead>
+            <TableHead className="w-[400px]">{t("table.title")}</TableHead>
+            <TableHead>{t("table.status")}</TableHead>
+            <TableHead>{t("table.date")}</TableHead>
+            <TableHead className="text-right">{t("table.action")}</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -202,17 +214,17 @@ function ArticlesTable({
                 >
                   {item.is_published ? (
                     <div className="flex items-center gap-1">
-                      <Globe className="h-3 w-3" /> Published
+                      <Globe className="h-3 w-3" /> {t("status.published")}
                     </div>
                   ) : (
                     <div className="flex items-center gap-1">
-                      <Lock className="h-3 w-3" /> Draft
+                      <Lock className="h-3 w-3" /> {t("status.draft")}
                     </div>
                   )}
                 </Badge>
               </TableCell>
               <TableCell className="text-muted-foreground">
-                {new Date(item.created_at).toLocaleDateString("id-ID", {
+                {new Date(item.created_at).toLocaleDateString(locale === "en" ? "en-US" : "id-ID", {
                   day: "numeric",
                   month: "short",
                   year: "numeric",

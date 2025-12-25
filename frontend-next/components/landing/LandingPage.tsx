@@ -6,13 +6,7 @@ import { Link } from "@/navigation";
 import { ArrowRight, BookOpen, GraduationCap, Calendar } from "lucide-react";
 import { useTranslations } from "next-intl";
 
-interface Article {
-  id: number;
-  title: string;
-  content: string;
-  is_published: boolean;
-  created_at: string;
-}
+import { Article } from "@/lib/services/articleService";
 
 interface LandingPageProps {
   articles: Article[];
@@ -298,19 +292,27 @@ export default function LandingPage({ articles }: LandingPageProps) {
                     key={article.id}
                     className="group bg-card relative flex flex-col space-y-3 rounded-lg border p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
                   >
+                    <Link href={`/articles/${article.slug}`} className="absolute inset-0 z-10">
+                      <span className="sr-only">Read more</span>
+                    </Link>
                     <div className="flex items-center gap-2 text-sm text-emerald-600 dark:text-emerald-400">
                       <Calendar className="h-4 w-4" />
-                      {new Date(article.created_at).toLocaleDateString("id-ID", {
-                        day: "numeric",
-                        month: "long",
-                        year: "numeric",
-                      })}
+                      {new Date(article.published_at || article.created_at).toLocaleDateString(
+                        "id-ID",
+                        {
+                          day: "numeric",
+                          month: "long",
+                          year: "numeric",
+                        }
+                      )}
                     </div>
                     <h3 className="line-clamp-2 text-lg font-semibold transition-colors group-hover:text-emerald-700">
                       {article.title}
                     </h3>
-                    <p className="text-muted-foreground line-clamp-3 text-sm">{article.content}</p>
-                    {/* Link to detail page later */}
+                    <p className="text-muted-foreground line-clamp-3 text-sm">
+                      {/* Strip HTML tags for preview if content is HTML */}
+                      {article.excerpt || article.content.replace(/<[^>]*>?/gm, "")}
+                    </p>
                   </motion.div>
                 ))
             )}

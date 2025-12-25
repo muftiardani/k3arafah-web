@@ -17,6 +17,7 @@ type Config struct {
 	RedisAddr     string `mapstructure:"REDIS_ADDR" validate:"required"`
 	RedisPassword string `mapstructure:"REDIS_PASSWORD"`
 	Environment   string `mapstructure:"ENV"`
+	AllowedOrigin string `mapstructure:"ALLOWED_ORIGIN"`
 }
 
 var AppConfig Config
@@ -38,6 +39,7 @@ func LoadConfig() error {
 
 	// 4. Set Defaults
 	viper.SetDefault("PORT", "8080")
+	viper.SetDefault("ALLOWED_ORIGIN", "http://localhost:3000") // Default for local dev
 
 	// 5. Unmarshal into Struct
 	if err := viper.Unmarshal(&AppConfig); err != nil {

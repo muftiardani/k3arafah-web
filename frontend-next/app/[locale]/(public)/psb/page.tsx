@@ -1,7 +1,6 @@
 import { Metadata } from "next";
-import PSBForm from "@/components/PSBForm";
-import { useTranslations } from "next-intl";
 import { getTranslations } from "next-intl/server";
+import PSBContent from "@/components/pages/PSBContent";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("PSB");
@@ -12,9 +11,5 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default function PSBPage() {
-  return (
-    <div className="container px-4 py-10 md:px-6">
-      <PSBForm />
-    </div>
-  );
+  return <PSBContent />;
 }

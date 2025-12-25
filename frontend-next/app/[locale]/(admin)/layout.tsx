@@ -19,6 +19,7 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 
 // Define menu item interface
 interface MenuItem {
@@ -34,7 +35,9 @@ interface MenuGroup {
 }
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
-  // ... (rest of component)
+  const t = useTranslations("Dashboard.Nav");
+  // ... (rest of component logic remains similar but we need to pass translations down or use them here)
+  // Actually, since SidebarContent is defined in the same file, we can either pass t to it or just useTranslations inside it if we modify it to be a component that can use hooks (it is).
 
   const pathname = usePathname();
   const router = useRouter();
@@ -54,7 +57,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     // Clear local storage
     localStorage.removeItem("token");
     localStorage.removeItem("user");
-    router.push("/login"); // Updated redirect
+    router.push("/login");
   };
 
   return (
@@ -76,7 +79,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             </SheetContent>
           </Sheet>
           <div className="w-full flex-1">
-            <span className="font-semibold">K3 Arafah Admin</span>
+            <span className="font-semibold">{t("dashboard")} - Admin</span>
           </div>
         </header>
         <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6">{children}</main>
@@ -94,55 +97,57 @@ function SidebarContent({
   handleLogout: () => void;
   user: { username: string; role: string } | null;
 }) {
+  const t = useTranslations("Dashboard");
+
   const menuGroups: MenuGroup[] = [
     {
-      title: "Utama",
+      title: t("Groups.main"),
       items: [
         {
-          title: "Dashboard",
+          title: t("Nav.dashboard"),
           href: "/dashboard",
           icon: LayoutDashboard,
         },
       ],
     },
     {
-      title: "Akademik & Kesiswaan",
+      title: t("Groups.academic"),
       items: [
         {
-          title: "Data Santri",
+          title: t("Nav.students"),
           href: "/students",
           icon: GraduationCap,
         },
         {
-          title: "Pendaftar (PSB)",
+          title: t("Nav.registrants"),
           href: "/registrants",
           icon: Users,
         },
       ],
     },
     {
-      title: "Konten Website",
+      title: t("Groups.content"),
       items: [
         {
-          title: "Berita / Artikel",
+          title: t("Nav.articles"),
           href: "/dashboard/articles",
           icon: FileText,
         },
         {
-          title: "Galeri Kegiatan",
+          title: t("Nav.gallery"),
           href: "/gallery",
           icon: Images,
         },
       ],
     },
     {
-      title: "Sistem",
+      title: t("Groups.system"),
       items: [
         {
-          title: "Manajemen User",
+          title: t("Nav.users"),
           href: "/users",
           icon: ShieldAlert,
-          role: "super_admin", // Only show if role matches
+          role: "super_admin",
         },
       ],
     },
@@ -213,7 +218,7 @@ function SidebarContent({
           <div className="flex-1 overflow-hidden">
             <p className="truncate text-sm font-medium">{user?.username || "Admin"}</p>
             <p className="text-muted-foreground truncate text-xs capitalize">
-              {user?.role?.replace("_", " ") || "Administrator"}
+              {user?.role ? t(("User." + user.role) as any) : t("User.admin")}
             </p>
           </div>
         </div>
@@ -223,7 +228,7 @@ function SidebarContent({
           size="sm"
           className="w-full justify-start"
         >
-          <LogOut className="mr-2 h-4 w-4" /> Keluar
+          <LogOut className="mr-2 h-4 w-4" /> {t("Nav.logout")}
         </Button>
       </div>
     </div>

@@ -31,6 +31,8 @@ export function Footer() {
             <div className="flex gap-4 pt-2">
               <Link
                 href="#"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="rounded-full bg-white p-2 text-emerald-600 shadow-sm transition-colors hover:bg-emerald-600 hover:text-white dark:bg-slate-900 dark:text-emerald-500"
               >
                 <Instagram className="h-5 w-5" />
@@ -38,6 +40,8 @@ export function Footer() {
               </Link>
               <Link
                 href="#"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="rounded-full bg-white p-2 text-blue-600 shadow-sm transition-colors hover:bg-blue-600 hover:text-white dark:bg-slate-900 dark:text-blue-500"
               >
                 <Facebook className="h-5 w-5" />
@@ -45,6 +49,8 @@ export function Footer() {
               </Link>
               <Link
                 href="#"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="rounded-full bg-white p-2 text-red-600 shadow-sm transition-colors hover:bg-red-600 hover:text-white dark:bg-slate-900 dark:text-red-500"
               >
                 <Youtube className="h-5 w-5" />
@@ -118,11 +124,13 @@ export function Footer() {
               </li>
               <li className="flex items-center gap-3">
                 <Phone className="h-5 w-5 shrink-0 text-emerald-600" />
-                <span>+62 812-3456-7890 {t("admin_psb")}</span>
+                <span>
+                  {t("phone")} {t("admin_psb")}
+                </span>
               </li>
               <li className="flex items-center gap-3">
                 <Mail className="h-5 w-5 shrink-0 text-emerald-600" />
-                <span>info@k3arafah.com</span>
+                <span>{t("email")}</span>
               </li>
             </ul>
           </div>

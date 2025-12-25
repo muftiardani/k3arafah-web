@@ -9,7 +9,8 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
 import { User, Lock, School, ArrowRight, Loader2 } from "lucide-react";
-import Link from "next/link";
+import { Link } from "@/navigation";
+import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
 import { useAuthStore } from "@/store/useAuthStore";
@@ -23,18 +24,19 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 
-const formSchema = z.object({
-  username: z.string().min(2, {
-    message: "Username minimal 2 karakter.",
-  }),
-  password: z.string().min(6, {
-    message: "Password minimal 6 karakter.",
-  }),
-});
-
 export default function AdminLogin() {
   const router = useRouter();
+  const t = useTranslations("Login");
   const [isLoading, setIsLoading] = useState(false);
+
+  const formSchema = z.object({
+    username: z.string().min(2, {
+      message: t("validation.username_min"),
+    }),
+    password: z.string().min(6, {
+      message: t("validation.password_min"),
+    }),
+  });
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -58,11 +60,11 @@ export default function AdminLogin() {
         .getState()
         .login({ id: 1, name: "Admin", email: values.username, role: "admin" });
 
-      toast.success("Login berhasil! Mengalihkan...");
+      toast.success(t("success"));
       router.push("/dashboard");
     } catch (error) {
       console.error(error);
-      toast.error("Username atau password salah");
+      toast.error(t("error"));
       setIsLoading(false); // Only stop loading on error, otherwise we navigate
     }
   }
@@ -80,16 +82,13 @@ export default function AdminLogin() {
           <div className="bg-primary/20 mr-2 flex h-8 w-8 items-center justify-center rounded-lg backdrop-blur-sm">
             <School className="text-primary-foreground h-5 w-5" />
           </div>
-          K3 Arafah Admin
+          {t("admin_badge")}
         </div>
 
         <div className="relative z-20 mt-auto">
           <blockquote className="space-y-2">
-            <p className="text-lg">
-              &ldquo;Pendidikan adalah senjata paling ampuh yang dapat Anda gunakan untuk mengubah
-              dunia.&rdquo;
-            </p>
-            <footer className="text-sm text-zinc-400">Nelson Mandela</footer>
+            <p className="text-lg">&ldquo;{t("quote")}&rdquo;</p>
+            <footer className="text-sm text-zinc-400">{t("quote_author")}</footer>
           </blockquote>
         </div>
       </div>
@@ -111,10 +110,8 @@ export default function AdminLogin() {
             transition={{ duration: 0.5 }}
             className="flex flex-col space-y-2 text-center"
           >
-            <h1 className="text-2xl font-semibold tracking-tight">Selamat Datang Kembali</h1>
-            <p className="text-muted-foreground text-sm">
-              Masukan kredensial Anda untuk mengakses dashboard.
-            </p>
+            <h1 className="text-2xl font-semibold tracking-tight">{t("hello")}</h1>
+            <p className="text-muted-foreground text-sm">{t("subtitle")}</p>
           </motion.div>
 
           <motion.div
@@ -129,7 +126,7 @@ export default function AdminLogin() {
                   name="username"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Username</FormLabel>
+                      <FormLabel>{t("username_label")}</FormLabel>
                       <FormControl>
                         <div className="relative">
                           <User className="text-muted-foreground absolute top-2.5 left-3 h-4 w-4" />
@@ -145,7 +142,7 @@ export default function AdminLogin() {
                   name="password"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Password</FormLabel>
+                      <FormLabel>{t("password_label")}</FormLabel>
                       <FormControl>
                         <div className="relative">
                           <Lock className="text-muted-foreground absolute top-2.5 left-3 h-4 w-4" />
@@ -160,11 +157,11 @@ export default function AdminLogin() {
                   {isLoading ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Signing In...
+                      {t("btn_submitting")}
                     </>
                   ) : (
                     <>
-                      Sign In <ArrowRight className="ml-2 h-4 w-4" />
+                      {t("btn_submit")} <ArrowRight className="ml-2 h-4 w-4" />
                     </>
                   )}
                 </Button>
@@ -174,7 +171,7 @@ export default function AdminLogin() {
 
           <p className="text-muted-foreground px-8 text-center text-sm">
             <Link href="/" className="hover:text-brand underline underline-offset-4">
-              Kembali ke Beranda
+              {t("back_home")}
             </Link>
           </p>
         </div>

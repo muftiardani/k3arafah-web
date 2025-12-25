@@ -6,7 +6,8 @@
     "programs": "Programs",
     "contact": "Contact",
     "psb": "Admission",
-    "login": "Login"
+    "login": "Login",
+    "language": "Language"
   },
   "Hero": {
     "title": "K3 Arafah Boarding School",
@@ -152,6 +153,12 @@
     "hero_desc": "Please contact us for more information regarding registration or boarding school programs.",
     "address_title": "Address",
     "address_desc": "Jl. Pesantren No. 123, Sukamaju Village, Cigudeg District, Bogor Regency, West Java 16680.",
+    "phone_1": "+62 812-3456-7890",
+    "phone_1_label": "(PSB Admin)",
+    "phone_2": "+62 898-7654-3210",
+    "phone_2_label": "(Foundation Office)",
+    "email_1": "info@k3arafah.com",
+    "email_2": "psb@k3arafah.com",
     "phone_title": "Phone / WhatsApp",
     "email_title": "Email",
     "hours_title": "Office Hours",
@@ -195,7 +202,9 @@
     "link_about": "About Us",
     "link_programs": "Educational Programs",
     "link_psb": "New Student Admission (PSB)",
-    "link_contact": "Contact Us"
+    "link_contact": "Contact Us",
+    "phone": "+62 812-3456-7890",
+    "email": "info@k3arafah.com"
   },
   "Home": {
     "gallery_title": "Activity Gallery",
@@ -203,5 +212,181 @@
     "news_title": "Boarding School News",
     "news_desc": "Latest news and activities from K3 Arafah Boarding School.",
     "news_empty": "No recent news yet."
+  },
+  "Login": {
+    "hello": "Welcome Back",
+    "subtitle": "Enter your credentials to access the dashboard.",
+    "admin_badge": "K3 Arafah Admin",
+    "quote": "Education is the most powerful weapon which you can use to change the world.",
+    "quote_author": "Nelson Mandela",
+    "username_label": "Username",
+    "password_label": "Password",
+    "btn_submit": "Sign In",
+    "btn_submitting": "Signing In...",
+    "back_home": "Back to Home",
+    "success": "Login successful! Redirecting...",
+    "error": "Invalid username or password",
+    "validation": {
+      "username_min": "Username must be at least 2 characters.",
+      "password_min": "Password must be at least 6 characters."
+    }
+  },
+  "Dashboard": {
+    "Nav": {
+      "dashboard": "Dashboard",
+      "students": "Students Data",
+      "registrants": "Registrants (PSB)",
+      "articles": "News / Articles",
+      "gallery": "Gallery",
+      "users": "User Management",
+      "logout": "Sign Out"
+    },
+    "Groups": {
+      "main": "Main",
+      "academic": "Academic & Students",
+      "content": "Website Content",
+      "system": "System"
+    },
+    "Stats": {
+      "total_students": "Total Students",
+      "active_students": "Active students",
+      "new_registrants": "New Registrants",
+      "need_verification": "Need verification",
+      "published_articles": "Articles Published",
+      "publications": "Published content",
+      "admin_system": "Admin System",
+      "active_managers": "Active managers"
+    },
+    "Registrants": {
+      "title": "Recent Registrants",
+      "description": "Newly registered students.",
+      "view_all": "View All",
+      "empty": "No recent registrants.",
+      "registered_on": "Registered: {date}"
+    },
+    "Status": {
+      "pending": "Pending",
+      "verified": "Verified",
+      "accepted": "Accepted",
+      "rejected": "Rejected"
+    },
+    "Actions": {
+      "title": "Quick Actions",
+      "description": "Shortcuts to frequently used features.",
+      "verify_registrants": "Verify Registrants",
+      "write_article": "Write Article",
+      "upload_gallery": "Upload Gallery",
+      "student_data": "Students Data"
+    },
+    "User": {
+      "admin": "Administrator",
+      "super_admin": "Super Admin"
+    },
+    "StudentsPage": {
+      "title": "Active Students Data",
+      "description": "Directory of accepted students.",
+      "search_placeholder": "Search name or NIS...",
+      "table": {
+        "nis": "NIS",
+        "name": "Full Name",
+        "class": "Class",
+        "entry_year": "Entry Year",
+        "parent_phone": "Guardian / Phone",
+        "status": "Status"
+      },
+      "active": "Active",
+      "empty": "No active students data.",
+      "loading": "Loading students..."
+    },
+    "RegistrantsPage": {
+      "title": "New Registrants Data",
+      "table": {
+        "name": "Full Name",
+        "gender": "Gender",
+        "status": "Status",
+        "date": "Reg. Date",
+        "action": "Action"
+      },
+      "gender": {
+        "male": "Male",
+        "female": "Female"
+      },
+      "verify": "Verify",
+      "empty": "No new registrants.",
+      "loading": "Loading registrants...",
+      "dialog": {
+        "title": "Verify & Accept Student",
+        "name": "Full Name",
+        "set_nis": "Set NIS",
+        "ph_nis": "Student ID Number",
+        "initial_class": "Initial Class",
+        "ph_class": "Example: 1A",
+        "entry_year": "Entry Year",
+        "cancel": "Cancel",
+        "submit": "Verify & Accept",
+        "toast_success": "Student verified & accepted successfully",
+        "toast_fail": "Failed to verify student",
+        "validation_required": "NIS and Class are required"
+      }
+    },
+    "ArticlesPage": {
+      "title": "News & Articles",
+      "description": "Manage news and articles content for the website.",
+      "add_new": "Add Article",
+      "tabs": {
+        "all": "All",
+        "published": "Published",
+        "draft": "Draft"
+      },
+      "search": "Search article title...",
+      "table": {
+        "title": "Title",
+        "status": "Status",
+        "date": "Date",
+        "action": "Action"
+      },
+      "status": {
+        "published": "Published",
+        "draft": "Draft"
+      },
+      "empty": "No articles found.",
+      "delete_confirm": "Are you sure you want to delete this article?",
+      "toast_deleted": "Article deleted successfully",
+      "toast_failed": "Failed to delete article"
+    },
+    "GalleryPage": {
+      "title": "Activity Gallery",
+      "description": "Manage boarding school photo albums.",
+      "add_new": "Create New Album",
+      "detail": "Detail & Photos",
+      "loading": "Loading galleries...",
+      "empty": "No gallery albums yet.",
+      "no_cover": "No Cover",
+      "no_desc": "No description",
+      "delete_confirm": "Are you sure? This will delete the album and all photos inside.",
+      "toast_deleted": "Gallery deleted",
+      "toast_failed": "Failed to delete gallery"
+    },
+    "UsersPage": {
+      "title": "User Management",
+      "description": "Manage user accounts with system access.",
+      "add_new": "Add User",
+      "loading": "Loading users...",
+      "empty": "No users found.",
+      "delete_confirm": "Are you sure you want to delete this user?",
+      "toast_deleted": "User deleted successfully",
+      "toast_failed": "Failed to delete user",
+      "table": {
+        "name": "Full Name",
+        "username": "Username",
+        "role": "Role",
+        "created_at": "Created At",
+        "action": "Action"
+      },
+      "roles": {
+        "admin": "Admin",
+        "super_admin": "Super Admin"
+      }
+    }
   }
 }

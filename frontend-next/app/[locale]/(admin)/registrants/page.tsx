@@ -23,6 +23,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { CheckCircle2, Loader2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 interface Santri {
   id: number;
@@ -33,6 +34,9 @@ interface Santri {
 }
 
 export default function RegistrantsPage() {
+  const t = useTranslations("Dashboard.RegistrantsPage");
+  // Also needed Dashboard.Status for status badges
+  const tStatus = useTranslations("Dashboard.Status");
   const [registrants, setRegistrants] = useState<Santri[]>([]);
   const [loading, setLoading] = useState(true);
   const [verifyOpen, setVerifyOpen] = useState(false);
@@ -73,19 +77,19 @@ export default function RegistrantsPage() {
 
   const handleVerify = async () => {
     if (!verifyData.nis || !verifyData.class) {
-      toast.error("NIS dan Kelas wajib diisi");
+      toast.error(t("dialog.validation_required"));
       return;
     }
 
     setVerifying(true);
     try {
       await api.put(`/psb/registrants/${selectedSantri?.id}/verify`, verifyData);
-      toast.success("Santri berhasil diverifikasi & diterima");
+      toast.success(t("dialog.toast_success"));
       setVerifyOpen(false);
       fetchRegistrants();
     } catch (error) {
       console.error(error);
-      toast.error("Gagal memverifikasi santri");
+      toast.error(t("dialog.toast_fail"));
     } finally {
       setVerifying(false);
     }
@@ -93,37 +97,39 @@ export default function RegistrantsPage() {
 
   return (
     <div className="flex flex-col gap-4">
-      <h1 className="text-lg font-semibold md:text-2xl">Data Pendaftar Baru</h1>
+      <h1 className="text-lg font-semibold md:text-2xl">{t("title")}</h1>
 
       <div className="bg-card rounded-md border">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Nama Lengkap</TableHead>
-              <TableHead>Gender</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Tanggal Daftar</TableHead>
-              <TableHead className="text-right">Aksi</TableHead>
+              <TableHead>{t("table.name")}</TableHead>
+              <TableHead>{t("table.gender")}</TableHead>
+              <TableHead>{t("table.status")}</TableHead>
+              <TableHead>{t("table.date")}</TableHead>
+              <TableHead className="text-right">{t("table.action")}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {loading ? (
               <TableRow>
                 <TableCell colSpan={5} className="py-10 text-center">
-                  Loading...
+                  {t("loading")}
                 </TableCell>
               </TableRow>
             ) : registrants.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={5} className="py-10 text-center">
-                  Belum ada pendaftar.
+                  {t("empty")}
                 </TableCell>
               </TableRow>
             ) : (
               registrants.map((item) => (
                 <TableRow key={item.id}>
                   <TableCell className="font-medium">{item.full_name}</TableCell>
-                  <TableCell>{item.gender === "L" ? "Laki-laki" : "Perempuan"}</TableCell>
+                  <TableCell>
+                    {item.gender === "L" ? t("gender.male") : t("gender.female")}
+                  </TableCell>
                   <TableCell>
                     <Badge
                       variant={
@@ -134,7 +140,8 @@ export default function RegistrantsPage() {
                             : "secondary"
                       }
                     >
-                      {item.status}
+                      {/* Use dynamic key based on status enum lowercased */}
+                      {tStatus(item.status.toLowerCase() as any)}
                     </Badge>
                   </TableCell>
                   <TableCell>{new Date(item.created_at).toLocaleDateString()}</TableCell>
@@ -147,7 +154,7 @@ export default function RegistrantsPage() {
                         onClick={() => handleOpenVerify(item)}
                       >
                         <CheckCircle2 className="h-4 w-4" />
-                        Verifikasi
+                        {t("verify")}
                       </Button>
                     )}
                   </TableCell>
@@ -161,31 +168,31 @@ export default function RegistrantsPage() {
       <Dialog open={verifyOpen} onOpenChange={setVerifyOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Verifikasi & Terima Santri</DialogTitle>
+            <DialogTitle>{t("dialog.title")}</DialogTitle>
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
-              <Label>Nama Lengkap</Label>
+              <Label>{t("dialog.name")}</Label>
               <Input value={selectedSantri?.full_name || ""} disabled />
             </div>
             <div className="grid gap-2">
-              <Label>Tetapkan NIS</Label>
+              <Label>{t("dialog.set_nis")}</Label>
               <Input
                 value={verifyData.nis}
                 onChange={(e) => setVerifyData({ ...verifyData, nis: e.target.value })}
-                placeholder="Nomor Induk Santri"
+                placeholder={t("dialog.ph_nis")}
               />
             </div>
             <div className="grid gap-2">
-              <Label>Kelas Awal</Label>
+              <Label>{t("dialog.initial_class")}</Label>
               <Input
                 value={verifyData.class}
                 onChange={(e) => setVerifyData({ ...verifyData, class: e.target.value })}
-                placeholder="Contoh: 1A"
+                placeholder={t("dialog.ph_class")}
               />
             </div>
             <div className="grid gap-2">
-              <Label>Tahun Masuk</Label>
+              <Label>{t("dialog.entry_year")}</Label>
               <Input
                 type="number"
                 value={verifyData.entry_year}
@@ -197,11 +204,11 @@ export default function RegistrantsPage() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setVerifyOpen(false)}>
-              Batal
+              {t("dialog.cancel")}
             </Button>
             <Button onClick={handleVerify} disabled={verifying}>
               {verifying && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Verifikasi & Terima
+              {t("dialog.submit")}
             </Button>
           </DialogFooter>
         </DialogContent>

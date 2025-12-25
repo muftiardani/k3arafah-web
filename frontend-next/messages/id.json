@@ -6,7 +6,8 @@
     "programs": "Program",
     "contact": "Kontak",
     "psb": "Pendaftaran",
-    "login": "Masuk"
+    "login": "Masuk",
+    "language": "Bahasa"
   },
   "Hero": {
     "title": "Pondok Pesantren K3 Arafah",
@@ -152,6 +153,12 @@
     "hero_desc": "Silakan hubungi kami untuk informasi lebih lanjut mengenai pendaftaran atau program pesantren.",
     "address_title": "Alamat",
     "address_desc": "Jl. Pesantren No. 123, Desa Sukamaju, Kecamatan Cigudeg, Kabupaten Bogor, Jawa Barat 16680.",
+    "phone_1": "+62 812-3456-7890",
+    "phone_1_label": "(Admin PSB)",
+    "phone_2": "+62 898-7654-3210",
+    "phone_2_label": "(Kantor Yayasan)",
+    "email_1": "info@k3arafah.com",
+    "email_2": "psb@k3arafah.com",
     "phone_title": "Telepon / WhatsApp",
     "email_title": "Email",
     "hours_title": "Jam Operasional Kantor",
@@ -195,7 +202,9 @@
     "link_about": "Tentang Kami",
     "link_programs": "Program Pendidikan",
     "link_psb": "Pendaftaran Santri Baru (PSB)",
-    "link_contact": "Hubungi Kami"
+    "link_contact": "Hubungi Kami",
+    "phone": "+62 812-3456-7890",
+    "email": "info@k3arafah.com"
   },
   "Home": {
     "gallery_title": "Galeri Aktivitas",
@@ -203,5 +212,181 @@
     "news_title": "Kabar Pesantren",
     "news_desc": "Berita dan kegiatan terbaru dari Pondok Pesantren K3 Arafah.",
     "news_empty": "Belum ada berita terbaru."
+  },
+  "Login": {
+    "hello": "Selamat Datang Kembali",
+    "subtitle": "Masukan kredensial Anda untuk mengakses dashboard.",
+    "admin_badge": "Admin K3 Arafah",
+    "quote": "Pendidikan adalah senjata paling ampuh yang dapat Anda gunakan untuk mengubah dunia.",
+    "quote_author": "Nelson Mandela",
+    "username_label": "Nama Pengguna",
+    "password_label": "Kata Sandi",
+    "btn_submit": "Masuk",
+    "btn_submitting": "Sedang Masuk...",
+    "back_home": "Kembali ke Beranda",
+    "success": "Login berhasil! Mengalihkan...",
+    "error": "Username atau password salah",
+    "validation": {
+      "username_min": "Username minimal 2 karakter.",
+      "password_min": "Password minimal 6 karakter."
+    }
+  },
+  "Dashboard": {
+    "Nav": {
+      "dashboard": "Dashboard",
+      "students": "Data Santri",
+      "registrants": "Pendaftar (PSB)",
+      "articles": "Berita / Artikel",
+      "gallery": "Galeri Kegiatan",
+      "users": "Manajemen User",
+      "logout": "Keluar"
+    },
+    "Groups": {
+      "main": "Utama",
+      "academic": "Akademik & Kesiswaan",
+      "content": "Konten Website",
+      "system": "Sistem"
+    },
+    "Stats": {
+      "total_students": "Total Santri",
+      "active_students": "Santri aktif",
+      "new_registrants": "Pendaftar Baru",
+      "need_verification": "Perlu verifikasi",
+      "published_articles": "Artikel Terbit",
+      "publications": "Konten publikasi",
+      "admin_system": "Admin System",
+      "active_managers": "Pengelola aktif"
+    },
+    "Registrants": {
+      "title": "Pendaftar Terbaru",
+      "description": "Calon santri yang baru mendaftar.",
+      "view_all": "Lihat Semua",
+      "empty": "Belum ada pendaftar terbaru.",
+      "registered_on": "Daftar: {date}"
+    },
+    "Status": {
+      "pending": "Menunggu",
+      "verified": "Terverifikasi",
+      "accepted": "Diterima",
+      "rejected": "Ditolak"
+    },
+    "Actions": {
+      "title": "Aksi Cepat",
+      "description": "Jalan pintas ke fitur yang sering digunakan.",
+      "verify_registrants": "Verifikasi Pendaftar",
+      "write_article": "Tulis Artikel",
+      "upload_gallery": "Upload Galeri",
+      "student_data": "Data Santri"
+    },
+    "User": {
+      "admin": "Administrator",
+      "super_admin": "Super Admin"
+    },
+    "StudentsPage": {
+      "title": "Data Santri Aktif",
+      "description": "Direktori santri yang telah diterima.",
+      "search_placeholder": "Cari nama atau NIS...",
+      "table": {
+        "nis": "NIS",
+        "name": "Nama Lengkap",
+        "class": "Kelas",
+        "entry_year": "Tahun Masuk",
+        "parent_phone": "Wali / No. HP",
+        "status": "Status"
+      },
+      "active": "Aktif",
+      "empty": "Tidak ada data santri aktif.",
+      "loading": "Memuat data santri..."
+    },
+    "RegistrantsPage": {
+      "title": "Data Pendaftar Baru",
+      "table": {
+        "name": "Nama Lengkap",
+        "gender": "Gender",
+        "status": "Status",
+        "date": "Tanggal Daftar",
+        "action": "Aksi"
+      },
+      "gender": {
+        "male": "Laki-laki",
+        "female": "Perempuan"
+      },
+      "verify": "Verifikasi",
+      "empty": "Belum ada pendaftar.",
+      "loading": "Memuat pendaftar...",
+      "dialog": {
+        "title": "Verifikasi & Terima Santri",
+        "name": "Nama Lengkap",
+        "set_nis": "Tetapkan NIS",
+        "ph_nis": "Nomor Induk Santri",
+        "initial_class": "Kelas Awal",
+        "ph_class": "Contoh: 1A",
+        "entry_year": "Tahun Masuk",
+        "cancel": "Batal",
+        "submit": "Verifikasi & Terima",
+        "toast_success": "Santri berhasil diverifikasi & diterima",
+        "toast_fail": "Gagal memverifikasi santri",
+        "validation_required": "NIS dan Kelas wajib diisi"
+      }
+    },
+    "ArticlesPage": {
+      "title": "Berita & Artikel",
+      "description": "Kelola konten berita dan artikel untuk website.",
+      "add_new": "Tambah Artikel",
+      "tabs": {
+        "all": "Semua",
+        "published": "Terbit",
+        "draft": "Draft"
+      },
+      "search": "Cari judul artikel...",
+      "table": {
+        "title": "Judul",
+        "status": "Status",
+        "date": "Tanggal",
+        "action": "Aksi"
+      },
+      "status": {
+        "published": "Terbit",
+        "draft": "Draft"
+      },
+      "empty": "Tidak ada artikel yang ditemukan.",
+      "delete_confirm": "Apakah Anda yakin ingin menghapus artikel ini?",
+      "toast_deleted": "Artikel berhasil dihapus",
+      "toast_failed": "Gagal menghapus artikel"
+    },
+    "GalleryPage": {
+      "title": "Galeri Kegiatan",
+      "description": "Kelola album foto kegiatan pondok.",
+      "add_new": "Buat Album Baru",
+      "detail": "Detail & Foto",
+      "loading": "Memuat galeri...",
+      "empty": "Belum ada album galeri.",
+      "no_cover": "Tanpa Sampul",
+      "no_desc": "Tidak ada deskripsi",
+      "delete_confirm": "Apakah Anda yakin? Ini akan menghapus album beserta semua foto di dalamnya.",
+      "toast_deleted": "Galeri dihapus",
+      "toast_failed": "Gagal menghapus galeri"
+    },
+    "UsersPage": {
+      "title": "Manajemen Pengguna",
+      "description": "Kelola akun pengguna yang memiliki akses ke sistem.",
+      "add_new": "Tambah User",
+      "loading": "Memuat pengguna...",
+      "empty": "Tidak ada pengguna ditemukan.",
+      "delete_confirm": "Apakah Anda yakin ingin menghapus user ini?",
+      "toast_deleted": "User berhasil dihapus",
+      "toast_failed": "Gagal menghapus user",
+      "table": {
+        "name": "Nama Lengkap",
+        "username": "Username",
+        "role": "Role",
+        "created_at": "Dibuat Pada",
+        "action": "Aksi"
+      },
+      "roles": {
+        "admin": "Admin",
+        "super_admin": "Super Admin"
+      }
+    }
   }
 }

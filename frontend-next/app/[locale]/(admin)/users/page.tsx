@@ -31,6 +31,7 @@ import {
 } from "@/components/ui/select";
 import { toast } from "sonner";
 import { Loader2, Plus, Trash2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 interface User {
   id: number;
@@ -40,6 +41,7 @@ interface User {
 }
 
 export default function UsersPage() {
+  const t = useTranslations("Dashboard.UsersPage");
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [createOpen, setCreateOpen] = useState(false);
@@ -89,13 +91,13 @@ export default function UsersPage() {
   };
 
   const handleDelete = async (id: number) => {
-    if (!confirm("Yakin ingin menghapus user ini?")) return;
+    if (!confirm(t("delete_confirm"))) return;
     try {
       await api.delete(`/admins/${id}`);
-      toast.success("Admin dihapus");
+      toast.success(t("toast_deleted"));
       fetchUsers();
     } catch {
-      toast.error("Gagal menghapus admin");
+      toast.error(t("toast_failed"));
     }
   };
 
@@ -103,11 +105,11 @@ export default function UsersPage() {
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-lg font-semibold md:text-2xl">Manajemen Pengguna</h1>
-          <p className="text-muted-foreground text-sm">Kelola akses admin dan super admin.</p>
+          <h1 className="text-lg font-semibold md:text-2xl">{t("title")}</h1>
+          <p className="text-muted-foreground text-sm">{t("description")}</p>
         </div>
         <Button onClick={() => setCreateOpen(true)}>
-          <Plus className="mr-2 h-4 w-4" /> Tambah Admin
+          <Plus className="mr-2 h-4 w-4" /> {t("add_new")}
         </Button>
       </div>
 
@@ -115,23 +117,23 @@ export default function UsersPage() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Username</TableHead>
-              <TableHead>Role</TableHead>
-              <TableHead>Dibuat Pada</TableHead>
-              <TableHead className="text-right">Aksi</TableHead>
+              <TableHead>{t("table.username")}</TableHead>
+              <TableHead>{t("table.role")}</TableHead>
+              <TableHead>{t("table.created_at")}</TableHead>
+              <TableHead className="text-right">{t("table.action")}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {loading ? (
               <TableRow>
                 <TableCell colSpan={4} className="py-10 text-center">
-                  Loading...
+                  {t("loading")}
                 </TableCell>
               </TableRow>
             ) : users.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={4} className="py-10 text-center">
-                  Tidak ada data.
+                  {t("empty")}
                 </TableCell>
               </TableRow>
             ) : (
@@ -140,7 +142,7 @@ export default function UsersPage() {
                   <TableCell className="font-medium">{item.username}</TableCell>
                   <TableCell>
                     <Badge variant={item.role === "super_admin" ? "destructive" : "secondary"}>
-                      {item.role}
+                      {t(`roles.${item.role}`)}
                     </Badge>
                   </TableCell>
                   <TableCell>{new Date(item.created_at).toLocaleDateString()}</TableCell>
@@ -150,6 +152,7 @@ export default function UsersPage() {
                       size="icon"
                       onClick={() => handleDelete(item.id)}
                       className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                      title={t("table.action")}
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>

@@ -12,6 +12,7 @@ import {
   CheckCircle2,
   XCircle,
 } from "lucide-react";
+import { getTranslations } from "next-intl/server"; // Server Component Translation
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -69,7 +70,17 @@ async function getDashboardData() {
   }
 }
 
-export default async function DashboardPage() {
+// Need to accept params for locale in Server Component
+type Props = {
+  params: Promise<{ locale: string }>;
+};
+
+export default async function DashboardPage({ params }: Props) {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "Dashboard" });
+
+  // NOTE: getDashboardData is independent of locale unless backend supports it.
+  // We assume backend data is raw/neutral or handle basic translation here.
   const { stats, registrants } = await getDashboardData();
   const recentRegistrants = registrants.sort((a, b) => b.id - a.id).slice(0, 5);
 
@@ -81,25 +92,25 @@ export default async function DashboardPage() {
             variant="outline"
             className="bg-yellow-500/10 text-yellow-500 hover:bg-yellow-500/20"
           >
-            <Clock className="mr-1 h-3 w-3" /> Menunggu
+            <Clock className="mr-1 h-3 w-3" /> {t("Status.pending")}
           </Badge>
         );
       case "VERIFIED":
         return (
           <Badge variant="outline" className="bg-blue-500/10 text-blue-500 hover:bg-blue-500/20">
-            <CheckCircle2 className="mr-1 h-3 w-3" /> Terverifikasi
+            <CheckCircle2 className="mr-1 h-3 w-3" /> {t("Status.verified")}
           </Badge>
         );
       case "ACCEPTED":
         return (
           <Badge variant="outline" className="bg-green-500/10 text-green-500 hover:bg-green-500/20">
-            <GraduationCap className="mr-1 h-3 w-3" /> Diterima
+            <GraduationCap className="mr-1 h-3 w-3" /> {t("Status.accepted")}
           </Badge>
         );
       case "REJECTED":
         return (
           <Badge variant="destructive">
-            <XCircle className="mr-1 h-3 w-3" /> Ditolak
+            <XCircle className="mr-1 h-3 w-3" /> {t("Status.rejected")}
           </Badge>
         );
       default:
@@ -115,28 +126,28 @@ export default async function DashboardPage() {
       {/* Stats Grid */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <StatsCard
-          title="Total Santri"
+          title={t("Stats.total_students")}
           value={stats?.total_santri || 0}
           icon={GraduationCap}
-          description="Santri aktif"
+          description={t("Stats.active_students")}
         />
         <StatsCard
-          title="Pendaftar Baru"
+          title={t("Stats.new_registrants")}
           value={recentRegistrants.length}
           icon={Users}
-          description="Perlu verifikasi"
+          description={t("Stats.need_verification")}
         />
         <StatsCard
-          title="Artikel Terbit"
+          title={t("Stats.published_articles")}
           value={stats?.total_articles || 0}
           icon={FileText}
-          description="Konten publikasi"
+          description={t("Stats.publications")}
         />
         <StatsCard
-          title="Admin System"
+          title={t("Stats.admin_system")}
           value={stats?.total_users || 0}
           icon={UserCog}
-          description="Pengelola aktif"
+          description={t("Stats.active_managers")}
         />
       </div>
 
@@ -146,12 +157,12 @@ export default async function DashboardPage() {
         <Card className="md:col-span-4 lg:col-span-5">
           <CardHeader className="flex flex-row items-center justify-between">
             <div>
-              <CardTitle>Pendaftar Terbaru</CardTitle>
-              <CardDescription>Calon santri yang baru mendaftar.</CardDescription>
+              <CardTitle>{t("Registrants.title")}</CardTitle>
+              <CardDescription>{t("Registrants.description")}</CardDescription>
             </div>
             <Button variant="outline" size="sm" asChild>
               <Link href="/registrants">
-                Lihat Semua <ArrowRight className="ml-2 h-4 w-4" />
+                {t("Registrants.view_all")} <ArrowRight className="ml-2 h-4 w-4" />
               </Link>
             </Button>
           </CardHeader>
@@ -159,7 +170,7 @@ export default async function DashboardPage() {
             <div className="space-y-6">
               {recentRegistrants.length === 0 ? (
                 <div className="text-muted-foreground py-8 text-center">
-                  Belum ada pendaftar terbaru.
+                  {t("Registrants.empty")}
                 </div>
               ) : (
                 recentRegistrants.map((registrant) => (
@@ -180,7 +191,11 @@ export default async function DashboardPage() {
                       <div className="space-y-1">
                         <p className="text-sm leading-none font-medium">{registrant.full_name}</p>
                         <p className="text-muted-foreground text-xs">
-                          Daftar: {new Date(registrant.created_at).toLocaleDateString("id-ID")}
+                          {t("Registrants.registered_on", {
+                            date: new Date(registrant.created_at).toLocaleDateString(
+                              locale === "en" ? "en-US" : "id-ID"
+                            ),
+                          })}
                         </p>
                       </div>
                     </div>
@@ -195,28 +210,28 @@ export default async function DashboardPage() {
         {/* Quick Actions */}
         <Card className="md:col-span-3 lg:col-span-2">
           <CardHeader>
-            <CardTitle>Aksi Cepat</CardTitle>
-            <CardDescription>Jalan pintas ke fitur yang sering digunakan.</CardDescription>
+            <CardTitle>{t("Actions.title")}</CardTitle>
+            <CardDescription>{t("Actions.description")}</CardDescription>
           </CardHeader>
           <CardContent className="grid gap-4">
             <Button className="w-full justify-start" asChild>
               <Link href="/registrants">
-                <Users className="mr-2 h-4 w-4" /> Verifikasi Pendaftar
+                <Users className="mr-2 h-4 w-4" /> {t("Actions.verify_registrants")}
               </Link>
             </Button>
             <Button variant="outline" className="w-full justify-start" asChild>
               <Link href="/articles?action=create">
-                <FileText className="mr-2 h-4 w-4" /> Tulis Artikel
+                <FileText className="mr-2 h-4 w-4" /> {t("Actions.write_article")}
               </Link>
             </Button>
             <Button variant="outline" className="w-full justify-start" asChild>
               <Link href="/gallery/create">
-                <ImageIcon className="mr-2 h-4 w-4" /> Upload Galeri
+                <ImageIcon className="mr-2 h-4 w-4" /> {t("Actions.upload_gallery")}
               </Link>
             </Button>
             <Button variant="outline" className="w-full justify-start" asChild>
               <Link href="/students">
-                <GraduationCap className="mr-2 h-4 w-4" /> Data Santri
+                <GraduationCap className="mr-2 h-4 w-4" /> {t("Actions.student_data")}
               </Link>
             </Button>
           </CardContent>

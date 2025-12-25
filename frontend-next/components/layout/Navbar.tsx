@@ -22,7 +22,7 @@ export function Navbar() {
 
   // Helper to determining active state
   // Helper to remove locale from path for checking
-  const pathWithoutLocale = pathname.replace(/^\/(id|en|ar)/, "") || "/";
+  const pathWithoutLocale = pathname.replace(/^\/(id|en)/, "") || "/";
 
   const isActive = (href: string) => {
     if (href === "/" && pathWithoutLocale === "/") return true;
@@ -138,7 +138,7 @@ export function Navbar() {
                 </nav>
                 <div className="mt-auto border-t pt-6">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium">Bahasa</span>
+                    <span className="text-sm font-medium">{t("language")}</span>
                     <LanguageSwitcher />
                   </div>
                 </div>

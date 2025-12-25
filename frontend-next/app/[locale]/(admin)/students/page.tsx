@@ -13,6 +13,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 interface Santri {
   id: number;
@@ -25,6 +26,7 @@ interface Santri {
 }
 
 export default function StudentsPage() {
+  const t = useTranslations("Dashboard.StudentsPage");
   const [students, setStudents] = useState<Santri[]>([]);
   const [filteredStudents, setFilteredStudents] = useState<Santri[]>([]);
   const [loading, setLoading] = useState(true);
@@ -66,8 +68,8 @@ export default function StudentsPage() {
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-lg font-semibold md:text-2xl">Data Santri Aktif</h1>
-          <p className="text-muted-foreground text-sm">Direktori santri yang telah diterima.</p>
+          <h1 className="text-lg font-semibold md:text-2xl">{t("title")}</h1>
+          <p className="text-muted-foreground text-sm">{t("description")}</p>
         </div>
       </div>
 
@@ -76,7 +78,7 @@ export default function StudentsPage() {
           <Search className="text-muted-foreground absolute top-2.5 left-2.5 h-4 w-4" />
           <Input
             type="search"
-            placeholder="Cari nama atau NIS..."
+            placeholder={t("search_placeholder")}
             className="pl-8"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -88,25 +90,25 @@ export default function StudentsPage() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>NIS</TableHead>
-              <TableHead>Nama Lengkap</TableHead>
-              <TableHead>Kelas</TableHead>
-              <TableHead>Tahun Masuk</TableHead>
-              <TableHead>Wali / No. HP</TableHead>
-              <TableHead>Status</TableHead>
+              <TableHead>{t("table.nis")}</TableHead>
+              <TableHead>{t("table.name")}</TableHead>
+              <TableHead>{t("table.class")}</TableHead>
+              <TableHead>{t("table.entry_year")}</TableHead>
+              <TableHead>{t("table.parent_phone")}</TableHead>
+              <TableHead>{t("table.status")}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {loading ? (
               <TableRow>
                 <TableCell colSpan={6} className="py-10 text-center">
-                  Loading...
+                  {t("loading")}
                 </TableCell>
               </TableRow>
             ) : filteredStudents.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={6} className="py-10 text-center">
-                  Tidak ada data santri aktif.
+                  {t("empty")}
                 </TableCell>
               </TableRow>
             ) : (
@@ -119,7 +121,7 @@ export default function StudentsPage() {
                   <TableCell>{item.parent_phone}</TableCell>
                   <TableCell>
                     <Badge variant="default" className="bg-green-600">
-                      Aktif
+                      {t("active")}
                     </Badge>
                   </TableCell>
                 </TableRow>

@@ -6,6 +6,7 @@ import { Toaster } from "@/components/ui/sonner";
 import QueryProvider from "@/components/providers/QueryProvider";
 import "../globals.css"; // Uppercase dir ..
 import { GlobalLoader } from "@/components/GlobalLoader";
+import { StructuredData } from "@/components/StructuredData";
 
 const outfit = Outfit({
   subsets: ["latin"],
@@ -35,6 +36,7 @@ export default async function LocaleLayout({
         <NextIntlClientProvider messages={messages}>
           <QueryProvider>
             <GlobalLoader />
+            <StructuredData />
             <main className="flex-1">{children}</main>
             <Toaster />
           </QueryProvider>
@@ -66,7 +68,7 @@ export const metadata: Metadata = {
     siteName: "Pondok Pesantren K3 Arafah",
     images: [
       {
-        url: "/og-image.jpg", // Pastikan file ini ada di public nanti
+        url: "/og-image.png",
         width: 1200,
         height: 630,
         alt: "Pondok Pesantren K3 Arafah",
@@ -77,7 +79,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Pondok Pesantren K3 Arafah",
     description: "Membangun Generasi Qur'ani yang Berakhlak Mulia",
-    images: ["/og-image.jpg"],
+    images: ["/og-image.png"],
   },
   icons: {
     icon: "/favicon.ico",

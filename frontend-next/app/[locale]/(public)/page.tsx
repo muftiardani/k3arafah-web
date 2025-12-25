@@ -1,24 +1,17 @@
 import LandingPage from "@/components/landing/LandingPage";
-import { Article } from "@/types";
-import { BACKEND_API_URL } from "@/lib/config";
+import { getAllArticles } from "@/lib/services/articleService";
+import { getTranslations } from "next-intl/server";
+import { Metadata } from "next";
 
-async function getArticles(): Promise<Article[]> {
-  try {
-    const res = await fetch(`${BACKEND_API_URL}/articles`, {
-      next: { revalidate: 60 },
-    });
-    if (!res.ok) {
-      return [];
-    }
-    const json = await res.json();
-    return json.data || [];
-  } catch {
-    return [];
-  }
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("Hero");
+  return {
+    title: t("title"),
+    description: t("subtitle"),
+  };
 }
 
-// Ensure params are handled as Promise
 export default async function Home() {
-  const articles = await getArticles();
+  const articles = await getAllArticles();
   return <LandingPage articles={articles} />;
 }
