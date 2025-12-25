@@ -5,8 +5,10 @@ import (
 	"backend-go/internal/repository"
 	"context"
 	"fmt"
-	"strings"
 	"time"
+
+	"github.com/gosimple/slug"
+	"github.com/microcosm-cc/bluemonday"
 )
 
 type ArticleService interface {
@@ -27,10 +29,12 @@ func NewArticleService(repo repository.ArticleRepository, cache CacheService) Ar
 }
 
 func (s *articleService) CreateArticle(ctx context.Context, article *models.Article) error {
-	// Simple slug generation
-	slug := strings.ToLower(strings.ReplaceAll(article.Title, " ", "-"))
-	slug = strings.ReplaceAll(slug, "?", "") // basic cleanup
-	article.Slug = slug
+	// Sanitize HTML input (XSS Protection)
+	p := bluemonday.UGCPolicy()
+	article.Content = p.Sanitize(article.Content)
+
+	// Robust slug generation
+	article.Slug = slug.Make(article.Title)
 	article.CreatedAt = time.Now()
 
 	err := s.repo.Create(ctx, article)
@@ -85,8 +89,12 @@ func (s *articleService) UpdateArticle(ctx context.Context, id uint, articleData
 	if err != nil {
 		return err
 	}
+	
+	// Sanitize HTML input
+	p := bluemonday.UGCPolicy()
+	
 	existing.Title = articleData.Title
-	existing.Content = articleData.Content
+	existing.Content = p.Sanitize(articleData.Content)
 	existing.ThumbnailURL = articleData.ThumbnailURL
 	existing.IsPublished = articleData.IsPublished
 

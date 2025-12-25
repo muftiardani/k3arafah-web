@@ -47,6 +47,7 @@ import (
 func main() {
 	// Parse Flags
 	migrateFlag := flag.Bool("migrate", false, "Run database migration")
+	forceFlag := flag.Int("force", -1, "Force database migration version")
 	flag.Parse()
 
 	// Load Config & Env
@@ -62,12 +63,18 @@ func main() {
 	// Connect to Database
 	config.ConnectDB()
 
+	if *forceFlag != -1 {
+		logger.Info("Forcing Database Migration Version...", zap.Int("version", *forceFlag))
+		db.MigrateDatabase("force", *forceFlag)
+		return
+	}
+
 	// Check for migration flag
 	if *migrateFlag {
 		logger.Info("Running Database Migration (Versioned)...")
 
 		// Call versioned migration
-		db.RunMigrations()
+		db.MigrateDatabase("up", 0)
 		return
 	}
 
@@ -75,7 +82,6 @@ func main() {
 	r := gin.New()
 	r.Use(gin.Recovery())
 	r.Use(middleware.LoggerMiddleware())
-	r.Use(middleware.ErrorHandlerMiddleware())
 	r.Use(middleware.CORSMiddleware())
 	r.Use(middleware.SecurityMiddleware()) // Apply Security Headers globally
 
@@ -119,6 +125,7 @@ func main() {
 	{
 		// Public Routes
 		api.POST("/login", loginLimiter, authHandler.Login) // Rate Limited
+		api.POST("/logout", authHandler.Logout)
 		api.POST("/psb/register", psbHandler.Register)
 		api.GET("/articles", articleHandler.GetAll)
 		api.GET("/articles/:id", articleHandler.GetDetail)

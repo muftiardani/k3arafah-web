@@ -12,16 +12,21 @@ import (
 
 func AuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		var tokenString string
 		authHeader := c.GetHeader("Authorization")
-		if authHeader == "" {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Authorization header is missing"})
-			c.Abort()
-			return
+		
+		if authHeader != "" && strings.HasPrefix(authHeader, "Bearer ") {
+			tokenString = strings.Split(authHeader, "Bearer ")[1]
+		} else {
+			// Try getting from cookie
+			cookieString, err := c.Cookie("auth_token")
+			if err == nil {
+				tokenString = cookieString
+			}
 		}
 
-		tokenString := strings.Split(authHeader, "Bearer ")[1]
 		if tokenString == "" {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Token is missing"})
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Authorization token is missing"})
 			c.Abort()
 			return
 		}

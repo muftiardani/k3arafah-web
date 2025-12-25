@@ -10,9 +10,9 @@ interface User {
 
 interface AuthState {
   user: User | null;
-  token: string | null;
+  // token is now HttpOnly cookie, hidden from JS
   isLoggedIn: boolean;
-  login: (user: User, token: string) => void;
+  login: (user: User) => void;
   logout: () => void;
 }
 
@@ -20,10 +20,9 @@ export const useAuthStore = create<AuthState>()(
   persist(
     (set) => ({
       user: null,
-      token: null,
       isLoggedIn: false,
-      login: (user, token) => set({ user, token, isLoggedIn: true }),
-      logout: () => set({ user: null, token: null, isLoggedIn: false }),
+      login: (user) => set({ user, isLoggedIn: true }),
+      logout: () => set({ user: null, isLoggedIn: false }),
     }),
     {
       name: "auth-storage",

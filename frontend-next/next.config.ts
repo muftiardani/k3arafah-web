@@ -1,10 +1,22 @@
 import createNextIntlPlugin from "next-intl/plugin";
+import type { NextConfig } from "next";
+import withBundleAnalyzer from "@next/bundle-analyzer";
 
 const withNextIntl = createNextIntlPlugin("./i18n.ts");
 
-/** @type {import('next').NextConfig} */
-const nextConfig = {
-  /* config options here */
+const bundleAnalyzer = withBundleAnalyzer({
+  enabled: process.env.ANALYZE === "true",
+});
+
+const nextConfig: NextConfig = {
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "res.cloudinary.com",
+      },
+    ],
+  },
 };
 
-export default withNextIntl(nextConfig);
+export default withNextIntl(bundleAnalyzer(nextConfig));

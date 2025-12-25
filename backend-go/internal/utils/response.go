@@ -8,25 +8,28 @@ import (
 )
 
 type APIResponse struct {
-	Status  bool        `json:"status"`
-	Message string      `json:"message"`
-	Data    interface{} `json:"data,omitempty"`
-	Error   interface{} `json:"error,omitempty"`
+	RequestID string      `json:"request_id,omitempty"`
+	Status    bool        `json:"status"`
+	Message   string      `json:"message"`
+	Data      interface{} `json:"data,omitempty"`
+	Error     interface{} `json:"error,omitempty"`
 }
 
 func SuccessResponse(c *gin.Context, code int, message string, data interface{}) {
 	c.JSON(code, APIResponse{
-		Status:  true,
-		Message: message,
-		Data:    data,
+		RequestID: c.GetString("RequestID"),
+		Status:    true,
+		Message:   message,
+		Data:      data,
 	})
 }
 
 func ErrorResponse(c *gin.Context, code int, message string, err interface{}) {
 	c.AbortWithStatusJSON(code, APIResponse{
-		Status:  false,
-		Message: message,
-		Error:   err,
+		RequestID: c.GetString("RequestID"),
+		Status:    false,
+		Message:   message,
+		Error:     err,
 	})
 }
 

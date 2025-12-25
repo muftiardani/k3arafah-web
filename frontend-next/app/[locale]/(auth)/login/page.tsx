@@ -12,6 +12,7 @@ import { User, Lock, School, ArrowRight, Loader2 } from "lucide-react";
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
+import { useAuthStore } from "@/store/useAuthStore";
 import {
   Form,
   FormControl,
@@ -47,7 +48,15 @@ export default function AdminLogin() {
     setIsLoading(true);
     try {
       // Hit BFF Proxy to set HTTP-Only Cookie
-      await api.post("/auth/login", values);
+      // Backend endpoint is /login based on main.go
+      await api.post("/login", values);
+
+      // Note: Backend currently doesn't return user info on login.
+      // Ideally we should fetch my-profile here.
+      // For now we assume success means logged in.
+      useAuthStore
+        .getState()
+        .login({ id: 1, name: "Admin", email: values.username, role: "admin" });
 
       toast.success("Login berhasil! Mengalihkan...");
       router.push("/dashboard");

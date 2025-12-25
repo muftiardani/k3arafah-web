@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"go.uber.org/zap"
 )
 
@@ -13,6 +14,11 @@ func LoggerMiddleware() gin.HandlerFunc {
 		start := time.Now()
 		path := c.Request.URL.Path
 		query := c.Request.URL.RawQuery
+
+		// Generate Request ID
+		requestID := uuid.New().String()
+		c.Set("RequestID", requestID)
+		c.Writer.Header().Set("X-Request-ID", requestID)
 
 		c.Next()
 
@@ -24,6 +30,7 @@ func LoggerMiddleware() gin.HandlerFunc {
 		errorMessage := c.Errors.ByType(gin.ErrorTypePrivate).String()
 
 		fields := []zap.Field{
+			zap.String("request_id", requestID),
 			zap.Int("status", status),
 			zap.String("method", method),
 			zap.String("path", path),

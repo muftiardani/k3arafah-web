@@ -1,7 +1,5 @@
-"use client";
-
-import { useEffect, useState } from "react";
-import api from "@/lib/api";
+import { cookies } from "next/headers";
+import { WelcomeBanner } from "@/components/admin/WelcomeBanner";
 import { StatsCard } from "@/components/admin/StatsCard";
 import {
   FileText,
@@ -20,6 +18,7 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
+import { BACKEND_API_URL } from "@/lib/config";
 
 interface DashboardStats {
   total_santri: number;
@@ -35,38 +34,44 @@ interface Registrant {
   photo_url?: string;
 }
 
-export default function DashboardPage() {
-  const [stats, setStats] = useState<DashboardStats | null>(null);
-  const [recentRegistrants, setRecentRegistrants] = useState<Registrant[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [user, setUser] = useState<{ username: string; role: string } | null>(null);
-
-  useEffect(() => {
-    // Get user from local storage (mock implementation, ideally use a context)
-    const storedUser = localStorage.getItem("user"); // Assuming you store user info
-    if (storedUser) setUser(JSON.parse(storedUser));
-
-    fetchData();
-  }, []);
-
-  const fetchData = async () => {
-    try {
-      const [statsRes, registrantsRes] = await Promise.all([
-        api.get("/dashboard/stats"),
-        api.get("/psb/registrants"),
-      ]);
-
-      setStats(statsRes.data.data);
-      // Take top 5 recent registrants
-      const registrants: Registrant[] = registrantsRes.data.data || [];
-      const sorted = registrants.sort((a, b) => b.id - a.id).slice(0, 5);
-      setRecentRegistrants(sorted);
-    } catch (error) {
-      console.error("Failed to fetch dashboard data", error);
-    } finally {
-      setLoading(false);
-    }
+async function getDashboardData() {
+  const cookieStore = await cookies();
+  const token = cookieStore.get("auth_token")?.value;
+  const headers = {
+    Cookie: `auth_token=${token}`,
   };
+
+  try {
+    const [statsRes, registrantsRes] = await Promise.all([
+      fetch(`${BACKEND_API_URL}/dashboard/stats`, {
+        headers,
+        cache: "no-store",
+      }),
+      fetch(`${BACKEND_API_URL}/psb/registrants`, {
+        headers,
+        cache: "no-store",
+      }),
+    ]);
+
+    const statsData = statsRes.ok ? await statsRes.json() : { data: {} };
+    const registrantsData = registrantsRes.ok ? await registrantsRes.json() : { data: [] };
+
+    return {
+      stats: statsData.data as DashboardStats,
+      registrants: (registrantsData.data as Registrant[]) || [],
+    };
+  } catch (error) {
+    console.error("Dashboard Fetch Error:", error);
+    return {
+      stats: { total_santri: 0, total_articles: 0, total_users: 0 },
+      registrants: [],
+    };
+  }
+}
+
+export default async function DashboardPage() {
+  const { stats, registrants } = await getDashboardData();
+  const recentRegistrants = registrants.sort((a, b) => b.id - a.id).slice(0, 5);
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -102,47 +107,10 @@ export default function DashboardPage() {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="flex flex-col gap-6 p-2">
-        <div className="bg-muted h-32 w-full animate-pulse rounded-xl" />
-        <div className="grid gap-4 md:grid-cols-3">
-          {[1, 2, 3].map((i) => (
-            <div key={i} className="bg-muted h-24 animate-pulse rounded-xl" />
-          ))}
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="flex flex-col gap-8">
-      {/* Welcome Banner */}
-      <div className="relative overflow-hidden rounded-xl bg-linear-to-r from-blue-600 to-indigo-600 p-8 text-white shadow-lg">
-        <div className="relative z-10 flex flex-col justify-between gap-4 md:flex-row md:items-center">
-          <div>
-            <h1 className="text-3xl font-bold">Selamat Datang, {user?.username || "Admin"}!</h1>
-            <p className="mt-2 text-blue-100">
-              Berikut adalah ringkasan aktivitas Pondok Pesantren hari ini.
-            </p>
-          </div>
-          <div className="text-right">
-            <p className="text-sm font-medium tracking-wider text-blue-100 uppercase">Hari ini</p>
-            <p className="text-2xl font-bold">
-              {new Date().toLocaleDateString("id-ID", {
-                weekday: "long",
-                day: "numeric",
-                month: "long",
-                year: "numeric",
-              })}
-            </p>
-          </div>
-        </div>
-
-        {/* Decorative Circle */}
-        <div className="absolute top-0 right-0 -mt-16 -mr-16 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
-        <div className="absolute bottom-0 left-0 -mb-16 -ml-16 h-48 w-48 rounded-full bg-white/10 blur-2xl" />
-      </div>
+      {/* Welcome Banner (Client Component) */}
+      <WelcomeBanner />
 
       {/* Stats Grid */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -154,7 +122,7 @@ export default function DashboardPage() {
         />
         <StatsCard
           title="Pendaftar Baru"
-          value={recentRegistrants.length} // Rough estimate or separate API needed
+          value={recentRegistrants.length}
           icon={Users}
           description="Perlu verifikasi"
         />
@@ -238,8 +206,6 @@ export default function DashboardPage() {
             </Button>
             <Button variant="outline" className="w-full justify-start" asChild>
               <Link href="/articles?action=create">
-                {" "}
-                {/* Assuming we can handle param or just go to list */}
                 <FileText className="mr-2 h-4 w-4" /> Tulis Artikel
               </Link>
             </Button>

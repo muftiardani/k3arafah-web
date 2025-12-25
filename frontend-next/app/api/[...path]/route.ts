@@ -6,15 +6,12 @@ async function proxy(request: NextRequest, context: { params: Promise<{ path: st
   const params = await context.params;
   const path = params.path.join("/");
   const url = `${BACKEND_API_URL}/${path}${request.nextUrl.search}`;
-  const token = request.cookies.get("token")?.value;
 
-  const headers: HeadersInit = {
-    "Content-Type": "application/json",
-  };
-
-  if (token) {
-    headers["Authorization"] = `Bearer ${token}`;
-  }
+  // Forward all necessary headers including Cookies
+  const headers = new Headers(request.headers);
+  headers.set("Content-Type", "application/json");
+  // Important: Remove 'host' header to avoid conflicts
+  headers.delete("host");
 
   try {
     const body =
@@ -24,17 +21,31 @@ async function proxy(request: NextRequest, context: { params: Promise<{ path: st
       method: request.method,
       headers: headers,
       body: body,
-      cache: "no-store", // Prevent caching of proxy responses
+      cache: "no-store",
     });
 
     const data = await res.text();
 
-    return new NextResponse(data, {
+    const response = new NextResponse(data, {
       status: res.status,
       headers: {
         "Content-Type": "application/json",
       },
     });
+
+    // Forward 'Set-Cookie' header from backend to client
+    const setCookie = res.headers.get("set-cookie");
+    if (setCookie) {
+      response.headers.set("Set-Cookie", setCookie);
+    }
+
+    // Forward X-Request-ID if present
+    const requestId = res.headers.get("x-request-id");
+    if (requestId) {
+      response.headers.set("X-Request-ID", requestId);
+    }
+
+    return response;
   } catch (error) {
     console.error(`Proxy Error [${request.method} ${url}]:`, error);
     return NextResponse.json({ error: "Proxy Error" }, { status: 500 });

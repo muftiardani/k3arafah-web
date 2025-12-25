@@ -32,7 +32,11 @@ api.interceptors.response.use(
   (error) => {
     useUIStore.getState().setLoading(false);
     // Optional: Handle 401 globally by redirecting to /login
-    window.location.href = "/login";
+    if (error.response && error.response.status === 401) {
+      if (typeof window !== "undefined") {
+        window.location.href = "/login";
+      }
+    }
     return Promise.reject(error);
   }
 );

@@ -18,8 +18,8 @@ func NewAuthHandler(service services.AuthService) *AuthHandler {
 }
 
 type LoginRequest struct {
-	Username string `json:"username" validate:"required"`
-	Password string `json:"password" validate:"required"`
+	Username string `json:"username" binding:"required"`
+	Password string `json:"password" binding:"required"`
 }
 
 // Login godoc
@@ -37,23 +37,28 @@ func (h *AuthHandler) Login(c *gin.Context) {
 	var input LoginRequest
 
 	if err := c.ShouldBindJSON(&input); err != nil {
-		utils.ErrorResponse(c, http.StatusBadRequest, "Invalid JSON format", err.Error())
-		return
-	}
-
-	if err := utils.ValidateStruct(input); err != nil {
-		utils.ErrorResponse(c, http.StatusBadRequest, "Validation failed", err.Error())
+		// ShouldBindJSON automatically checks 'binding' tags
+		utils.ErrorResponse(c, http.StatusBadRequest, "Invalid input or validation failed", err.Error())
 		return
 	}
 
 	token, err := h.service.Login(c.Request.Context(), input.Username, input.Password)
 	if err != nil {
-		// ResponseWithError will maps ErrUnauthorized to 401
 		utils.ResponseWithError(c, err)
 		return
 	}
 
-	utils.SuccessResponse(c, http.StatusOK, "Login successful", gin.H{"token": token})
+	// Set HttpOnly Cookie
+	// Name, Value, MaxAge, Path, Domain, Secure, HttpOnly
+	c.SetCookie("auth_token", token, 3600*24, "/", "", false, true)
+
+	utils.SuccessResponse(c, http.StatusOK, "Login successful", nil)
+}
+
+func (h *AuthHandler) Logout(c *gin.Context) {
+	// Clear Cookie
+	c.SetCookie("auth_token", "", -1, "/", "", false, true)
+	utils.SuccessResponse(c, http.StatusOK, "Logout successful", nil)
 }
 
 func (h *AuthHandler) CreateAdmin(c *gin.Context) {
