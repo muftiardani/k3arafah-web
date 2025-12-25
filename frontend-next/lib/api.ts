@@ -4,6 +4,12 @@ import { useUIStore } from "@/store/useUIStore";
 // Point to Next.js API Routes (Proxy)
 const API_URL = "/api";
 
+export type ApiResponse<T = unknown> = {
+  status: number;
+  message: string;
+  data: T;
+};
+
 const api = axios.create({
   baseURL: API_URL,
   headers: {

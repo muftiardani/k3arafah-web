@@ -19,6 +19,8 @@ build/
 .next/
 bin/
 main.exe
+server.exe
+*.exe
 main
 tmp/
 

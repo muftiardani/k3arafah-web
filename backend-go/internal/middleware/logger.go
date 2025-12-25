@@ -2,6 +2,8 @@ package middleware
 
 import (
 	"backend-go/internal/logger"
+	"net/url"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -13,7 +15,7 @@ func LoggerMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		start := time.Now()
 		path := c.Request.URL.Path
-		query := c.Request.URL.RawQuery
+		rawQuery := c.Request.URL.RawQuery
 
 		// Generate Request ID
 		requestID := uuid.New().String()
@@ -29,12 +31,15 @@ func LoggerMiddleware() gin.HandlerFunc {
 		clientIP := c.ClientIP()
 		errorMessage := c.Errors.ByType(gin.ErrorTypePrivate).String()
 
+		// Mask Sensitive Query Params
+		sanitizedQuery := sanitizeQuery(rawQuery)
+
 		fields := []zap.Field{
 			zap.String("request_id", requestID),
 			zap.Int("status", status),
 			zap.String("method", method),
 			zap.String("path", path),
-			zap.String("query", query),
+			zap.String("query", sanitizedQuery),
 			zap.String("ip", clientIP),
 			zap.String("user-agent", c.Request.UserAgent()),
 			zap.Duration("latency", latency),
@@ -47,4 +52,27 @@ func LoggerMiddleware() gin.HandlerFunc {
 			logger.Info("Request Success", fields...)
 		}
 	}
+}
+
+func sanitizeQuery(query string) string {
+	if query == "" {
+		return ""
+	}
+	
+	values, err := url.ParseQuery(query)
+	if err != nil {
+		return query // Return raw if parse fails
+	}
+
+	sensitiveKeys := []string{"token", "password", "secret", "authorization", "key"}
+	
+	for _, key := range sensitiveKeys {
+		for param := range values {
+			if strings.EqualFold(param, key) {
+				values.Set(param, "*****")
+			}
+		}
+	}
+
+	return values.Encode()
 }
