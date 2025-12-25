@@ -41,6 +41,33 @@ func (h *ArticleHandler) Create(c *gin.Context) {
 }
 
 func (h *ArticleHandler) GetAll(c *gin.Context) {
+	pageStr := c.Query("page")
+	limitStr := c.Query("limit")
+
+	if pageStr != "" || limitStr != "" {
+		page, _ := strconv.Atoi(pageStr)
+		if page < 1 {
+			page = 1
+		}
+		
+		limit, _ := strconv.Atoi(limitStr)
+		if limit < 1 {
+			limit = 10
+		} else if limit > 100 {
+			limit = 100
+		}
+
+		articles, total, err := h.service.GetAllArticlesPaginated(c.Request.Context(), page, limit)
+		if err != nil {
+			utils.ResponseWithError(c, err)
+			return
+		}
+		
+		utils.SuccessResponsePaginated(c, http.StatusOK, "Articles fetched successfully", articles, page, limit, total)
+		return
+	}
+
+	// Legacy behavior: Fetch All
 	articles, err := h.service.GetAllArticles(c.Request.Context())
 	if err != nil {
 		utils.ResponseWithError(c, err)
@@ -52,6 +79,16 @@ func (h *ArticleHandler) GetAll(c *gin.Context) {
 func (h *ArticleHandler) GetDetail(c *gin.Context) {
 	id, _ := strconv.Atoi(c.Param("id"))
 	article, err := h.service.GetArticleByID(c.Request.Context(), uint(id))
+	if err != nil {
+		utils.ResponseWithError(c, err)
+		return
+	}
+	utils.SuccessResponse(c, http.StatusOK, "Article detail fetched successfully", article)
+}
+
+func (h *ArticleHandler) GetDetailBySlug(c *gin.Context) {
+	slug := c.Param("slug")
+	article, err := h.service.GetArticleBySlug(c.Request.Context(), slug)
 	if err != nil {
 		utils.ResponseWithError(c, err)
 		return

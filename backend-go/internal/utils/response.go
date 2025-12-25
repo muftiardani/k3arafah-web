@@ -64,3 +64,33 @@ func ResponseWithError(c *gin.Context, err error) {
 	// Default to 500
 	ErrorResponse(c, http.StatusInternalServerError, "Internal Server Error", err.Error())
 }
+
+type PaginationMeta struct {
+	Page       int   `json:"page"`
+	Limit      int   `json:"limit"`
+	TotalItems int64 `json:"total_items"`
+	TotalPages int   `json:"total_pages"`
+}
+
+type PaginatedData struct {
+	Items interface{}    `json:"items"`
+	Meta  PaginationMeta `json:"meta"`
+}
+
+func SuccessResponsePaginated(c *gin.Context, code int, message string, items interface{}, page, limit int, total int64) {
+	totalPages := 0
+	if limit > 0 {
+		totalPages = int((total + int64(limit) - 1) / int64(limit)) // Ceiling division
+	}
+	
+	data := PaginatedData{
+		Items: items,
+		Meta: PaginationMeta{
+			Page:       page,
+			Limit:      limit,
+			TotalItems: total,
+			TotalPages: totalPages,
+		},
+	}
+	SuccessResponse(c, code, message, data)
+}

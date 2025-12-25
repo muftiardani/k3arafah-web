@@ -14,6 +14,8 @@ type ArticleRepository interface {
 	FindByID(ctx context.Context, id uint) (*models.Article, error)
 	Update(ctx context.Context, article *models.Article) error
 	Delete(ctx context.Context, id uint) error
+	FindBySlug(ctx context.Context, slug string) (*models.Article, error)
+	FindAllPaginated(ctx context.Context, page, limit int) ([]models.Article, int64, error)
 }
 
 type articleRepository struct {
@@ -38,6 +40,30 @@ func (r *articleRepository) FindByID(ctx context.Context, id uint) (*models.Arti
 	var article models.Article
 	err := r.db.WithContext(ctx).Preload("Author").First(&article, id).Error
 	return &article, utils.HandleDBError(err)
+}
+
+func (r *articleRepository) FindBySlug(ctx context.Context, slug string) (*models.Article, error) {
+	var article models.Article
+	err := r.db.WithContext(ctx).Preload("Author").Where("slug = ?", slug).First(&article).Error
+	return &article, utils.HandleDBError(err)
+}
+
+func (r *articleRepository) FindAllPaginated(ctx context.Context, page, limit int) ([]models.Article, int64, error) {
+	var articles []models.Article
+	var total int64
+	
+	offset := (page - 1) * limit
+	
+	// Count total
+	if err := r.db.WithContext(ctx).Model(&models.Article{}).Count(&total).Error; err != nil {
+		return nil, 0, utils.HandleDBError(err)
+	}
+
+	// Fetch paginated
+	err := r.db.WithContext(ctx).Preload("Author").Order("created_at desc").
+		Offset(offset).Limit(limit).Find(&articles).Error
+		
+	return articles, total, utils.HandleDBError(err)
 }
 
 func (r *articleRepository) Update(ctx context.Context, article *models.Article) error {

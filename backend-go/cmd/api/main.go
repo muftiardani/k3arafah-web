@@ -129,6 +129,7 @@ func main() {
 		api.POST("/psb/register", psbHandler.Register)
 		api.GET("/articles", articleHandler.GetAll)
 		api.GET("/articles/:id", articleHandler.GetDetail)
+		api.GET("/articles/slug/:slug", articleHandler.GetDetailBySlug)
 
 		// Protected Routes
 		protected := api.Group("/")
