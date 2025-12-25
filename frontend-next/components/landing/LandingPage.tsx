@@ -8,8 +8,12 @@ import { useTranslations } from "next-intl";
 
 import { Article } from "@/lib/services/articleService";
 
+import { Gallery } from "@/lib/services/galleryService";
+import Image from "next/image";
+
 interface LandingPageProps {
   articles: Article[];
+  galleries: Gallery[]; // Add galleries prop
 }
 
 const fadeIn = {
@@ -27,7 +31,7 @@ const staggerContainer = {
   },
 };
 
-export default function LandingPage({ articles }: LandingPageProps) {
+export default function LandingPage({ articles, galleries }: LandingPageProps) {
   const tHero = useTranslations("Hero");
   const tPrograms = useTranslations("Programs");
   const tStats = useTranslations("Stats");
@@ -215,43 +219,67 @@ export default function LandingPage({ articles }: LandingPageProps) {
             <p className="text-muted-foreground mt-2">{tHome("gallery_desc")}</p>
           </div>
 
+          {/* Gallery Grid */}
           <div className="grid auto-rows-[200px] grid-cols-2 gap-4 md:grid-cols-4">
-            {/* Note: In real app, use next/image */}
-            <motion.div
-              whileHover={{ scale: 1.02 }}
-              className="group relative col-span-2 row-span-2 overflow-hidden rounded-xl bg-gray-200 dark:bg-gray-800"
-            >
-              <div className="absolute inset-0 flex items-center justify-center text-gray-400 transition-colors group-hover:bg-black/20">
-                <span className="sr-only">Main Activity</span>
+            {galleries.length === 0 ? (
+              // Empty State / Fallback
+              <div className="bg-muted col-span-full flex h-[400px] items-center justify-center rounded-xl">
+                <p className="text-muted-foreground">Galeri belum tersedia</p>
               </div>
-              {/* Placeholder for Image 1 */}
-              <div className="h-full w-full bg-emerald-100/50 dark:bg-emerald-900/20"></div>
-            </motion.div>
+            ) : (
+              // Display photos from galleries (flattened)
+              (() => {
+                // Collect all photos from all galleries into a single array
+                const allPhotos = galleries
+                  .flatMap((g) => (g.photos || []).map((p) => ({ ...p, title: g.title })))
+                  .slice(0, 5); // Take max 5 photos for the grid
 
-            <motion.div
-              whileHover={{ scale: 1.05 }}
-              className="col-span-1 overflow-hidden rounded-xl bg-gray-200 dark:bg-gray-800"
-            >
-              <div className="h-full w-full bg-amber-100/50 dark:bg-amber-900/20"></div>
-            </motion.div>
-            <motion.div
-              whileHover={{ scale: 1.05 }}
-              className="col-span-1 overflow-hidden rounded-xl bg-gray-200 dark:bg-gray-800"
-            >
-              <div className="h-full w-full bg-blue-100/50 dark:bg-blue-900/20"></div>
-            </motion.div>
-            <motion.div
-              whileHover={{ scale: 1.05 }}
-              className="col-span-1 overflow-hidden rounded-xl bg-gray-200 dark:bg-gray-800"
-            >
-              <div className="h-full w-full bg-purple-100/50 dark:bg-purple-900/20"></div>
-            </motion.div>
-            <motion.div
-              whileHover={{ scale: 1.05 }}
-              className="col-span-1 overflow-hidden rounded-xl bg-gray-200 dark:bg-gray-800"
-            >
-              <div className="h-full w-full bg-rose-100/50 dark:bg-rose-900/20"></div>
-            </motion.div>
+                if (allPhotos.length === 0) return null;
+
+                return (
+                  <>
+                    {/* Main Featured Image (First Item) - Spans 2x2 */}
+                    {allPhotos[0] && (
+                      <motion.div
+                        whileHover={{ scale: 1.02 }}
+                        className="group relative col-span-2 row-span-2 overflow-hidden rounded-xl bg-gray-200 dark:bg-gray-800"
+                      >
+                        <Image
+                          src={allPhotos[0].url}
+                          alt={allPhotos[0].title}
+                          fill
+                          className="object-cover transition-transform duration-500 group-hover:scale-110"
+                          sizes="(max-width: 768px) 100vw, 50vw"
+                        />
+                        <div className="absolute inset-0 bg-linear-to-t from-black/60 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                          <div className="absolute bottom-4 left-4 text-white">
+                            <p className="font-semibold">{allPhotos[0].title}</p>
+                          </div>
+                        </div>
+                      </motion.div>
+                    )}
+
+                    {/* Secondary Images */}
+                    {allPhotos.slice(1).map((photo, idx) => (
+                      <motion.div
+                        key={photo.id}
+                        whileHover={{ scale: 1.05 }}
+                        className="group relative col-span-1 overflow-hidden rounded-xl bg-gray-200 dark:bg-gray-800"
+                      >
+                        <Image
+                          src={photo.url}
+                          alt={photo.title}
+                          fill
+                          className="object-cover transition-transform duration-500 group-hover:scale-110"
+                          sizes="(max-width: 768px) 50vw, 25vw"
+                        />
+                        <div className="absolute inset-0 bg-black/20 opacity-0 transition-opacity group-hover:opacity-100" />
+                      </motion.div>
+                    ))}
+                  </>
+                );
+              })()
+            )}
           </div>
         </div>
       </section>

@@ -93,6 +93,7 @@ func main() {
 	santriRepo := repository.NewSantriRepository(config.DB)
 	articleRepo := repository.NewArticleRepository(config.DB)
 	galleryRepo := repository.NewGalleryRepository(config.DB)
+	messageRepo := repository.NewMessageRepository(config.DB)
 
 	mediaService, err := services.NewMediaService()
 	if err != nil {
@@ -108,6 +109,7 @@ func main() {
 	articleService := services.NewArticleService(articleRepo, cacheService)
 	dashboardService := services.NewDashboardService(santriRepo, articleRepo, userRepo)
 	galleryService := services.NewGalleryService(galleryRepo, mediaService)
+	messageService := services.NewMessageService(messageRepo)
 
 	authHandler := handlers.NewAuthHandler(authService)
 	psbHandler := handlers.NewPSBHandler(psbService)
@@ -115,6 +117,7 @@ func main() {
 	mediaHandler := handlers.NewMediaHandler(mediaService)
 	dashboardHandler := handlers.NewDashboardHandler(dashboardService)
 	galleryHandler := handlers.NewGalleryHandler(galleryService)
+	messageHandler := handlers.NewMessageHandler(messageService)
 
 	// Rate Limiters
 	loginLimiter := middleware.RateLimitMiddleware(1)
@@ -130,6 +133,12 @@ func main() {
 		api.GET("/articles", articleHandler.GetAll)
 		api.GET("/articles/:id", articleHandler.GetDetail)
 		api.GET("/articles/slug/:slug", articleHandler.GetDetailBySlug)
+		
+		api.POST("/contact", messageHandler.SubmitMessage)
+
+		// Public Gallery Routes
+		api.GET("/galleries", galleryHandler.GetAll)
+		api.GET("/galleries/:id", galleryHandler.GetDetail)
 
 		// Protected Routes
 		protected := api.Group("/")
@@ -144,15 +153,16 @@ func main() {
 
 			// Dashboard Routes
 			protected.GET("/dashboard/stats", dashboardHandler.GetStats)
+			
+			protected.GET("/messages", messageHandler.GetAllMessages)
+			protected.DELETE("/messages/:id", messageHandler.DeleteMessage)
 
 			// CMS Routes
 			protected.POST("/articles", articleHandler.Create)
 			protected.PUT("/articles/:id", articleHandler.Update)
 			protected.DELETE("/articles/:id", articleHandler.Delete)
 
-			// Gallery Routes
-			protected.GET("/galleries", galleryHandler.GetAll)
-			protected.GET("/galleries/:id", galleryHandler.GetDetail)
+			// Gallery Routes (Admin Management)
 			protected.POST("/galleries", galleryHandler.Create)
 			protected.DELETE("/galleries/:id", galleryHandler.Delete)
 			protected.POST("/galleries/:id/photos", galleryHandler.UploadPhotos)

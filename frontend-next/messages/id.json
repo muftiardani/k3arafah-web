@@ -193,8 +193,8 @@
   },
   "Footer": {
     "description": "Membangun Generasi Qur'ani yang Berakhlak Mulia, Berwawasan Global, dan Siap Mengabdi untuk Umat.",
-    "quick_links": "Tautan Cepat",
-    "contact_us": "Hubungi Kami",
+    "quick_links": "Jelajahi",
+    "contact_us": "Kunjungi Kami",
     "address_text": "Jl. Pesantren No. 123, Desa Sukamaju, Kecamatan Cigudeg, Kabupaten Bogor, Jawa Barat 16680.",
     "admin_psb": "(Admin PSB)",
     "rights_reserved": "Yayasan Pondok Pesantren K3 Arafah. All rights reserved.",
@@ -203,6 +203,7 @@
     "link_programs": "Program Pendidikan",
     "link_psb": "Pendaftaran Santri Baru (PSB)",
     "link_contact": "Hubungi Kami",
+    "link_news": "Berita & Artikel",
     "phone": "+62 812-3456-7890",
     "email": "info@k3arafah.com"
   },

@@ -17,14 +17,7 @@ import {
 } from "@/components/ui/form";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
-
-// Schema moved inside
-// const formSchema = z.object({
-//   name: z.string().min(2, { message: "Nama minimal 2 karakter." }),
-//   email: z.string().email({ message: "Email tidak valid." }),
-//   subject: z.string().min(5, { message: "Subjek minimal 5 karakter." }),
-//   message: z.string().min(10, { message: "Pesan minimal 10 karakter." }),
-// });
+import { submitContactForm } from "@/lib/services/contactService";
 
 export default function ContactForm() {
   const t = useTranslations("Contact");
@@ -46,18 +39,17 @@ export default function ContactForm() {
     },
   });
 
-  // We use useForm hook but validation messages need to be dynamic.
-  // Ideally schema is created inside component or we pass t to it.
-  // Let's assume for now we keep schema outside but we can't translate easily outside.
-  // Converting to inside component schema definition:
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsSubmitting(true);
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-
-    toast.success("Pesan Anda telah terkirim!");
-    form.reset();
-    setIsSubmitting(false);
+    try {
+      await submitContactForm(values);
+      toast.success("Pesan Anda telah terkirim!");
+      form.reset();
+    } catch (error) {
+      toast.error("Gagal mengirim pesan. Silakan coba lagi.");
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (

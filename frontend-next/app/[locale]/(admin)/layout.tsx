@@ -14,6 +14,7 @@ import {
   LucideIcon,
   ChevronRight,
   School,
+  Mail,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -36,8 +37,6 @@ interface MenuGroup {
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const t = useTranslations("Dashboard.Nav");
-  // ... (rest of component logic remains similar but we need to pass translations down or use them here)
-  // Actually, since SidebarContent is defined in the same file, we can either pass t to it or just useTranslations inside it if we modify it to be a component that can use hooks (it is).
 
   const pathname = usePathname();
   const router = useRouter();
@@ -137,6 +136,11 @@ function SidebarContent({
           title: t("Nav.gallery"),
           href: "/gallery",
           icon: Images,
+        },
+        {
+          title: "Pesan Masuk",
+          href: "/dashboard/messages",
+          icon: Mail,
         },
       ],
     },

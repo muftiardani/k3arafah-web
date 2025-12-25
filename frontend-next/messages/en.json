@@ -193,8 +193,8 @@
   },
   "Footer": {
     "description": "Building a Qur'anic Generation with Noble Character, Global Perspective, and Ready to Serve the Ummah.",
-    "quick_links": "Quick Links",
-    "contact_us": "Contact Us",
+    "quick_links": "Explore",
+    "contact_us": "Visit Us",
     "address_text": "Jl. Pesantren No. 123, Sukamaju Village, Cigudeg District, Bogor Regency, West Java 16680.",
     "admin_psb": "(PSB Admin)",
     "rights_reserved": "K3 Arafah Boarding School Foundation. All rights reserved.",
@@ -203,6 +203,7 @@
     "link_programs": "Educational Programs",
     "link_psb": "New Student Admission (PSB)",
     "link_contact": "Contact Us",
+    "link_news": "News & Articles",
     "phone": "+62 812-3456-7890",
     "email": "info@k3arafah.com"
   },

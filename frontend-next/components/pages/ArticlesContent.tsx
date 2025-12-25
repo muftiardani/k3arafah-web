@@ -41,7 +41,7 @@ export default function ArticlesContent({ initialArticles = [] }: ArticlesConten
   return (
     <div className="flex min-h-screen flex-col">
       {/* Hero Section */}
-      <section className="bg-slate-50 py-16 text-center dark:bg-slate-900">
+      <section className="bg-slate-50 py-16 text-center md:py-24 dark:bg-slate-900">
         <motion.div
           initial="hidden"
           animate="visible"

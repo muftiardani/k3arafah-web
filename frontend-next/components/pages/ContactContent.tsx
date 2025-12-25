@@ -12,7 +12,7 @@ export default function ContactContent() {
   return (
     <div className="flex min-h-screen flex-col">
       {/* Hero Section */}
-      <section className="bg-emerald-50 py-16 text-center dark:bg-emerald-950">
+      <section className="bg-emerald-50 py-16 text-center md:py-24 dark:bg-emerald-950">
         <motion.div
           initial="hidden"
           animate="visible"
