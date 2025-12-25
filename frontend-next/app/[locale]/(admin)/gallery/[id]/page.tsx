@@ -109,8 +109,11 @@ export default function GalleryDetailPage() {
       {/* Upload Section */}
       <div className="bg-card flex flex-col items-end gap-4 rounded-lg border p-6 sm:flex-row">
         <div className="w-full space-y-2">
-          <label className="text-sm font-medium">Tambah Foto (Bisa banyak sekaligus)</label>
+          <label htmlFor="photo-upload" className="text-sm font-medium">
+            Tambah Foto (Bisa banyak sekaligus)
+          </label>
           <Input
+            id="photo-upload"
             type="file"
             multiple
             accept="image/*"

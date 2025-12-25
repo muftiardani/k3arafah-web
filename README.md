@@ -1,41 +1,69 @@
 # Pondok Pesantren K3 Arafah - Web Application
 
-Website resmi untuk Pondok Pesantren K3 Arafah, meliputi Landing Page Publik, Sistem Penerimaan Santri Baru (PSB), dan Dashboard Admin/CMS.
+Website resmi untuk Pondok Pesantren K3 Arafah, meliputi Landing Page Publik, Sistem Penerimaan Santri Baru (PSB), dan Dashboard Admin/CMS yang modern dan aman.
 
-## Tech Stack
+## 🚀 Fitur Utama
+
+- **Public Landing Page**: Informasi profil, berita terkini, dan galeri kegiatan.
+- **Sistem PSB Online**: Pendaftaran santri baru, upload berkas, dan pengecekan status pendaftaran.
+- **Admin Dashboard**:
+  - Manajemen Artikel & Berita (WYSIWYG dengan Sanitasi XSS).
+  - Manajemen Galeri Foto (Cloudinary Integration).
+  - Verifikasi Data Santri Baru.
+  - Role-Based Access Control (Admin & Super Admin).
+- **Keamanan & Performa**:
+  - **HttpOnly Cookies** untuk autentikasi (Anti-XSS).
+  - **Input Sanitization** menggunakan `bluemonday`.
+  - **Rate Limiting** pda endpoint login & upload.
+  - **Embedded Migrations** untuk kemudahan deployment.
+  - **Server Components** (Next.js 15) untuk performa maksimal.
+
+## 🛠 Tech Stack
 
 ### Frontend (`/frontend-next`)
 
-- **Framework**: Next.js 15 (App Router)
-- **Styling**: Tailwind CSS v4
-- **UI Components**: Shadcn UI (Radix Primitives)
-- **State/Form**: React Hook Form + Zod
-- **Animations**: Framer Motion
+- **Core**: Next.js 16 (App Router), TypeScript, React 19
+- **Styling**: Tailwind CSS v4, Shadcn UI, Framer Motion
+- **State**: Zustand, React Query
+- **Testing**: Vitest, React Testing Library
+- **Forms**: React Hook Form, Zod
 
 ### Backend (`/backend-go`)
 
-- **Language**: Go (Golang)
-- **Framework**: Gin Gonic
-- **Database**: PostgreSQL (via GORM)
-- **Auth**: JWT (JSON Web Tokens)
+- **Core**: Go (Golang) 1.25+, Gin Framework
+- **Database**: PostgreSQL, GORM, Redis (Caching)
+- **Security**: JWT, Bluemonday (Sanitization), Tollbooth (Rate Limit)
+- **Migration**: Golang-Migrate (Embedded IOFS)
 
-## Getting Started
+## 🏁 Getting Started
 
 ### Prerequisites
 
-- Node.js & npm
-- Go 1.25+
+- Node.js 18+ & npm
+- Go 1.24+
 - PostgreSQL Database
+- Redis (Optional, for caching)
 
 ### 1. Setup Backend
 
 ```bash
 cd backend-go
-# Salin contoh env dan sesuaikan kredensial DB Anda
+
+# 1. Konfigurasi Environment
 cp .env.example .env
-# Install dependencies
+# Edit .env sesuaikan dengan kredensial DB Anda
+
+# 2. Install Dependencies
 go mod tidy
-# Jalankan Server (Default: Port 8080)
+
+# 3. Setup Database (Migration)
+# Flag -migrate akan menjalankan migrasi embedded
+go run cmd/api/main.go -migrate
+
+# Jika error "version dirty", gunakan force:
+# go run cmd/api/main.go -force 1
+
+# 4. Jalankan Server (Port 8080)
 go run cmd/api/main.go
 ```
 
@@ -43,22 +71,43 @@ go run cmd/api/main.go
 
 ```bash
 cd frontend-next
-# Install dependencies
+
+# 1. Install Dependencies
 npm install
-# Jalankan Development Server (Default: Port 3000)
+
+# 2. Konfigurasi Environment
+cp .env.example .env.local
+# Pastikan NEXT_PUBLIC_API_URL=http://localhost:8080/api
+
+# 3. Jalankan Development Server (Port 3000)
 npm run dev
 ```
 
-## Features
+### 3. Testing
 
-1.  **Public Landing Page**: Informasi pondok, berita terkini (CMS), profil.
-2.  **PSB System**: Formulir pendaftaran santri baru online.
-3.  **Admin Dashboard**:
-    - Manajemen Berita (CRUD)
-    - Manajemen Data Santri Pendaftar
-    - Autentikasi Admin Aman
+**Frontend Tests:**
 
-## Project Structure
+```bash
+cd frontend-next
+npm run test
+```
 
-- `backend-go/`: Kode sumber API server.
-- `frontend-next/`: Kode sumber antarmuka pengguna Next.js.
+## 📂 Project Structure
+
+```
+├── backend-go/
+│   ├── cmd/            # Entry points (api, seeder)
+│   ├── config/         # App configuration
+│   ├── internal/       # Private application code
+│   │   ├── handlers/   # HTTP Transports
+│   │   ├── services/   # Business Logic
+│   │   ├── models/     # Data Structures
+│   │   └── repository/ # Data Access Layer
+│   └── migrations/     # Embedded SQL Migrations
+│
+├── frontend-next/
+│   ├── app/            # Next.js App Router Pages
+│   ├── components/     # Reusable UI Components
+│   ├── lib/            # Utilities & API Clients
+│   └── store/          # Zustand State Management
+```
