@@ -113,7 +113,7 @@ export default function ContactForm() {
         />
         <Button
           type="submit"
-          className="w-full bg-emerald-600 hover:bg-emerald-700"
+          className="w-full bg-linear-to-r from-emerald-600 to-teal-600 font-bold text-white shadow-lg transition-all hover:from-emerald-700 hover:to-teal-700 hover:shadow-emerald-500/25"
           disabled={isSubmitting}
         >
           {isSubmitting ? t("btn_submitting") : t("btn_submit")}

@@ -11,16 +11,9 @@ import (
 
 	"backend-go/config"
 	"backend-go/internal/db"
-	"backend-go/internal/handlers"
 	"backend-go/internal/logger"
-	"backend-go/internal/middleware"
-	"backend-go/internal/repository"
-	"backend-go/internal/services"
 
-	"github.com/gin-gonic/gin"
-	swaggerFiles "github.com/swaggo/files"
-	ginSwagger "github.com/swaggo/gin-swagger"
-
+	// Kept for server setup usage if needed, wait.
 	_ "backend-go/docs" // Import generated docs
 
 	"go.uber.org/zap"
@@ -62,6 +55,9 @@ func main() {
 
 	// Connect to Database
 	config.ConnectDB()
+	
+	// Connect to Redis
+	config.ConnectRedis()
 
 	if *forceFlag != -1 {
 		logger.Info("Forcing Database Migration Version...", zap.Int("version", *forceFlag))
@@ -78,105 +74,10 @@ func main() {
 		return
 	}
 
-	// Setup Router
-	r := gin.New()
-	r.Use(gin.Recovery())
-	r.Use(middleware.LoggerMiddleware())
-	r.Use(middleware.CORSMiddleware())
-	r.Use(middleware.SecurityMiddleware()) // Apply Security Headers globally
-
-	// Swagger Configuration
-	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
-
-	// Init Layers
-	userRepo := repository.NewUserRepository(config.DB)
-	santriRepo := repository.NewSantriRepository(config.DB)
-	articleRepo := repository.NewArticleRepository(config.DB)
-	galleryRepo := repository.NewGalleryRepository(config.DB)
-	messageRepo := repository.NewMessageRepository(config.DB)
-
-	mediaService, err := services.NewMediaService()
+	// Init Layers and Router via Dependency Injection
+	r, err := InitializeAPI()
 	if err != nil {
-		logger.Fatal("Failed to init media service", zap.Error(err))
-	}
-
-	// Connect Redis for Cache
-	config.ConnectRedis()
-	cacheService := services.NewCacheService()
-
-	authService := services.NewAuthService(userRepo)
-	psbService := services.NewPSBService(santriRepo)
-	articleService := services.NewArticleService(articleRepo, cacheService)
-	dashboardService := services.NewDashboardService(santriRepo, articleRepo, userRepo)
-	galleryService := services.NewGalleryService(galleryRepo, mediaService)
-	messageService := services.NewMessageService(messageRepo)
-
-	authHandler := handlers.NewAuthHandler(authService)
-	psbHandler := handlers.NewPSBHandler(psbService)
-	articleHandler := handlers.NewArticleHandler(articleService)
-	mediaHandler := handlers.NewMediaHandler(mediaService)
-	dashboardHandler := handlers.NewDashboardHandler(dashboardService)
-	galleryHandler := handlers.NewGalleryHandler(galleryService)
-	messageHandler := handlers.NewMessageHandler(messageService)
-
-	// Rate Limiters
-	loginLimiter := middleware.RateLimitMiddleware(1)
-	uploadLimiter := middleware.RateLimitMiddleware(0.5)
-
-	// Routes
-	api := r.Group("/api")
-	{
-		// Public Routes
-		api.POST("/login", loginLimiter, authHandler.Login)
-		api.POST("/logout", authHandler.Logout)
-		api.POST("/psb/register", psbHandler.Register)
-		api.GET("/articles", articleHandler.GetAll)
-		api.GET("/articles/:id", articleHandler.GetDetail)
-		api.GET("/articles/slug/:slug", articleHandler.GetDetailBySlug)
-		
-		api.POST("/contact", messageHandler.SubmitMessage)
-
-		// Public Gallery Routes
-		api.GET("/galleries", galleryHandler.GetAll)
-		api.GET("/galleries/:id", galleryHandler.GetDetail)
-
-		// Protected Routes
-		protected := api.Group("/")
-		protected.Use(middleware.AuthMiddleware())
-		{
-			protected.POST("/upload", uploadLimiter, mediaHandler.Upload)
-
-			protected.GET("/psb/registrants", psbHandler.GetAll)
-			protected.GET("/psb/registrants/:id", psbHandler.GetDetail)
-			protected.PUT("/psb/registrants/:id/status", psbHandler.UpdateStatus)
-			protected.PUT("/psb/registrants/:id/verify", psbHandler.Verify)
-
-			// Dashboard Routes
-			protected.GET("/dashboard/stats", dashboardHandler.GetStats)
-			
-			protected.GET("/messages", messageHandler.GetAllMessages)
-			protected.DELETE("/messages/:id", messageHandler.DeleteMessage)
-
-			// CMS Routes
-			protected.POST("/articles", articleHandler.Create)
-			protected.PUT("/articles/:id", articleHandler.Update)
-			protected.DELETE("/articles/:id", articleHandler.Delete)
-
-			// Gallery Routes (Admin Management)
-			protected.POST("/galleries", galleryHandler.Create)
-			protected.DELETE("/galleries/:id", galleryHandler.Delete)
-			protected.POST("/galleries/:id/photos", galleryHandler.UploadPhotos)
-			protected.DELETE("/galleries/photos/:photo_id", galleryHandler.DeletePhoto)
-
-			// Super Admin Routes
-			superAdmin := protected.Group("/")
-			superAdmin.Use(middleware.RBACMiddleware("super_admin"))
-			{
-				superAdmin.POST("/admins", authHandler.CreateAdmin)
-				superAdmin.GET("/admins", authHandler.GetAllAdmins)
-				superAdmin.DELETE("/admins/:id", authHandler.DeleteAdmin)
-			}
-		}
+		logger.Fatal("Failed to initialize API", zap.Error(err))
 	}
 
 	// Run Server

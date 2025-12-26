@@ -18,6 +18,7 @@ type Config struct {
 	RedisPassword string `mapstructure:"REDIS_PASSWORD"`
 	Environment   string `mapstructure:"ENV"`
 	AllowedOrigin string `mapstructure:"ALLOWED_ORIGIN"`
+	CSRFSecret    string `mapstructure:"CSRF_SECRET" validate:"required"`
 }
 
 var AppConfig Config

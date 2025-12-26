@@ -1,19 +1,38 @@
 basePath: /api
 definitions:
-  handlers.LoginRequest:
+  backend-go_internal_models.Message:
     properties:
-      password:
+      created_at:
         type: string
-      username:
+      email:
         type: string
-    required:
-    - password
-    - username
+      id:
+        type: integer
+      is_read:
+        type: boolean
+      message:
+        type: string
+      name:
+        type: string
+      subject:
+        type: string
+      updated_at:
+        type: string
     type: object
-  handlers.RegisterRequest:
+  backend-go_internal_utils.APIResponse:
+    properties:
+      data: {}
+      error: {}
+      message:
+        type: string
+      request_id:
+        type: string
+      status:
+        type: boolean
+    type: object
+  internal_handlers.LoginRequest:
     properties:
       password:
-        minLength: 6
         type: string
       username:
         type: string
@@ -35,6 +54,32 @@ info:
   title: K3 Arafah Web API
   version: "1.0"
 paths:
+  /contact:
+    post:
+      consumes:
+      - application/json
+      description: Submit a new message from contact form
+      parameters:
+      - description: Message Data
+        in: body
+        name: message
+        required: true
+        schema:
+          $ref: '#/definitions/backend-go_internal_models.Message'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/backend-go_internal_utils.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/backend-go_internal_utils.APIResponse'
+      summary: Submit a contact message
+      tags:
+      - messages
   /login:
     post:
       consumes:
@@ -46,7 +91,7 @@ paths:
         name: input
         required: true
         schema:
-          $ref: '#/definitions/handlers.LoginRequest'
+          $ref: '#/definitions/internal_handlers.LoginRequest'
       produces:
       - application/json
       responses:
@@ -69,42 +114,6 @@ paths:
               type: string
             type: object
       summary: Login admin
-      tags:
-      - auth
-  /register-admin:
-    post:
-      consumes:
-      - application/json
-      description: Register a new admin user (Development only)
-      parameters:
-      - description: Register Input
-        in: body
-        name: input
-        required: true
-        schema:
-          $ref: '#/definitions/handlers.RegisterRequest'
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Created
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "400":
-          description: Bad Request
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "500":
-          description: Internal Server Error
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      summary: Register a new admin
       tags:
       - auth
 securityDefinitions:

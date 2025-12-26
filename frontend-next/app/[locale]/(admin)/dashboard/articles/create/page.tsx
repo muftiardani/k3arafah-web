@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import api from "@/lib/api";
+import { createArticle } from "@/lib/services/articleService";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
@@ -46,7 +47,8 @@ export default function CreateArticlePage() {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsSubmitting(true);
     try {
-      await api.post("/articles", values);
+      // Use the service layer
+      await createArticle(values);
       toast.success("Artikel berhasil dibuat");
       router.push("/articles");
     } catch (error) {

@@ -25,8 +25,8 @@ func NewMessageHandler(service services.MessageService) *MessageHandler {
 // @Accept       json
 // @Produce      json
 // @Param        message  body      models.Message  true  "Message Data"
-// @Success      201      {object}  utils.Response
-// @Failure      400      {object}  utils.Response
+// @Success      201      {object}  utils.APIResponse
+// @Failure      400      {object}  utils.APIResponse
 // @Router       /contact [post]
 func (h *MessageHandler) SubmitMessage(c *gin.Context) {
 	var input models.Message

@@ -49,7 +49,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   const handleLogout = async () => {
     try {
-      await import("@/lib/api").then((mod) => mod.default.post("/auth/logout"));
+      await import("@/lib/api").then((mod) => mod.default.post("/logout"));
     } catch (e) {
       console.error(e);
     }

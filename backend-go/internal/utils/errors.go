@@ -2,7 +2,6 @@ package utils
 
 import (
 	"errors"
-	"net/http"
 
 	"gorm.io/gorm"
 )
@@ -41,20 +40,4 @@ func HandleDBError(err error) error {
 		return ErrConflict
 	}
 	return err
-}
-
-func NewBadRequestError(message string) *AppError {
-	return NewAppError(http.StatusBadRequest, message)
-}
-
-func NewNotFoundError(message string) *AppError {
-	return NewAppError(http.StatusNotFound, message)
-}
-
-func NewInternalServerError(message string) *AppError {
-	return NewAppError(http.StatusInternalServerError, message)
-}
-
-func NewUnauthorizedError(message string) *AppError {
-	return NewAppError(http.StatusUnauthorized, message)
 }
