@@ -51,6 +51,16 @@ func (h *MessageHandler) SubmitMessage(c *gin.Context) {
 	utils.SuccessResponse(c, http.StatusCreated, "Message sent successfully", nil)
 }
 
+// GetAllMessages godoc
+// @Summary      Get all messages
+// @Description  Get all contact messages (admin only)
+// @Tags         messages
+// @Produce      json
+// @Success      200  {object}  utils.APIResponse
+// @Failure      401  {object}  utils.APIResponse
+// @Failure      500  {object}  utils.APIResponse
+// @Security     BearerAuth
+// @Router       /messages [get]
 func (h *MessageHandler) GetAllMessages(c *gin.Context) {
 	messages, err := h.service.GetAllMessages(c.Request.Context())
 	if err != nil {
@@ -61,6 +71,18 @@ func (h *MessageHandler) GetAllMessages(c *gin.Context) {
 	utils.SuccessResponse(c, http.StatusOK, "Messages fetched successfully", messages)
 }
 
+// MarkAsRead godoc
+// @Summary      Mark message as read
+// @Description  Mark a message as read (admin only)
+// @Tags         messages
+// @Produce      json
+// @Param        id   path      int  true  "Message ID"
+// @Success      200  {object}  utils.APIResponse
+// @Failure      400  {object}  utils.APIResponse
+// @Failure      401  {object}  utils.APIResponse
+// @Failure      404  {object}  utils.APIResponse
+// @Security     BearerAuth
+// @Router       /messages/{id}/read [put]
 func (h *MessageHandler) MarkAsRead(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
@@ -76,6 +98,18 @@ func (h *MessageHandler) MarkAsRead(c *gin.Context) {
 	utils.SuccessResponse(c, http.StatusOK, "Message marked as read", nil)
 }
 
+// DeleteMessage godoc
+// @Summary      Delete a message
+// @Description  Delete a message (admin only)
+// @Tags         messages
+// @Produce      json
+// @Param        id   path      int  true  "Message ID"
+// @Success      200  {object}  utils.APIResponse
+// @Failure      400  {object}  utils.APIResponse
+// @Failure      401  {object}  utils.APIResponse
+// @Failure      404  {object}  utils.APIResponse
+// @Security     BearerAuth
+// @Router       /messages/{id} [delete]
 func (h *MessageHandler) DeleteMessage(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {

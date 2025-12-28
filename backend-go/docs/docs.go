@@ -729,6 +729,43 @@ const docTemplate = `{
                 }
             }
         },
+        "/dashboard/stats": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Get dashboard statistics (admin only)",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "dashboard"
+                ],
+                "summary": "Get dashboard statistics",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/utils.APIResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/utils.APIResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/utils.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/galleries": {
             "get": {
                 "description": "Get all gallery albums",
@@ -1178,6 +1215,428 @@ const docTemplate = `{
                 "responses": {
                     "200": {
                         "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/utils.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/messages": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Get all contact messages (admin only)",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "messages"
+                ],
+                "summary": "Get all messages",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/utils.APIResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/utils.APIResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/utils.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/messages/{id}": {
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Delete a message (admin only)",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "messages"
+                ],
+                "summary": "Delete a message",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Message ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/utils.APIResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/utils.APIResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/utils.APIResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/utils.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/messages/{id}/read": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Mark a message as read (admin only)",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "messages"
+                ],
+                "summary": "Mark message as read",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Message ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/utils.APIResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/utils.APIResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/utils.APIResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/utils.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/psb/register": {
+            "post": {
+                "description": "Register a new santri for PSB (public)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "psb"
+                ],
+                "summary": "Register new santri",
+                "parameters": [
+                    {
+                        "description": "Registration data",
+                        "name": "santri",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.RegisterSantriRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/utils.APIResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/utils.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/psb/registrants": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Get all PSB registrants with optional status filter (admin only)",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "psb"
+                ],
+                "summary": "Get all registrants",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Filter by status (PENDING, VERIFIED, ACCEPTED, REJECTED)",
+                        "name": "status",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/utils.APIResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/utils.APIResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/utils.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/psb/registrants/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Get a single registrant's detail (admin only)",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "psb"
+                ],
+                "summary": "Get registrant by ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Registrant ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/utils.APIResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/utils.APIResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/utils.APIResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/utils.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/psb/registrants/{id}/status": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Update the status of a registrant (admin only)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "psb"
+                ],
+                "summary": "Update registrant status",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Registrant ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "New status",
+                        "name": "status",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "status": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/utils.APIResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/utils.APIResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/utils.APIResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/utils.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/psb/registrants/{id}/verify": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Verify a registrant and accept them as santri (admin only)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "psb"
+                ],
+                "summary": "Verify and accept santri",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Registrant ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Verification data",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "class": {
+                                    "type": "string"
+                                },
+                                "entry_year": {
+                                    "type": "integer"
+                                },
+                                "nis": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/utils.APIResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/utils.APIResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/utils.APIResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
                         "schema": {
                             "$ref": "#/definitions/utils.APIResponse"
                         }
@@ -1744,6 +2203,101 @@ const docTemplate = `{
             "properties": {
                 "refresh_token": {
                     "type": "string"
+                }
+            }
+        },
+        "dto.RegisterSantriRequest": {
+            "type": "object",
+            "required": [
+                "address",
+                "birth_date",
+                "birth_place",
+                "father_job",
+                "father_name",
+                "full_name",
+                "gender",
+                "graduation_year",
+                "mother_job",
+                "mother_name",
+                "nik",
+                "parent_phone",
+                "school_address",
+                "school_origin"
+            ],
+            "properties": {
+                "address": {
+                    "type": "string",
+                    "maxLength": 500,
+                    "minLength": 10
+                },
+                "birth_date": {
+                    "description": "Format: YYYY-MM-DD",
+                    "type": "string"
+                },
+                "birth_place": {
+                    "type": "string",
+                    "maxLength": 50,
+                    "minLength": 2
+                },
+                "father_job": {
+                    "type": "string",
+                    "maxLength": 100,
+                    "minLength": 2
+                },
+                "father_name": {
+                    "description": "Parent Data",
+                    "type": "string",
+                    "maxLength": 100,
+                    "minLength": 3
+                },
+                "full_name": {
+                    "description": "Santri Data",
+                    "type": "string",
+                    "maxLength": 100,
+                    "minLength": 3
+                },
+                "gender": {
+                    "type": "string",
+                    "enum": [
+                        "L",
+                        "P"
+                    ]
+                },
+                "graduation_year": {
+                    "type": "string"
+                },
+                "mother_job": {
+                    "type": "string",
+                    "maxLength": 100,
+                    "minLength": 2
+                },
+                "mother_name": {
+                    "type": "string",
+                    "maxLength": 100,
+                    "minLength": 3
+                },
+                "nik": {
+                    "type": "string"
+                },
+                "parent_phone": {
+                    "type": "string",
+                    "maxLength": 15,
+                    "minLength": 10
+                },
+                "photo_url": {
+                    "description": "Optional",
+                    "type": "string"
+                },
+                "school_address": {
+                    "type": "string",
+                    "maxLength": 500,
+                    "minLength": 10
+                },
+                "school_origin": {
+                    "description": "Education Data",
+                    "type": "string",
+                    "maxLength": 100,
+                    "minLength": 3
                 }
             }
         },

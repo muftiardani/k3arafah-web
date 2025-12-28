@@ -126,6 +126,82 @@ definitions:
     required:
     - refresh_token
     type: object
+  dto.RegisterSantriRequest:
+    properties:
+      address:
+        maxLength: 500
+        minLength: 10
+        type: string
+      birth_date:
+        description: 'Format: YYYY-MM-DD'
+        type: string
+      birth_place:
+        maxLength: 50
+        minLength: 2
+        type: string
+      father_job:
+        maxLength: 100
+        minLength: 2
+        type: string
+      father_name:
+        description: Parent Data
+        maxLength: 100
+        minLength: 3
+        type: string
+      full_name:
+        description: Santri Data
+        maxLength: 100
+        minLength: 3
+        type: string
+      gender:
+        enum:
+        - L
+        - P
+        type: string
+      graduation_year:
+        type: string
+      mother_job:
+        maxLength: 100
+        minLength: 2
+        type: string
+      mother_name:
+        maxLength: 100
+        minLength: 3
+        type: string
+      nik:
+        type: string
+      parent_phone:
+        maxLength: 15
+        minLength: 10
+        type: string
+      photo_url:
+        description: Optional
+        type: string
+      school_address:
+        maxLength: 500
+        minLength: 10
+        type: string
+      school_origin:
+        description: Education Data
+        maxLength: 100
+        minLength: 3
+        type: string
+    required:
+    - address
+    - birth_date
+    - birth_place
+    - father_job
+    - father_name
+    - full_name
+    - gender
+    - graduation_year
+    - mother_job
+    - mother_name
+    - nik
+    - parent_phone
+    - school_address
+    - school_origin
+    type: object
   dto.TokenPair:
     properties:
       access_token:
@@ -731,6 +807,29 @@ paths:
       summary: Submit a contact message
       tags:
       - messages
+  /dashboard/stats:
+    get:
+      description: Get dashboard statistics (admin only)
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Get dashboard statistics
+      tags:
+      - dashboard
   /galleries:
     get:
       description: Get all gallery albums
@@ -1023,6 +1122,274 @@ paths:
       summary: Logout admin
       tags:
       - auth
+  /messages:
+    get:
+      description: Get all contact messages (admin only)
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Get all messages
+      tags:
+      - messages
+  /messages/{id}:
+    delete:
+      description: Delete a message (admin only)
+      parameters:
+      - description: Message ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Delete a message
+      tags:
+      - messages
+  /messages/{id}/read:
+    put:
+      description: Mark a message as read (admin only)
+      parameters:
+      - description: Message ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Mark message as read
+      tags:
+      - messages
+  /psb/register:
+    post:
+      consumes:
+      - application/json
+      description: Register a new santri for PSB (public)
+      parameters:
+      - description: Registration data
+        in: body
+        name: santri
+        required: true
+        schema:
+          $ref: '#/definitions/dto.RegisterSantriRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+      summary: Register new santri
+      tags:
+      - psb
+  /psb/registrants:
+    get:
+      description: Get all PSB registrants with optional status filter (admin only)
+      parameters:
+      - description: Filter by status (PENDING, VERIFIED, ACCEPTED, REJECTED)
+        in: query
+        name: status
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Get all registrants
+      tags:
+      - psb
+  /psb/registrants/{id}:
+    get:
+      description: Get a single registrant's detail (admin only)
+      parameters:
+      - description: Registrant ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Get registrant by ID
+      tags:
+      - psb
+  /psb/registrants/{id}/status:
+    put:
+      consumes:
+      - application/json
+      description: Update the status of a registrant (admin only)
+      parameters:
+      - description: Registrant ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: New status
+        in: body
+        name: status
+        required: true
+        schema:
+          properties:
+            status:
+              type: string
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Update registrant status
+      tags:
+      - psb
+  /psb/registrants/{id}/verify:
+    put:
+      consumes:
+      - application/json
+      description: Verify a registrant and accept them as santri (admin only)
+      parameters:
+      - description: Registrant ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Verification data
+        in: body
+        name: input
+        required: true
+        schema:
+          properties:
+            class:
+              type: string
+            entry_year:
+              type: integer
+            nis:
+              type: string
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Verify and accept santri
+      tags:
+      - psb
   /ready:
     get:
       description: Check if the service is ready to accept traffic

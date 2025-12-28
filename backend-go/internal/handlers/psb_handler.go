@@ -20,6 +20,16 @@ func NewPSBHandler(service services.PSBService) *PSBHandler {
 	return &PSBHandler{service}
 }
 
+// Register godoc
+// @Summary      Register new santri
+// @Description  Register a new santri for PSB (public)
+// @Tags         psb
+// @Accept       json
+// @Produce      json
+// @Param        santri  body      dto.RegisterSantriRequest  true  "Registration data"
+// @Success      201     {object}  utils.APIResponse
+// @Failure      400     {object}  utils.APIResponse
+// @Router       /psb/register [post]
 func (h *PSBHandler) Register(c *gin.Context) {
 	var input dto.RegisterSantriRequest
 	if err := c.ShouldBindJSON(&input); err != nil {
@@ -56,6 +66,17 @@ func (h *PSBHandler) Register(c *gin.Context) {
 	utils.SuccessResponse(c, http.StatusCreated, "Registration successful", santri)
 }
 
+// GetAll godoc
+// @Summary      Get all registrants
+// @Description  Get all PSB registrants with optional status filter (admin only)
+// @Tags         psb
+// @Produce      json
+// @Param        status  query     string  false  "Filter by status (PENDING, VERIFIED, ACCEPTED, REJECTED)"
+// @Success      200     {object}  utils.APIResponse
+// @Failure      400     {object}  utils.APIResponse
+// @Failure      401     {object}  utils.APIResponse
+// @Security     BearerAuth
+// @Router       /psb/registrants [get]
 func (h *PSBHandler) GetAll(c *gin.Context) {
 	// Optional status filter
 	status := c.Query("status")
@@ -88,6 +109,18 @@ func (h *PSBHandler) GetAll(c *gin.Context) {
 	utils.SuccessResponse(c, http.StatusOK, "Data fetched successfully", santris)
 }
 
+// GetDetail godoc
+// @Summary      Get registrant by ID
+// @Description  Get a single registrant's detail (admin only)
+// @Tags         psb
+// @Produce      json
+// @Param        id   path      int  true  "Registrant ID"
+// @Success      200  {object}  utils.APIResponse
+// @Failure      400  {object}  utils.APIResponse
+// @Failure      401  {object}  utils.APIResponse
+// @Failure      404  {object}  utils.APIResponse
+// @Security     BearerAuth
+// @Router       /psb/registrants/{id} [get]
 func (h *PSBHandler) GetDetail(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
@@ -104,6 +137,20 @@ func (h *PSBHandler) GetDetail(c *gin.Context) {
 	utils.SuccessResponse(c, http.StatusOK, "Detail fetched successfully", santri)
 }
 
+// UpdateStatus godoc
+// @Summary      Update registrant status
+// @Description  Update the status of a registrant (admin only)
+// @Tags         psb
+// @Accept       json
+// @Produce      json
+// @Param        id      path      int                         true  "Registrant ID"
+// @Param        status  body      object{status=string}       true  "New status"
+// @Success      200     {object}  utils.APIResponse
+// @Failure      400     {object}  utils.APIResponse
+// @Failure      401     {object}  utils.APIResponse
+// @Failure      404     {object}  utils.APIResponse
+// @Security     BearerAuth
+// @Router       /psb/registrants/{id}/status [put]
 func (h *PSBHandler) UpdateStatus(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
@@ -128,6 +175,20 @@ func (h *PSBHandler) UpdateStatus(c *gin.Context) {
 	utils.SuccessResponse(c, http.StatusOK, "Status updated successfully", nil)
 }
 
+// Verify godoc
+// @Summary      Verify and accept santri
+// @Description  Verify a registrant and accept them as santri (admin only)
+// @Tags         psb
+// @Accept       json
+// @Produce      json
+// @Param        id     path      int                                          true  "Registrant ID"
+// @Param        input  body      object{nis=string,class=string,entry_year=int}  true  "Verification data"
+// @Success      200    {object}  utils.APIResponse
+// @Failure      400    {object}  utils.APIResponse
+// @Failure      401    {object}  utils.APIResponse
+// @Failure      404    {object}  utils.APIResponse
+// @Security     BearerAuth
+// @Router       /psb/registrants/{id}/verify [put]
 func (h *PSBHandler) Verify(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
