@@ -2,12 +2,13 @@
 
 import { useTranslations } from "next-intl";
 import { Link } from "@/navigation";
-import { Calendar, User, ArrowRight, Loader2, ChevronLeft, ChevronRight } from "lucide-react";
+import { Calendar, User, ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { fadeIn, staggerContainer, slideUp } from "@/lib/animations";
-import { useQuery, keepPreviousData } from "@tanstack/react-query";
-import { getPaginatedArticles, Article } from "@/lib/services/articleService";
+import { usePaginatedArticles, articleKeys } from "@/lib/hooks";
+import { Article } from "@/lib/services/articleService";
+import { ArticleListSkeleton } from "@/components/skeletons";
 import { useState } from "react";
 
 interface ArticlesContentProps {
@@ -19,11 +20,7 @@ export default function ArticlesContent({ initialArticles = [] }: ArticlesConten
   const [page, setPage] = useState(1);
   const LIMIT = 6;
 
-  const { data, isLoading, isError, isPlaceholderData } = useQuery({
-    queryKey: ["articles", page],
-    queryFn: () => getPaginatedArticles(page, LIMIT),
-    placeholderData: keepPreviousData,
-  });
+  const { data, isLoading, isError, isPlaceholderData } = usePaginatedArticles(page, LIMIT);
 
   const articles = data?.items || [];
   const meta = data?.meta;
@@ -67,21 +64,7 @@ export default function ArticlesContent({ initialArticles = [] }: ArticlesConten
       <section className="py-16 md:py-24">
         <div className="container px-4 md:px-6">
           {isLoading ? (
-            <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-              {[1, 2, 3, 4, 5, 6].map((i) => (
-                <div
-                  key={i}
-                  className="flex flex-col overflow-hidden rounded-xl border bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800"
-                >
-                  <div className="aspect-video w-full animate-pulse bg-gray-200 dark:bg-gray-700" />
-                  <div className="space-y-4 p-6">
-                    <div className="h-4 w-1/3 animate-pulse rounded bg-gray-200 dark:bg-gray-700" />
-                    <div className="h-6 w-3/4 animate-pulse rounded bg-gray-200 dark:bg-gray-700" />
-                    <div className="h-20 w-full animate-pulse rounded bg-gray-200 dark:bg-gray-700" />
-                  </div>
-                </div>
-              ))}
-            </div>
+            <ArticleListSkeleton count={6} />
           ) : isError ? (
             <div className="flex justify-center py-20 text-center text-red-500">
               <p>Failed to load articles. Please try again later.</p>

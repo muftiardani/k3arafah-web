@@ -1,8 +1,6 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import { Link } from "@/navigation";
-import { ArrowLeft, Calendar, User } from "lucide-react";
+import { Calendar, User } from "lucide-react";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { fadeIn, slideUp, staggerContainer } from "@/lib/animations";
@@ -22,13 +20,6 @@ export default function ArticleDetailContent({ article }: ArticleDetailContentPr
       className="container mx-auto max-w-4xl px-4 py-8"
     >
       <motion.div variants={fadeIn} className="mb-8">
-        <Button variant="ghost" asChild className="mb-4 pl-0 transition-all hover:pl-2">
-          <Link href="/articles">
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Articles
-          </Link>
-        </Button>
-
         <motion.h1
           variants={slideUp}
           className="mb-4 text-3xl leading-tight font-bold md:text-4xl lg:text-5xl"

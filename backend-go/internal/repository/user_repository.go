@@ -15,6 +15,7 @@ type UserRepository interface {
 	FindByID(ctx context.Context, id uint) (*models.User, error)
 	UpdateUser(ctx context.Context, user *models.User) error
 	DeleteUser(ctx context.Context, id uint) error
+	Count(ctx context.Context) (int64, error)
 }
 
 type userRepository struct {
@@ -53,4 +54,10 @@ func (r *userRepository) UpdateUser(ctx context.Context, user *models.User) erro
 
 func (r *userRepository) DeleteUser(ctx context.Context, id uint) error {
 	return utils.HandleDBError(r.db.WithContext(ctx).Delete(&models.User{}, id).Error)
+}
+
+func (r *userRepository) Count(ctx context.Context) (int64, error) {
+	var count int64
+	err := r.db.WithContext(ctx).Model(&models.User{}).Count(&count).Error
+	return count, utils.HandleDBError(err)
 }

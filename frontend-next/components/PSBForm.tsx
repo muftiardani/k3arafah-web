@@ -30,8 +30,6 @@ import { Textarea } from "@/components/ui/textarea";
 
 import { registerPSB } from "@/lib/services/psbService";
 
-// ... existing imports
-
 export default function PSBForm() {
   const router = useRouter();
   const t = useTranslations("PSB");
@@ -90,17 +88,24 @@ export default function PSBForm() {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsSubmitting(true);
     try {
-      // Cast to any because Zod schema might slightly differ from exact service type (e.g. date string format)
-      // Service expects string for birth_date (ISO Date string from registerPSB logic) which we handle here.
+      // Build payload matching PSBRegistrationData interface
       const payload = {
-        ...values,
-        birth_date: new Date(values.birth_date).toISOString(),
-        // Map form fields to service fields if necessary.
-        // Based on analysis, they match 1:1.
-        program: "reguler", // Add default program if missing in form but required by backend/service type
+        full_name: values.full_name,
+        nik: values.nik,
+        birth_place: values.birth_place,
+        birth_date: values.birth_date, // Already in YYYY-MM-DD format from input type="date"
+        gender: values.gender as "L" | "P",
+        address: values.address,
+        father_name: values.father_name,
+        father_job: values.father_job,
+        mother_name: values.mother_name,
+        mother_job: values.mother_job,
+        parent_phone: values.parent_phone,
+        school_origin: values.school_origin,
+        school_address: values.school_address,
+        graduation_year: values.graduation_year,
       };
 
-      // @ts-ignore - ignoring minor type mismatch for now to ensure functionality
       await registerPSB(payload);
 
       toast.success(t("success_title"), {

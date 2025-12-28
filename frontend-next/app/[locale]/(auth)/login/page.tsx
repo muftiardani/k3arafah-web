@@ -1,19 +1,16 @@
 "use client";
 
-import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import api from "@/lib/api";
 import { useRouter } from "next/navigation";
-import { toast } from "sonner";
 import { motion } from "framer-motion";
 import { User, Lock, School, ArrowRight, Loader2 } from "lucide-react";
 import { Link } from "@/navigation";
 import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
-import { useAuthStore } from "@/store/useAuthStore";
+import { useLogin } from "@/lib/hooks";
 import {
   Form,
   FormControl,
@@ -27,7 +24,7 @@ import { Input } from "@/components/ui/input";
 export default function AdminLogin() {
   const router = useRouter();
   const t = useTranslations("Login");
-  const [isLoading, setIsLoading] = useState(false);
+  const { mutate: login, isPending: isLoading } = useLogin();
 
   const formSchema = z.object({
     username: z.string().min(2, {
@@ -46,27 +43,8 @@ export default function AdminLogin() {
     },
   });
 
-  async function onSubmit(values: z.infer<typeof formSchema>) {
-    setIsLoading(true);
-    try {
-      // Hit BFF Proxy to set HTTP-Only Cookie
-      // Backend endpoint is /login based on main.go
-      await api.post("/login", values);
-
-      // Note: Backend currently doesn't return user info on login.
-      // Ideally we should fetch my-profile here.
-      // For now we assume success means logged in.
-      useAuthStore
-        .getState()
-        .login({ id: 1, name: "Admin", email: values.username, role: "admin" });
-
-      toast.success(t("success"));
-      router.push("/dashboard");
-    } catch (error) {
-      console.error(error);
-      toast.error(t("error"));
-      setIsLoading(false); // Only stop loading on error, otherwise we navigate
-    }
+  function onSubmit(values: z.infer<typeof formSchema>) {
+    login(values);
   }
 
   return (

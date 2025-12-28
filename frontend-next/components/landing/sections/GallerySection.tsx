@@ -32,7 +32,7 @@ export default function GallerySection({ galleries }: GallerySectionProps) {
           ) : (
             // Display photos from galleries (flattened)
             (() => {
-              // Collect all photos from all galleries into a single array
+              // Display photos from galleries (flattened)
               const allPhotos = galleries
                 .flatMap((g) => (g.photos || []).map((p) => ({ ...p, title: g.title })))
                 .slice(0, 5); // Take max 5 photos for the grid
@@ -48,7 +48,7 @@ export default function GallerySection({ galleries }: GallerySectionProps) {
                       className="group relative col-span-2 row-span-2 overflow-hidden rounded-xl bg-gray-200 dark:bg-gray-800"
                     >
                       <Image
-                        src={allPhotos[0].url}
+                        src={allPhotos[0].photo_url}
                         alt={allPhotos[0].title}
                         fill
                         className="object-cover transition-transform duration-500 group-hover:scale-110"
@@ -70,7 +70,7 @@ export default function GallerySection({ galleries }: GallerySectionProps) {
                       className="group relative col-span-1 overflow-hidden rounded-xl bg-gray-200 dark:bg-gray-800"
                     >
                       <Image
-                        src={photo.url}
+                        src={photo.photo_url}
                         alt={photo.title}
                         fill
                         className="object-cover transition-transform duration-500 group-hover:scale-110"

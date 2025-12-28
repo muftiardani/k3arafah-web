@@ -3,9 +3,10 @@
 import { Link } from "@/navigation";
 import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { LanguageSwitcher } from "../LanguageSwitcher";
+import { useAuthStore } from "@/store/useAuthStore";
 
 import { usePathname } from "next/navigation";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle, SheetClose } from "@/components/ui/sheet";
@@ -17,6 +18,7 @@ export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const t = useTranslations("Navbar");
+  const { isLoggedIn } = useAuthStore();
   const pathname = usePathname();
   const { scrollY } = useScroll();
 
@@ -62,31 +64,33 @@ export function Navbar() {
         <div className="flex items-center gap-2">
           <Link href="/" className="group flex items-center gap-3">
             <motion.div
-              className="relative h-10 w-10 overflow-hidden rounded-full border-2 border-emerald-500 shadow-lg"
+              className="relative flex items-center gap-2"
               whileHover={{ scale: 1.05 }}
               transition={{ type: "spring", stiffness: 260, damping: 20 }}
             >
-              <Image
-                src="/logo.png"
-                alt="K3 Arafah Logo"
-                fill
-                className="object-cover"
-                sizes="40px"
-              />
+              <div className="relative h-10 w-10 overflow-hidden rounded-full bg-white/90 p-1 shadow-sm backdrop-blur-sm">
+                <Image
+                  src="/logo-arafah.png"
+                  alt="K3 Arafah Logo"
+                  fill
+                  className="object-contain"
+                  sizes="40px"
+                />
+              </div>
             </motion.div>
             <div className="flex flex-col">
               <span
                 className={cn(
-                  "hidden text-lg leading-none font-bold transition-colors duration-500 sm:inline-block",
+                  "hidden text-[11px] leading-none font-medium transition-colors duration-500 sm:inline-block",
                   isScrolled
                     ? "text-emerald-900 dark:text-emerald-50"
                     : "text-emerald-800 dark:text-white"
                 )}
               >
-                Pondok Pesantren
+                {t("brand_primary")}
               </span>
-              <span className="hidden text-sm leading-none font-medium text-emerald-600 sm:inline-block dark:text-emerald-400">
-                K3 Arafah
+              <span className="hidden text-base leading-none font-bold text-emerald-600 sm:inline-block dark:text-emerald-400">
+                {t("brand_secondary")}
               </span>
               <span
                 className={cn(
@@ -96,7 +100,7 @@ export function Navbar() {
                     : "text-emerald-800 dark:text-white"
                 )}
               >
-                K3 Arafah
+                {t("brand_short")}
               </span>
             </div>
           </Link>
@@ -137,6 +141,42 @@ export function Navbar() {
         </nav>
 
         <div className="flex items-center gap-3">
+          {/* Desktop Language Switcher */}
+          <div className="hidden md:block">
+            <LanguageSwitcher />
+          </div>
+
+          {/* Desktop Auth Button */}
+          <div className="hidden md:block">
+            {isLoggedIn ? (
+              <Button
+                asChild
+                variant="ghost"
+                size="sm"
+                className={
+                  isScrolled
+                    ? "text-emerald-900 dark:text-white"
+                    : "text-emerald-800 dark:text-white"
+                }
+              >
+                <Link href="/dashboard">Dashboard</Link>
+              </Button>
+            ) : (
+              <Button
+                asChild
+                variant="ghost"
+                size="sm"
+                className={
+                  isScrolled
+                    ? "text-emerald-900 dark:text-white"
+                    : "text-emerald-800 dark:text-white"
+                }
+              >
+                <Link href="/login">{t("login")}</Link>
+              </Button>
+            )}
+          </div>
+
           <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
             <Button
               asChild
@@ -153,14 +193,14 @@ export function Navbar() {
             <SheetTrigger asChild>
               <Button variant="ghost" size="icon" className="md:hidden">
                 <Menu className="h-6 w-6 text-emerald-800 dark:text-white" />
-                <span className="sr-only">Toggle menu</span>
+                <span className="sr-only">{t("toggle_menu")}</span>
               </Button>
             </SheetTrigger>
             <SheetContent
               side="right"
               className="w-[300px] border-l border-emerald-100 bg-white/80 p-0 shadow-2xl backdrop-blur-2xl sm:w-[400px] dark:border-emerald-900 dark:bg-gray-950/80"
             >
-              <SheetTitle className="sr-only">Menu</SheetTitle>
+              <SheetTitle className="sr-only">{t("menu_sr")}</SheetTitle>
 
               {/* Decorative Gradient Background */}
               <div className="pointer-events-none absolute inset-0 overflow-hidden">
@@ -176,10 +216,10 @@ export function Navbar() {
                   </div>
                   <div>
                     <h2 className="text-xl font-bold text-emerald-950 dark:text-emerald-50">
-                      K3 Arafah
+                      {t("brand_short")}
                     </h2>
                     <p className="text-xs font-medium text-emerald-600/80 dark:text-emerald-400/80">
-                      Menu Navigasi Utama
+                      {t("mobile_menu_desc")}
                     </p>
                   </div>
                 </div>
@@ -239,7 +279,7 @@ export function Navbar() {
                     <LanguageSwitcher />
                   </div>
                   <p className="text-center text-xs text-gray-400 dark:text-gray-600">
-                    © {new Date().getFullYear()} K3 Arafah
+                    © {new Date().getFullYear()} {t("brand_short")}
                   </p>
                 </div>
               </div>

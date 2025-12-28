@@ -7,7 +7,13 @@
     "contact": "Contact",
     "psb": "Admission",
     "login": "Login",
-    "language": "Language"
+    "language": "Language",
+    "brand_primary": "PONDOK PESANTREN AL-MUNAWWIR",
+    "brand_secondary": "KOMPLEK ARAFAH",
+    "brand_short": "K3 Arafah",
+    "mobile_menu_desc": "Main Navigation Menu",
+    "toggle_menu": "Toggle menu",
+    "menu_sr": "Menu"
   },
   "Hero": {
     "title": "K3 Arafah Boarding School",
@@ -138,6 +144,56 @@
     "cta_desc": "New student admission is now open. Register yourself or your son/daughter immediately.",
     "cta_button": "Register Now"
   },
+  "VideoProfile": {
+    "title": "Profile Video",
+    "description": "Get to know closer the atmosphere, activities, and learning environment of students at K3 Arafah Boarding School."
+  },
+  "Achievements": {
+    "title": "Student Achievements",
+    "description": "Real proof of students' dedication and seriousness in developing their potential.",
+    "items": {
+      "mhq_10": {
+        "title": "1st Place MHQ 10 Juz",
+        "subtitle": "District Level (2024)",
+        "desc": "Ananda Fulan bin Fulan"
+      },
+      "osn_physics": {
+        "title": "Gold Medal Physics Olympiad",
+        "subtitle": "Science Olympiad (2024)",
+        "desc": "Ahmad Dahlan"
+      },
+      "speech_arabic": {
+        "title": "2nd Place Arabic Speech",
+        "subtitle": "Student Arts Week (2023)",
+        "desc": "Zaki Mubarak"
+      },
+      "mtq_student": {
+        "title": "General Champion MtQ Student",
+        "subtitle": "Provincial Level (2024)",
+        "desc": "K3 Arafah Contingent"
+      },
+      "hadrah": {
+        "title": "1st Runner Up Hadrah",
+        "subtitle": "Islamic Art Festival",
+        "desc": "Al-Banjari Team"
+      },
+      "kitab_kuning": {
+        "title": "1st Place Yellow Book Reading",
+        "subtitle": "Regional MQK (2023)",
+        "desc": "Fatimah Az-Zahra"
+      },
+      "silat": {
+        "title": "2nd Place Pencak Silat",
+        "subtitle": "Regional Championship",
+        "desc": "Rizky Aditya"
+      },
+      "debate_english": {
+        "title": "Best Speaker Debate",
+        "subtitle": "English Debate",
+        "desc": "Siti Aminah"
+      }
+    }
+  },
   "Articles": {
     "title": "News & Articles",
     "description": "Latest news and inspiring articles from K3 Arafah Boarding School.",
@@ -152,18 +208,10 @@
     "hero_title": "Contact Us",
     "hero_desc": "Please contact us for more information regarding registration or boarding school programs.",
     "address_title": "Address",
-    "address_desc": "Jl. Pesantren No. 123, Sukamaju Village, Cigudeg District, Bogor Regency, West Java 16680.",
-    "phone_1": "+62 812-3456-7890",
-    "phone_1_label": "(PSB Admin)",
-    "phone_2": "+62 898-7654-3210",
-    "phone_2_label": "(Foundation Office)",
+    "address_desc": "Jl. KH. Ali Maksum, Panggungharjo Village, Sewon District, Bantul Regency, Special Region of Yogyakarta 55188.",
     "email_1": "info@k3arafah.com",
     "email_2": "psb@k3arafah.com",
-    "phone_title": "Phone / WhatsApp",
     "email_title": "Email",
-    "hours_title": "Office Hours",
-    "hours_desc": "Mon - Sat: 08.00 - 15.00 WIB",
-    "hours_desc_2": "Sun: Closed",
     "send_message": "Send Message",
     "form_name": "Full Name",
     "form_name_placeholder": "Your Name",
@@ -175,16 +223,18 @@
     "form_message_placeholder": "Write your message here...",
     "btn_submit": "Send Message",
     "btn_submitting": "Sending...",
-    "success_message": "Your message has been sent!",
     "validation_name": "Name minimum 2 characters.",
     "validation_email": "Invalid email.",
     "validation_subject": "Subject minimum 5 characters.",
-    "validation_message": "Message minimum 10 characters."
+    "validation_message": "Message minimum 10 characters.",
+    "toast_success": "Your message has been sent successfully!",
+    "toast_fail": "Failed to send message. Please try again."
   },
   "Error": {
     "title": "Something Went Wrong!",
     "description": "We encountered an unexpected error. Our team has been notified. Please try again or return to home.",
-    "try_again": "Try Again"
+    "try_again": "Try Again",
+    "back_home": "Back to Home"
   },
   "NotFound": {
     "title": "Page Not Found",
@@ -195,17 +245,17 @@
     "description": "Building a Qur'anic Generation with Noble Character, Global Perspective, and Ready to Serve the Ummah.",
     "quick_links": "Explore",
     "contact_us": "Visit Us",
-    "address_text": "Jl. Pesantren No. 123, Sukamaju Village, Cigudeg District, Bogor Regency, West Java 16680.",
-    "admin_psb": "(PSB Admin)",
-    "rights_reserved": "K3 Arafah Boarding School Foundation. All rights reserved.",
+    "address_text": "Jl. KH. Ali Maksum, Panggungharjo Village, Sewon District, Bantul Regency, Yogyakarta 55188.",
+    "rights_reserved": "All rights reserved.",
     "link_home": "Home",
     "link_about": "About Us",
     "link_programs": "Educational Programs",
-    "link_psb": "New Student Admission (PSB)",
     "link_contact": "Contact Us",
     "link_news": "News & Articles",
-    "phone": "+62 812-3456-7890",
-    "email": "info@k3arafah.com"
+    "email": "info@k3arafah.com",
+    "brand_name": "Komplek Arafah",
+    "address_label": "Address",
+    "email_label": "Email"
   },
   "Home": {
     "gallery_title": "Activity Gallery",
@@ -240,13 +290,20 @@
       "articles": "News / Articles",
       "gallery": "Gallery",
       "users": "User Management",
-      "logout": "Sign Out"
+      "logout": "Sign Out",
+      "videos": "Profile Videos",
+      "achievements": "Achievements",
+      "messages": "Messages"
     },
     "Groups": {
       "main": "Main",
       "academic": "Academic & Students",
       "content": "Website Content",
       "system": "System"
+    },
+    "User": {
+      "admin": "Administrator",
+      "super_admin": "Super Admin"
     },
     "Stats": {
       "total_students": "Total Students",
@@ -279,10 +336,7 @@
       "upload_gallery": "Upload Gallery",
       "student_data": "Students Data"
     },
-    "User": {
-      "admin": "Administrator",
-      "super_admin": "Super Admin"
-    },
+
     "StudentsPage": {
       "title": "Active Students Data",
       "description": "Directory of accepted students.",
@@ -355,6 +409,56 @@
       "toast_deleted": "Article deleted successfully",
       "toast_failed": "Failed to delete article"
     },
+    "AdminsPage": {
+      "title": "Admin Management",
+      "description": "Manage admin users who can access the dashboard.",
+      "add_new": "Add Admin",
+      "access_denied": "Access Denied",
+      "super_admin_only": "Only Super Admins can access this page.",
+      "error_loading": "Failed to load admin list.",
+      "empty": "No admins found.",
+      "delete_confirm": "Are you sure you want to delete this admin?",
+      "dialog_title": "Create New Admin",
+      "dialog_description": "Fill in the form below to create a new admin account.",
+      "form": {
+        "username": "Username",
+        "password": "Password",
+        "name": "Full Name",
+        "create": "Create Admin",
+        "creating": "Creating..."
+      },
+      "table": {
+        "title": "Admin List",
+        "description": "List of all admin accounts in the system.",
+        "username": "Username",
+        "name": "Name",
+        "role": "Role",
+        "action": "Action"
+      }
+    },
+    "VideosPage": {
+      "title": "Profile Videos",
+      "description": "Manage profile videos displayed on the homepage.",
+      "add_new": "Add Video",
+      "table": {
+        "title": "Video Title",
+        "youtube_id": "Youtube ID",
+        "created_at": "Date",
+        "action": "Action"
+      },
+      "form": {
+        "title": "Video Title",
+        "youtube_id": "Youtube ID (e.g. P-b78PQNsGE)",
+        "thumbnail": "Thumbnail URL (Optional)",
+        "submit": "Save Video",
+        "cancel": "Cancel"
+      },
+      "empty": "No videos yet.",
+      "delete_confirm": "Delete this video?",
+      "toast_deleted": "Video deleted",
+      "toast_failed": "Failed to delete video",
+      "toast_created": "Video added successfully"
+    },
     "GalleryPage": {
       "title": "Activity Gallery",
       "description": "Manage boarding school photo albums.",
@@ -366,7 +470,40 @@
       "no_desc": "No description",
       "delete_confirm": "Are you sure? This will delete the album and all photos inside.",
       "toast_deleted": "Gallery deleted",
-      "toast_failed": "Failed to delete gallery"
+      "toast_failed": "Failed to delete gallery",
+      "edit_title": "Edit Gallery",
+      "edit_description": "Update gallery details",
+      "form_title": "Title",
+      "form_description": "Description",
+      "cancel": "Cancel",
+      "save": "Save",
+      "toast_updated": "Gallery updated successfully"
+    },
+    "AchievementsPage": {
+      "title": "Student Achievements",
+      "description": "Manage student achievements displayed on the landing page.",
+      "add_new": "Add Achievement",
+      "table": {
+        "icon": "Icon",
+        "title": "Title",
+        "subtitle": "Subtitle / Level",
+        "created_at": "Date",
+        "action": "Action"
+      },
+      "form": {
+        "title": "Title",
+        "subtitle": "Subtitle (e.g., 1st Place National)",
+        "description": "Description (e.g., Student Name)",
+        "icon": "Select Icon",
+        "color": "Theme Color",
+        "submit": "Save",
+        "cancel": "Cancel"
+      },
+      "empty": "No achievements found.",
+      "delete_confirm": "Delete this achievement?",
+      "toast_deleted": "Achievement deleted",
+      "toast_failed": "Failed to delete achievement",
+      "toast_created": "Achievement created successfully"
     },
     "UsersPage": {
       "title": "User Management",

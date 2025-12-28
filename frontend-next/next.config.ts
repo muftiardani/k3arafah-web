@@ -31,6 +31,22 @@ const nextConfig: NextConfig = {
         protocol: "https", // Allow logo if needed or external images
         hostname: "k3arafah.com",
       },
+      {
+        protocol: "http", // Allow localhost for development
+        hostname: "localhost",
+      },
+      {
+        protocol: "http",
+        hostname: "127.0.0.1",
+      },
+      {
+        protocol: "https", // YouTube thumbnails
+        hostname: "img.youtube.com",
+      },
+      {
+        protocol: "https",
+        hostname: "i.ytimg.com",
+      },
     ],
   },
 };

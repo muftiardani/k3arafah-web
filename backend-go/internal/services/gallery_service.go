@@ -3,6 +3,7 @@ package services
 import (
 	"backend-go/internal/models"
 	"backend-go/internal/repository"
+	"backend-go/internal/utils"
 	"context"
 	"mime/multipart"
 )
@@ -36,7 +37,7 @@ func (s *galleryService) CreateGallery(ctx context.Context, gallery *models.Gall
 		}
 		defer file.Close()
 
-		url, err := s.mediaService.UploadImage(ctx, file, "k3arafah/galleries")
+		url, err := s.mediaService.UploadImage(ctx, file, coverFile, "k3arafah/galleries")
 		if err != nil {
 			return err
 		}
@@ -62,13 +63,18 @@ func (s *galleryService) UpdateGallery(ctx context.Context, id uint, galleryData
 
 	existing.Title = galleryData.Title
 	existing.Description = galleryData.Description
-	// Note: Cover update handles separately or here? Keeping simple for now
+	
+	// Update cover URL if provided
+	if galleryData.CoverURL != "" {
+		existing.CoverURL = galleryData.CoverURL
+	}
 
 	return s.repo.Update(ctx, existing)
 }
 
 func (s *galleryService) DeleteGallery(ctx context.Context, id uint) error {
-	// Ideally delete photos from Cloudinary too, but we skip for now to simplify
+	// Note: Photos are cascade deleted in DB but not removed from Cloudinary storage.
+	// For full cleanup, implement Cloudinary delete API integration.
 	return s.repo.Delete(ctx, id)
 }
 
@@ -78,15 +84,21 @@ func (s *galleryService) AddPhotos(ctx context.Context, galleryID uint, files []
 		return err
 	}
 
+	var uploadedCount int
+	var failedCount int
+
 	for _, fileHeader := range files {
 		file, err := fileHeader.Open()
 		if err != nil {
-			continue // Skip bad files? Or error out?
+			failedCount++
+			continue
 		}
-		defer file.Close()
 
-		url, err := s.mediaService.UploadImage(ctx, file, "k3arafah/galleries/photos")
+		url, err := s.mediaService.UploadImage(ctx, file, fileHeader, "k3arafah/galleries/photos")
+		file.Close() // Close immediately after use, not defer in loop
+
 		if err != nil {
+			failedCount++
 			continue
 		}
 
@@ -94,8 +106,18 @@ func (s *galleryService) AddPhotos(ctx context.Context, galleryID uint, files []
 			GalleryID: galleryID,
 			PhotoURL:  url,
 		}
-		_ = s.repo.AddPhoto(ctx, photo)
+		if err := s.repo.AddPhoto(ctx, photo); err != nil {
+			failedCount++
+			continue
+		}
+		uploadedCount++
 	}
+
+	// Return error only if all uploads failed
+	if uploadedCount == 0 && failedCount > 0 {
+		return utils.NewAppError(400, "Failed to upload any photos")
+	}
+	
 	return nil
 }
 

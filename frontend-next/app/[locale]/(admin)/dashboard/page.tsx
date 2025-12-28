@@ -11,6 +11,8 @@ import {
   Clock,
   CheckCircle2,
   XCircle,
+  Mail,
+  Medal,
 } from "lucide-react";
 import { getTranslations } from "next-intl/server"; // Server Component Translation
 
@@ -130,112 +132,174 @@ export default async function DashboardPage({ params }: Props) {
           value={stats?.total_santri || 0}
           icon={GraduationCap}
           description={t("Stats.active_students")}
+          variant="green"
         />
         <StatsCard
           title={t("Stats.new_registrants")}
           value={recentRegistrants.length}
           icon={Users}
           description={t("Stats.need_verification")}
+          variant="orange"
         />
         <StatsCard
           title={t("Stats.published_articles")}
           value={stats?.total_articles || 0}
           icon={FileText}
           description={t("Stats.publications")}
+          variant="blue"
         />
         <StatsCard
           title={t("Stats.admin_system")}
           value={stats?.total_users || 0}
           icon={UserCog}
           description={t("Stats.active_managers")}
+          variant="purple"
         />
       </div>
 
-      {/* Main Content Grid */}
-      <div className="grid gap-6 md:grid-cols-7">
-        {/* Recent Activity (Table) */}
-        <Card className="md:col-span-4 lg:col-span-5">
-          <CardHeader className="flex flex-row items-center justify-between">
-            <div>
-              <CardTitle>{t("Registrants.title")}</CardTitle>
-              <CardDescription>{t("Registrants.description")}</CardDescription>
-            </div>
-            <Button variant="outline" size="sm" asChild>
-              <Link href="/registrants">
-                {t("Registrants.view_all")} <ArrowRight className="ml-2 h-4 w-4" />
-              </Link>
-            </Button>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-6">
-              {recentRegistrants.length === 0 ? (
-                <div className="text-muted-foreground py-8 text-center">
-                  {t("Registrants.empty")}
-                </div>
-              ) : (
-                recentRegistrants.map((registrant) => (
-                  <div
-                    key={registrant.id}
-                    className="flex items-center justify-between border-b pb-4 last:border-0 last:pb-0"
-                  >
-                    <div className="flex items-center gap-4">
-                      <Avatar className="h-10 w-10 border">
-                        {registrant.photo_url ? (
-                          <AvatarImage src={registrant.photo_url} alt={registrant.full_name} />
-                        ) : (
-                          <AvatarFallback className="bg-primary/10 text-primary font-bold">
-                            {registrant.full_name.substring(0, 2).toUpperCase()}
-                          </AvatarFallback>
-                        )}
-                      </Avatar>
-                      <div className="space-y-1">
-                        <p className="text-sm leading-none font-medium">{registrant.full_name}</p>
-                        <p className="text-muted-foreground text-xs">
-                          {t("Registrants.registered_on", {
-                            date: new Date(registrant.created_at).toLocaleDateString(
-                              locale === "en" ? "en-US" : "id-ID"
-                            ),
-                          })}
-                        </p>
-                      </div>
-                    </div>
-                    <div>{getStatusBadge(registrant.status)}</div>
+      <div className="grid gap-6 lg:grid-cols-3">
+        {/* Main Content: Recent Registrants */}
+        <div className="space-y-6 lg:col-span-2">
+          <Card className="h-full border-none bg-white/50 shadow-lg backdrop-blur-sm dark:bg-slate-900/50">
+            <CardHeader className="flex flex-row items-center justify-between pb-1">
+              <div className="space-y-1">
+                <CardTitle className="text-xl font-bold">{t("Registrants.title")}</CardTitle>
+                <CardDescription>{t("Registrants.description")}</CardDescription>
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-primary hover:bg-primary/10"
+                asChild
+              >
+                <Link href="/registrants" className="group">
+                  {t("Registrants.view_all")}{" "}
+                  <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+                </Link>
+              </Button>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {recentRegistrants.length === 0 ? (
+                  <div className="text-muted-foreground bg-muted/30 flex flex-col items-center justify-center rounded-xl border border-dashed py-12 text-center">
+                    <Users className="mb-3 h-10 w-10 opacity-20" />
+                    <p>{t("Registrants.empty")}</p>
                   </div>
-                ))
-              )}
-            </div>
-          </CardContent>
-        </Card>
+                ) : (
+                  recentRegistrants.map((registrant) => (
+                    <div
+                      key={registrant.id}
+                      className="group/item flex items-center justify-between rounded-xl border border-transparent p-3 transition-all duration-200 hover:scale-[1.01] hover:bg-white hover:shadow-md dark:hover:bg-slate-800"
+                    >
+                      <div className="flex items-center gap-4">
+                        <Avatar className="h-10 w-10 border-2 border-white shadow-sm ring-2 ring-slate-100 dark:border-slate-800 dark:ring-slate-800">
+                          {registrant.photo_url ? (
+                            <AvatarImage
+                              src={registrant.photo_url}
+                              alt={registrant.full_name}
+                              className="object-cover"
+                            />
+                          ) : (
+                            <AvatarFallback className="bg-linear-to-br from-indigo-500 to-purple-500 font-bold text-white">
+                              {registrant.full_name.substring(0, 2).toUpperCase()}
+                            </AvatarFallback>
+                          )}
+                        </Avatar>
+                        <div className="space-y-1">
+                          <p className="text-foreground group-hover/item:text-primary text-sm leading-none font-semibold transition-colors">
+                            {registrant.full_name}
+                          </p>
+                          <p className="text-muted-foreground flex items-center gap-1 text-xs">
+                            <Clock className="h-3 w-3" />
+                            {t("Registrants.registered_on", {
+                              date: new Date(registrant.created_at).toLocaleDateString(
+                                locale === "en" ? "en-US" : "id-ID",
+                                {
+                                  day: "numeric",
+                                  month: "short",
+                                  year: "numeric",
+                                }
+                              ),
+                            })}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="scale-90">{getStatusBadge(registrant.status)}</div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
 
-        {/* Quick Actions */}
-        <Card className="md:col-span-3 lg:col-span-2">
-          <CardHeader>
-            <CardTitle>{t("Actions.title")}</CardTitle>
-            <CardDescription>{t("Actions.description")}</CardDescription>
-          </CardHeader>
-          <CardContent className="grid gap-4">
-            <Button className="w-full justify-start" asChild>
-              <Link href="/registrants">
-                <Users className="mr-2 h-4 w-4" /> {t("Actions.verify_registrants")}
-              </Link>
-            </Button>
-            <Button variant="outline" className="w-full justify-start" asChild>
-              <Link href="/articles?action=create">
-                <FileText className="mr-2 h-4 w-4" /> {t("Actions.write_article")}
-              </Link>
-            </Button>
-            <Button variant="outline" className="w-full justify-start" asChild>
-              <Link href="/gallery/create">
-                <ImageIcon className="mr-2 h-4 w-4" /> {t("Actions.upload_gallery")}
-              </Link>
-            </Button>
-            <Button variant="outline" className="w-full justify-start" asChild>
-              <Link href="/students">
-                <GraduationCap className="mr-2 h-4 w-4" /> {t("Actions.student_data")}
-              </Link>
-            </Button>
-          </CardContent>
-        </Card>
+        {/* Sidebar: Quick Actions */}
+        <div className="space-y-6">
+          <Card className="border-none bg-transparent shadow-none">
+            <CardHeader className="px-0 pt-0 pb-1">
+              <div className="space-y-1">
+                <CardTitle className="flex items-center gap-2 text-xl font-bold">
+                  <CheckCircle2 className="text-primary h-5 w-5" />
+                  {t("Actions.title")}
+                </CardTitle>
+                <CardDescription>{t("Actions.description")}</CardDescription>
+              </div>
+            </CardHeader>
+            <CardContent className="grid gap-3 p-0">
+              <Button
+                variant="outline"
+                className="group h-auto w-full justify-start gap-4 border-none bg-white p-4 shadow-sm transition-all hover:scale-[1.02] hover:shadow-md dark:bg-slate-900"
+                asChild
+              >
+                <Link href="/dashboard/messages">
+                  <div className="rounded-xl bg-purple-100 p-3 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400">
+                    <Mail className="h-5 w-5" />
+                  </div>
+                  <span className="text-base font-bold">Cek Pesan Masuk</span>
+                </Link>
+              </Button>
+
+              <Button
+                variant="outline"
+                className="group h-auto w-full justify-start gap-4 border-none bg-white p-4 shadow-sm transition-all hover:scale-[1.02] hover:shadow-md dark:bg-slate-900"
+                asChild
+              >
+                <Link href="/registrants">
+                  <div className="rounded-xl bg-orange-100 p-3 text-orange-600 dark:bg-orange-900/30 dark:text-orange-400">
+                    <Users className="h-5 w-5" />
+                  </div>
+                  <span className="text-base font-bold">{t("Actions.verify_registrants")}</span>
+                </Link>
+              </Button>
+
+              <Button
+                variant="outline"
+                className="group h-auto w-full justify-start gap-4 border-none bg-white p-4 shadow-sm transition-all hover:scale-[1.02] hover:shadow-md dark:bg-slate-900"
+                asChild
+              >
+                <Link href="/dashboard/articles/create">
+                  <div className="rounded-xl bg-blue-100 p-3 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400">
+                    <FileText className="h-5 w-5" />
+                  </div>
+                  <span className="text-base font-bold">{t("Actions.write_article")}</span>
+                </Link>
+              </Button>
+
+              <Button
+                variant="outline"
+                className="group h-auto w-full justify-start gap-4 border-none bg-white p-4 shadow-sm transition-all hover:scale-[1.02] hover:shadow-md dark:bg-slate-900"
+                asChild
+              >
+                <Link href="/dashboard/achievements">
+                  <div className="rounded-xl bg-yellow-100 p-3 text-yellow-600 dark:bg-yellow-900/30 dark:text-yellow-400">
+                    <Medal className="h-5 w-5" />
+                  </div>
+                  <span className="text-base font-bold">Kelola Prestasi</span>
+                </Link>
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   );

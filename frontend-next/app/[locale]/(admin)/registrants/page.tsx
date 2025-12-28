@@ -96,61 +96,80 @@ export default function RegistrantsPage() {
   };
 
   return (
-    <div className="flex flex-col gap-4">
-      <h1 className="text-lg font-semibold md:text-2xl">{t("title")}</h1>
+    <div className="flex w-full flex-col gap-8 pb-10">
+      <div className="space-y-1">
+        <h1 className="text-3xl font-bold tracking-tight">{t("title")}</h1>
+        <p className="text-muted-foreground text-lg">
+          Kelola data pendaftar baru yang masuk sistem.
+        </p>
+      </div>
 
-      <div className="bg-card rounded-md border">
+      <div className="bg-card overflow-hidden rounded-xl border shadow-md transition-all hover:shadow-lg">
         <Table>
-          <TableHeader>
+          <TableHeader className="bg-muted/50">
             <TableRow>
-              <TableHead>{t("table.name")}</TableHead>
-              <TableHead>{t("table.gender")}</TableHead>
-              <TableHead>{t("table.status")}</TableHead>
-              <TableHead>{t("table.date")}</TableHead>
-              <TableHead className="text-right">{t("table.action")}</TableHead>
+              <TableHead className="text-center font-semibold">{t("table.name")}</TableHead>
+              <TableHead className="text-center font-semibold">{t("table.gender")}</TableHead>
+              <TableHead className="text-center font-semibold">{t("table.status")}</TableHead>
+              <TableHead className="text-center font-semibold">{t("table.date")}</TableHead>
+              <TableHead className="text-center font-semibold">{t("table.action")}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {loading ? (
               <TableRow>
-                <TableCell colSpan={5} className="py-10 text-center">
-                  {t("loading")}
+                <TableCell colSpan={5} className="h-24 text-center">
+                  <div className="text-muted-foreground flex items-center justify-center gap-2">
+                    <span className="animate-pulse">{t("loading")}</span>
+                  </div>
                 </TableCell>
               </TableRow>
             ) : registrants.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={5} className="py-10 text-center">
-                  {t("empty")}
+                <TableCell colSpan={5} className="h-64 text-center">
+                  <div className="text-muted-foreground flex flex-col items-center justify-center gap-2">
+                    <p className="text-lg font-semibold">{t("empty")}</p>
+                    <p className="text-sm">Belum ada pendaftar baru.</p>
+                  </div>
                 </TableCell>
               </TableRow>
             ) : (
               registrants.map((item) => (
-                <TableRow key={item.id}>
-                  <TableCell className="font-medium">{item.full_name}</TableCell>
-                  <TableCell>
-                    {item.gender === "L" ? t("gender.male") : t("gender.female")}
+                <TableRow key={item.id} className="group hover:bg-muted/50 transition-colors">
+                  <TableCell className="font-semibold">{item.full_name}</TableCell>
+                  <TableCell className="text-muted-foreground text-center">
+                    {item.gender === "L" ? (
+                      <Badge variant="outline" className="border-blue-200 bg-blue-50 text-blue-700">
+                        L
+                      </Badge>
+                    ) : (
+                      <Badge variant="outline" className="border-pink-200 bg-pink-50 text-pink-700">
+                        P
+                      </Badge>
+                    )}
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="text-center">
                     <Badge
-                      variant={
+                      className={
                         item.status === "ACCEPTED"
-                          ? "default"
+                          ? "bg-green-100 text-green-700 hover:bg-green-200 dark:bg-green-900/30 dark:text-green-400"
                           : item.status === "VERIFIED"
-                            ? "outline"
-                            : "secondary"
+                            ? "bg-blue-100 text-blue-700 hover:bg-blue-200 dark:bg-blue-900/30 dark:text-blue-400"
+                            : "bg-amber-100 text-amber-700 hover:bg-amber-200 dark:bg-amber-900/30 dark:text-amber-400"
                       }
+                      variant="outline"
                     >
-                      {/* Use dynamic key based on status enum lowercased */}
                       {tStatus(item.status.toLowerCase() as any)}
                     </Badge>
                   </TableCell>
-                  <TableCell>{new Date(item.created_at).toLocaleDateString()}</TableCell>
-                  <TableCell className="text-right">
+                  <TableCell className="text-muted-foreground text-center font-mono text-sm">
+                    {new Date(item.created_at).toLocaleDateString()}
+                  </TableCell>
+                  <TableCell className="text-center">
                     {item.status !== "ACCEPTED" && (
                       <Button
                         size="sm"
-                        variant="outline"
-                        className="gap-2 text-green-600 hover:text-green-700"
+                        className="bg-primary gap-2 shadow-sm transition-all hover:shadow-md"
                         onClick={() => handleOpenVerify(item)}
                       >
                         <CheckCircle2 className="h-4 w-4" />

@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"backend-go/internal/consts"
 	"backend-go/internal/models"
 	"backend-go/internal/services"
 	"backend-go/internal/utils"
@@ -47,14 +48,14 @@ func (h *ArticleHandler) GetAll(c *gin.Context) {
 	if pageStr != "" || limitStr != "" {
 		page, _ := strconv.Atoi(pageStr)
 		if page < 1 {
-			page = 1
+			page = consts.DefaultPage
 		}
 		
 		limit, _ := strconv.Atoi(limitStr)
 		if limit < 1 {
-			limit = 10
-		} else if limit > 100 {
-			limit = 100
+			limit = consts.DefaultPageLimit
+		} else if limit > consts.MaxPageLimit {
+			limit = consts.MaxPageLimit
 		}
 
 		articles, total, err := h.service.GetAllArticlesPaginated(c.Request.Context(), page, limit)
@@ -76,7 +77,12 @@ func (h *ArticleHandler) GetAll(c *gin.Context) {
 }
 
 func (h *ArticleHandler) GetDetail(c *gin.Context) {
-	id, _ := strconv.Atoi(c.Param("id"))
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		utils.ErrorResponse(c, http.StatusBadRequest, "Invalid ID", err.Error())
+		return
+	}
+
 	article, err := h.service.GetArticleByID(c.Request.Context(), uint(id))
 	if err != nil {
 		utils.ResponseWithError(c, err)
@@ -96,7 +102,12 @@ func (h *ArticleHandler) GetDetailBySlug(c *gin.Context) {
 }
 
 func (h *ArticleHandler) Update(c *gin.Context) {
-	id, _ := strconv.Atoi(c.Param("id"))
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		utils.ErrorResponse(c, http.StatusBadRequest, "Invalid ID", err.Error())
+		return
+	}
+
 	var article models.Article
 	if err := c.ShouldBindJSON(&article); err != nil {
 		utils.ErrorResponse(c, http.StatusBadRequest, "Invalid input", err.Error())
@@ -111,7 +122,12 @@ func (h *ArticleHandler) Update(c *gin.Context) {
 }
 
 func (h *ArticleHandler) Delete(c *gin.Context) {
-	id, _ := strconv.Atoi(c.Param("id"))
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		utils.ErrorResponse(c, http.StatusBadRequest, "Invalid ID", err.Error())
+		return
+	}
+
 	if err := h.service.DeleteArticle(c.Request.Context(), uint(id)); err != nil {
 		utils.ResponseWithError(c, err)
 		return

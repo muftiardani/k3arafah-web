@@ -16,6 +16,7 @@ type ArticleRepository interface {
 	Delete(ctx context.Context, id uint) error
 	FindBySlug(ctx context.Context, slug string) (*models.Article, error)
 	FindAllPaginated(ctx context.Context, page, limit int) ([]models.Article, int64, error)
+	Count(ctx context.Context) (int64, error)
 }
 
 type articleRepository struct {
@@ -72,4 +73,10 @@ func (r *articleRepository) Update(ctx context.Context, article *models.Article)
 
 func (r *articleRepository) Delete(ctx context.Context, id uint) error {
 	return utils.HandleDBError(r.db.WithContext(ctx).Delete(&models.Article{}, id).Error)
+}
+
+func (r *articleRepository) Count(ctx context.Context) (int64, error) {
+	var count int64
+	err := r.db.WithContext(ctx).Model(&models.Article{}).Count(&count).Error
+	return count, utils.HandleDBError(err)
 }

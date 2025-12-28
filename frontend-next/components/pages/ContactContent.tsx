@@ -4,7 +4,7 @@ import { useTranslations } from "next-intl";
 import ContactForm from "@/components/ContactForm";
 import { MapPin, Mail } from "lucide-react";
 import { motion } from "framer-motion";
-import { fadeIn, staggerContainer, slideUp, slideInLeft, slideInRight } from "@/lib/animations";
+import { staggerContainer, slideUp, slideInLeft, slideInRight } from "@/lib/animations";
 
 export default function ContactContent() {
   const t = useTranslations("Contact");
@@ -76,13 +76,14 @@ export default function ContactContent() {
               {/* Map Embed */}
               <div className="overflow-hidden rounded-2xl border-4 border-white bg-gray-200 shadow-xl dark:border-gray-800">
                 <iframe
-                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d126907.0866946654!2d106.6669!3d-6.55!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNsKwMzMnMDAuMCJTIDEwNsKwNDAnMDAuMCJF!5e0!3m2!1sen!2sid!4v1620000000000!5m2!1sen!2sid"
+                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d15810.616037872085!2d110.35170233232742!3d-7.826395717136334!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e7a57ba128c17b5%3A0x26ab6ba7a308a3f6!2sKomplek%20Arafah%20Al%20Munawwir!5e0!3m2!1sid!2sid!4v1766759739718!5m2!1sid!2sid"
                   width="100%"
                   height="300"
                   style={{ border: 0 }}
                   allowFullScreen
                   loading="lazy"
                   title="Lokasi Pesantren"
+                  aria-label="Peta Google Maps menunjukkan lokasi Pondok Pesantren K3 Arafah di Yogyakarta"
                   className="grayscale transition-all hover:grayscale-0"
                 ></iframe>
               </div>

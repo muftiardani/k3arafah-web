@@ -7,6 +7,7 @@ import (
 	"context"
 	"errors"
 	"testing"
+	"time"
 
 	"golang.org/x/crypto/bcrypt"
 )
@@ -71,21 +72,72 @@ func (m *mockUserRepository) DeleteUser(ctx context.Context, id uint) error {
 	return errors.New("record not found")
 }
 
+func (m *mockUserRepository) Count(ctx context.Context) (int64, error) {
+	return int64(len(m.users)), nil
+}
+
+
+// Mock CacheService
+type mockCacheService struct {
+	cache map[string]interface{}
+}
+
+func newMockCache() *mockCacheService {
+	return &mockCacheService{
+		cache: make(map[string]interface{}),
+	}
+}
+
+func (m *mockCacheService) Get(key string, dest interface{}) error {
+	val, ok := m.cache[key]
+	if !ok {
+		return errors.New("key not found")
+	}
+	// Simplified reflection for test (assumes bool for blacklist)
+	if v, ok := dest.(*bool); ok {
+		if valBool, ok := val.(bool); ok {
+			*v = valBool
+			return nil
+		}
+	}
+	return nil
+}
+
+func (m *mockCacheService) Set(key string, value interface{}, expiration time.Duration) error {
+	m.cache[key] = value
+	return nil
+}
+
+func (m *mockCacheService) Delete(key string) error {
+	delete(m.cache, key)
+	return nil
+}
+
+func (m *mockCacheService) DeleteByPattern(pattern string) error {
+	// Simple mock implementation
+	return nil
+}
+
+func (m *mockCacheService) IsAvailable() bool {
+	return true
+}
+
 // Test Suite
 func TestAuthService_RegisterAdmin(t *testing.T) {
 	repo := newMockRepo()
-	service := services.NewAuthService(repo)
+	cache := newMockCache()
+	service := services.NewAuthService(repo, cache)
 	ctx := context.Background()
 
 	// Test Success
-	err := service.RegisterAdmin(ctx, "admin", "password123", "")
+	err := service.RegisterAdmin(ctx, "admin", "Password123", "")
 	if err != nil {
 		t.Errorf("expected no error, got %v", err)
 	}
 
 	// Verify Password Hashing
 	user, _ := repo.FindByUsername(ctx, "admin")
-	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte("password123"))
+	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte("Password123"))
 	if err != nil {
 		t.Errorf("password was not hashed correctly")
 	}
@@ -102,19 +154,20 @@ func TestAuthService_Login(t *testing.T) {
 	config.AppConfig.JWTSecret = "supersecret"
 
 	repo := newMockRepo()
-	service := services.NewAuthService(repo)
+	cache := newMockCache()
+	service := services.NewAuthService(repo, cache)
 	ctx := context.Background()
 
 	// Seed User
-	service.RegisterAdmin(ctx, "user1", "correctpass", "")
+	service.RegisterAdmin(ctx, "user1", "CorrectPass1", "")
 
 	// Test Success
-	token, err := service.Login(ctx, "user1", "correctpass")
+	tokenPair, err := service.Login(ctx, "user1", "CorrectPass1")
 	if err != nil {
 		t.Errorf("login failed: %v", err)
 	}
-	if token == "" {
-		t.Error("expected token, got empty string")
+	if tokenPair == nil || tokenPair.AccessToken == "" {
+		t.Error("expected token pair with access token, got nil or empty")
 	}
 
 	// Test Wrong Password

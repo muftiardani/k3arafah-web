@@ -9,7 +9,8 @@ import (
 type PSBService interface {
 	RegisterSantri(ctx context.Context, santri *models.Santri) error
 	GetAllRegistrants(ctx context.Context) ([]models.Santri, error)
-	GetRegistrantID(ctx context.Context, id uint) (*models.Santri, error)
+	GetRegistrantsByStatus(ctx context.Context, status string) ([]models.Santri, error)
+	GetRegistrantByID(ctx context.Context, id uint) (*models.Santri, error)
 	UpdateStatus(ctx context.Context, id uint, status string) error
 	VerifySantri(ctx context.Context, id uint, nis string, class string, entryYear int) error
 }
@@ -28,16 +29,14 @@ func (s *psbService) RegisterSantri(ctx context.Context, santri *models.Santri) 
 }
 
 func (s *psbService) GetAllRegistrants(ctx context.Context) ([]models.Santri, error) {
-	// Find all or only PENDING/VERIFIED? For PSB module, usually we want to see PENDING/VERIFIED.
-	// ACCEPTED ones move to Student Module.
-	// But GetAllRegistrants name implies just "Registrants".
-	// Let's filter out ACCEPTED? Or return all?
-	// For "Data Pendaftar" page, usually we see everyone who registered.
-	// Let's keep it FindAll for now, or FindByStatus if needed.
 	return s.repo.FindAll(ctx)
 }
 
-func (s *psbService) GetRegistrantID(ctx context.Context, id uint) (*models.Santri, error) {
+func (s *psbService) GetRegistrantsByStatus(ctx context.Context, status string) ([]models.Santri, error) {
+	return s.repo.FindByStatus(ctx, models.SantriStatus(status))
+}
+
+func (s *psbService) GetRegistrantByID(ctx context.Context, id uint) (*models.Santri, error) {
 	return s.repo.FindByID(ctx, id)
 }
 
@@ -49,3 +48,4 @@ func (s *psbService) VerifySantri(ctx context.Context, id uint, nis string, clas
 	// Logic: When verifying (Accepting), we assign NIS and Class
 	return s.repo.UpdateAcademicInfo(ctx, id, nis, class, entryYear)
 }
+

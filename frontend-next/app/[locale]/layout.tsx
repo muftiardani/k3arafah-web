@@ -7,6 +7,11 @@ import QueryProvider from "@/components/providers/QueryProvider";
 import "../globals.css"; // Uppercase dir ..
 import { GlobalLoader } from "@/components/GlobalLoader";
 import { StructuredData } from "@/components/StructuredData";
+import { GoogleAnalytics } from "@/components/Analytics";
+import { PWAProvider } from "@/components/providers/PWAProvider";
+import { ErrorTrackingProvider } from "@/components/providers/ErrorTrackingProvider";
+import { AuthEventProvider } from "@/components/providers/AuthEventProvider";
+import { WebVitalsMonitor } from "@/lib/web-vitals";
 
 const outfit = Outfit({
   subsets: ["latin"],
@@ -33,12 +38,31 @@ export default async function LocaleLayout({
   return (
     <html lang={locale} dir={locale === "ar" ? "rtl" : "ltr"}>
       <body className={`${outfit.variable} flex min-h-screen flex-col font-sans antialiased`}>
+        {/* Google Analytics */}
+        <GoogleAnalytics />
+
+        {/* Skip to main content link for accessibility */}
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:rounded-md focus:bg-emerald-600 focus:px-4 focus:py-2 focus:text-white focus:ring-2 focus:ring-emerald-400 focus:ring-offset-2 focus:outline-none"
+        >
+          Skip to main content
+        </a>
         <NextIntlClientProvider messages={messages}>
           <QueryProvider>
-            <GlobalLoader />
-            <StructuredData />
-            <main className="flex-1">{children}</main>
-            <Toaster />
+            <AuthEventProvider>
+              <PWAProvider>
+                <ErrorTrackingProvider>
+                  <GlobalLoader />
+                  <StructuredData />
+                  <WebVitalsMonitor />
+                  <main id="main-content" className="flex-1" tabIndex={-1}>
+                    {children}
+                  </main>
+                  <Toaster />
+                </ErrorTrackingProvider>
+              </PWAProvider>
+            </AuthEventProvider>
           </QueryProvider>
         </NextIntlClientProvider>
       </body>

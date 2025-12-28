@@ -35,8 +35,8 @@ func (h *MessageHandler) SubmitMessage(c *gin.Context) {
 		return
 	}
 
-	if err := h.service.CreateMessage(&input); err != nil {
-		utils.ErrorResponse(c, http.StatusInternalServerError, "Failed to send message", err.Error())
+	if err := h.service.CreateMessage(c.Request.Context(), &input); err != nil {
+		utils.ResponseWithError(c, err)
 		return
 	}
 
@@ -44,25 +44,39 @@ func (h *MessageHandler) SubmitMessage(c *gin.Context) {
 }
 
 func (h *MessageHandler) GetAllMessages(c *gin.Context) {
-	messages, err := h.service.GetAllMessages()
+	messages, err := h.service.GetAllMessages(c.Request.Context())
 	if err != nil {
-		utils.ErrorResponse(c, http.StatusInternalServerError, "Failed to fetch messages", err.Error())
+		utils.ResponseWithError(c, err)
 		return
 	}
 
 	utils.SuccessResponse(c, http.StatusOK, "Messages fetched successfully", messages)
 }
 
-func (h *MessageHandler) DeleteMessage(c *gin.Context) {
-	idStr := c.Param("id")
-	id, err := strconv.Atoi(idStr)
+func (h *MessageHandler) MarkAsRead(c *gin.Context) {
+	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		utils.ErrorResponse(c, http.StatusBadRequest, "Invalid ID", err.Error())
 		return
 	}
 
-	if err := h.service.DeleteMessage(uint(id)); err != nil {
-		utils.ErrorResponse(c, http.StatusInternalServerError, "Failed to delete message", err.Error())
+	if err := h.service.MarkAsRead(c.Request.Context(), uint(id)); err != nil {
+		utils.ResponseWithError(c, err)
+		return
+	}
+
+	utils.SuccessResponse(c, http.StatusOK, "Message marked as read", nil)
+}
+
+func (h *MessageHandler) DeleteMessage(c *gin.Context) {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		utils.ErrorResponse(c, http.StatusBadRequest, "Invalid ID", err.Error())
+		return
+	}
+
+	if err := h.service.DeleteMessage(c.Request.Context(), uint(id)); err != nil {
+		utils.ResponseWithError(c, err)
 		return
 	}
 

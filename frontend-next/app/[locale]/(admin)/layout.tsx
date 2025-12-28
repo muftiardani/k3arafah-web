@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
   Users,
@@ -15,12 +15,15 @@ import {
   ChevronRight,
   School,
   Mail,
+  Video,
+  Medal,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
+import { useAuthStore } from "@/store/useAuthStore";
+import { useLogout } from "@/lib/hooks/useAuth";
 
 // Define menu item interface
 interface MenuItem {
@@ -39,24 +42,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const t = useTranslations("Dashboard.Nav");
 
   const pathname = usePathname();
-  const router = useRouter();
-  const [user, setUser] = useState<{ username: string; role: string } | null>(null);
 
-  useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    if (storedUser) setUser(JSON.parse(storedUser));
-  }, []);
+  // Use Zustand store for consistent state management
+  const user = useAuthStore((state) => state.user);
+  const { mutate: logout, isPending: isLoggingOut } = useLogout();
 
-  const handleLogout = async () => {
-    try {
-      await import("@/lib/api").then((mod) => mod.default.post("/logout"));
-    } catch (e) {
-      console.error(e);
-    }
-    // Clear local storage
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    router.push("/login");
+  const handleLogout = () => {
+    logout();
   };
 
   return (
@@ -94,7 +86,7 @@ function SidebarContent({
 }: {
   pathname: string;
   handleLogout: () => void;
-  user: { username: string; role: string } | null;
+  user: { id: number; username: string; role: string } | null;
 }) {
   const t = useTranslations("Dashboard");
 
@@ -113,14 +105,14 @@ function SidebarContent({
       title: t("Groups.academic"),
       items: [
         {
-          title: t("Nav.students"),
-          href: "/students",
-          icon: GraduationCap,
-        },
-        {
           title: t("Nav.registrants"),
           href: "/registrants",
           icon: Users,
+        },
+        {
+          title: t("Nav.students"),
+          href: "/students",
+          icon: GraduationCap,
         },
       ],
     },
@@ -128,9 +120,19 @@ function SidebarContent({
       title: t("Groups.content"),
       items: [
         {
+          title: "Pesan Masuk",
+          href: "/dashboard/messages",
+          icon: Mail,
+        },
+        {
           title: t("Nav.articles"),
           href: "/dashboard/articles",
           icon: FileText,
+        },
+        {
+          title: t("Nav.achievements"),
+          href: "/dashboard/achievements",
+          icon: Medal,
         },
         {
           title: t("Nav.gallery"),
@@ -138,9 +140,9 @@ function SidebarContent({
           icon: Images,
         },
         {
-          title: "Pesan Masuk",
-          href: "/dashboard/messages",
-          icon: Mail,
+          title: t("Nav.videos"),
+          href: "/dashboard/videos",
+          icon: Video,
         },
       ],
     },
@@ -158,82 +160,98 @@ function SidebarContent({
   ];
 
   return (
-    <div className="flex h-full flex-col">
+    <div className="flex h-full flex-col bg-slate-50/50 dark:bg-slate-950/50">
       {/* Header / Brand */}
-      <div className="flex h-16 items-center border-b px-6">
-        <Link href="/" className="text-primary flex items-center gap-2 text-lg font-bold">
-          <div className="bg-primary/10 flex h-8 w-8 items-center justify-center rounded-lg">
-            <School className="text-primary h-5 w-5" />
+      <div className="bg-background/50 sticky top-0 z-10 flex h-16 items-center border-b px-6 backdrop-blur-md">
+        <Link
+          href="/"
+          className="text-foreground flex items-center gap-3 text-lg font-bold tracking-tight"
+        >
+          <div className="bg-primary shadow-primary/20 flex h-9 w-9 items-center justify-center rounded-lg shadow-sm transition-transform hover:scale-105">
+            <School className="text-primary-foreground h-5 w-5" />
           </div>
-          <span>K3 Arafah</span>
+          <span className="from-primary to-primary/60 bg-linear-to-r bg-clip-text text-transparent">
+            K3 Arafah
+          </span>
         </Link>
       </div>
 
       {/* Navigation */}
-      <div className="flex-1 overflow-auto py-4">
-        <nav className="grid gap-6 px-4 text-sm font-medium">
+      <div className="scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent flex-1 space-y-8 overflow-auto py-6">
+        <nav className="px-4 text-sm font-medium">
           {menuGroups.map((group, index) => (
-            <div key={index} className="space-y-1">
+            <div key={index} className="mb-6 last:mb-0">
               {group.items.some(
                 (item) => !item.role || item.role === user?.role || user?.role === "super_admin"
               ) && (
-                <h4 className="text-muted-foreground mb-2 px-2 text-xs font-semibold tracking-wider uppercase">
+                <h4 className="text-muted-foreground/60 mb-3 px-3 text-[10px] font-bold tracking-widest uppercase select-none">
                   {group.title}
                 </h4>
               )}
-              {group.items.map((item, itemIndex) => {
-                // Filter based on role if specified
-                if (item.role && item.role !== user?.role && user?.role !== "super_admin")
-                  return null;
+              <div className="space-y-1">
+                {group.items.map((item, itemIndex) => {
+                  if (item.role && item.role !== user?.role && user?.role !== "super_admin")
+                    return null;
 
-                const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
+                  const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
 
-                return (
-                  <Link
-                    key={itemIndex}
-                    href={item.href}
-                    className={`group hover:bg-accent hover:text-accent-foreground flex items-center justify-between rounded-md px-3 py-2 transition-all ${
-                      isActive
-                        ? "bg-primary/10 text-primary font-semibold"
-                        : "text-muted-foreground"
-                    }`}
-                  >
-                    <div className="flex items-center gap-3">
-                      <item.icon className={`h-4 w-4 ${isActive ? "text-primary" : ""}`} />
-                      {item.title}
-                    </div>
-                    {isActive && <ChevronRight className="h-3 w-3 opacity-50" />}
-                  </Link>
-                );
-              })}
+                  return (
+                    <Link
+                      key={itemIndex}
+                      href={item.href}
+                      className={`group relative flex items-center justify-between rounded-lg px-3 py-2.5 transition-all duration-200 ${
+                        isActive
+                          ? "bg-primary text-primary-foreground shadow-primary/20 font-semibold shadow-md"
+                          : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                      }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <item.icon
+                          className={`h-4.5 w-4.5 transition-colors ${isActive ? "text-primary-foreground" : "text-muted-foreground group-hover:text-foreground"}`}
+                        />
+                        <span>{item.title}</span>
+                      </div>
+                      {isActive && (
+                        <div className="h-1.5 w-1.5 animate-pulse rounded-full bg-white" />
+                      )}
+                    </Link>
+                  );
+                })}
+              </div>
             </div>
           ))}
         </nav>
       </div>
 
       {/* User Footer */}
-      <div className="mt-auto border-t p-4">
-        <div className="mb-4 flex items-center gap-3 px-2">
-          <Avatar className="h-9 w-9 cursor-pointer border">
-            <AvatarFallback className="bg-primary/10 text-primary font-bold">
+      <div className="bg-background/50 sticky bottom-0 z-10 mt-auto border-t p-4 backdrop-blur-md">
+        <div className="bg-card flex items-center gap-3 rounded-xl border p-3 shadow-sm transition-all hover:shadow-md">
+          <Avatar className="border-background ring-primary/10 h-10 w-10 border-2 ring-2">
+            <AvatarFallback className="from-primary to-primary/60 text-primary-foreground bg-linear-to-br font-bold">
               {user?.username?.substring(0, 2).toUpperCase() || "AD"}
             </AvatarFallback>
           </Avatar>
-          <div className="flex-1 overflow-hidden">
-            <p className="truncate text-sm font-medium">{user?.username || "Admin"}</p>
-            <p className="text-muted-foreground truncate text-xs capitalize">
-              {user?.role ? t(("User." + user.role) as any) : t("User.admin")}
+          <div className="min-w-0 flex-1 overflow-hidden">
+            <p className="text-foreground truncate text-sm font-semibold">
+              {user?.username || "Admin"}
+            </p>
+            <p className="text-muted-foreground flex items-center gap-1 truncate text-xs">
+              <span className="inline-block h-1.5 w-1.5 rounded-full bg-green-500" />
+              <span className="capitalize">
+                {user?.role ? t(("User." + user.role) as any) : t("User.admin")}
+              </span>
             </p>
           </div>
+          <Button
+            onClick={handleLogout}
+            variant="ghost"
+            size="icon"
+            className="text-muted-foreground hover:text-destructive hover:bg-destructive/10 h-8 w-8 shrink-0"
+            title={t("Nav.logout")}
+          >
+            <LogOut className="h-4 w-4" />
+          </Button>
         </div>
-        <Button
-          onClick={handleLogout}
-          variant="destructive"
-          size="sm"
-          className="w-full justify-start"
-        >
-          <LogOut className="mr-2 h-4 w-4" /> {t("Nav.logout")}
-        </Button>
       </div>
     </div>
   );

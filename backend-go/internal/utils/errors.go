@@ -8,11 +8,10 @@ import (
 
 // Sentinel Errors (Static errors for equality checks)
 var (
-	ErrNotFound            = errors.New("record not found")
-	ErrConflict            = errors.New("record already exists")
-	ErrInternalServerError = errors.New("internal server error")
-	ErrUnauthorized        = errors.New("unauthorized action")
-	ErrForbidden           = errors.New("forbidden action")
+	ErrNotFound     = errors.New("record not found")
+	ErrConflict     = errors.New("record already exists")
+	ErrUnauthorized = errors.New("unauthorized action")
+	ErrForbidden    = errors.New("forbidden action")
 )
 
 type AppError struct {

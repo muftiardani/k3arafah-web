@@ -7,7 +7,13 @@
     "contact": "Kontak",
     "psb": "Pendaftaran",
     "login": "Masuk",
-    "language": "Bahasa"
+    "language": "Bahasa",
+    "brand_primary": "PONDOK PESANTREN AL-MUNAWWIR",
+    "brand_secondary": "KOMPLEK ARAFAH",
+    "brand_short": "K3 Arafah",
+    "mobile_menu_desc": "Menu Navigasi Utama",
+    "toggle_menu": "Buka menu",
+    "menu_sr": "Menu"
   },
   "Hero": {
     "title": "Pondok Pesantren K3 Arafah",
@@ -138,6 +144,56 @@
     "cta_desc": "Pendaftaran santri baru telah dibuka. Segera daftarkan diri Anda atau putra/putri Anda.",
     "cta_button": "Daftar Sekarang"
   },
+  "VideoProfile": {
+    "title": "Video Profil",
+    "description": "Mengenal lebih dekat suasana, kegiatan, dan lingkungan belajar para santri di Pondok Pesantren K3 Arafah."
+  },
+  "Achievements": {
+    "title": "Prestasi Santri",
+    "description": "Bukti nyata dedikasi dan kesungguhan santri dalam mengembangkan potensi diri.",
+    "items": {
+      "mhq_10": {
+        "title": "Juara 1 MHQ 10 Juz",
+        "subtitle": "Tingkat Kabupaten (2024)",
+        "desc": "Ananda Fulan bin Fulan"
+      },
+      "osn_physics": {
+        "title": "Medali Emas OSN Fisika",
+        "subtitle": "Olimpiade Sains (2024)",
+        "desc": "Ahmad Dahlan"
+      },
+      "speech_arabic": {
+        "title": "Juara 2 Pidato Bahasa Arab",
+        "subtitle": "Porseni Santri (2023)",
+        "desc": "Zaki Mubarak"
+      },
+      "mtq_student": {
+        "title": "Juara Umum MtQ Pelajar",
+        "subtitle": "Tingkat Provinsi (2024)",
+        "desc": "Kontingen K3 Arafah"
+      },
+      "hadrah": {
+        "title": "Juara Harapan 1 Hadrah",
+        "subtitle": "Festival Seni Islami",
+        "desc": "Tim Al-Banjari"
+      },
+      "kitab_kuning": {
+        "title": "Juara 1 Baca Kitab Kuning",
+        "subtitle": "MQK Wilayah (2023)",
+        "desc": "Fatimah Az-Zahra"
+      },
+      "silat": {
+        "title": "Juara 2 Pencak Silat",
+        "subtitle": "Kejuaraan Daerah",
+        "desc": "Rizky Aditya"
+      },
+      "debate_english": {
+        "title": "Best Speaker Debat",
+        "subtitle": "Debat Bahasa Inggris",
+        "desc": "Siti Aminah"
+      }
+    }
+  },
   "Articles": {
     "title": "Berita & Artikel",
     "description": "Berita terbaru dan artikel inspriatif dari Pondok Pesantren K3 Arafah.",
@@ -152,18 +208,10 @@
     "hero_title": "Hubungi Kami",
     "hero_desc": "Silakan hubungi kami untuk informasi lebih lanjut mengenai pendaftaran atau program pesantren.",
     "address_title": "Alamat",
-    "address_desc": "Jl. Pesantren No. 123, Desa Sukamaju, Kecamatan Cigudeg, Kabupaten Bogor, Jawa Barat 16680.",
-    "phone_1": "+62 812-3456-7890",
-    "phone_1_label": "(Admin PSB)",
-    "phone_2": "+62 898-7654-3210",
-    "phone_2_label": "(Kantor Yayasan)",
+    "address_desc": "Jl. KH. Ali Maksum, Desa Panggungharjo, Kecamatan Sewon, Kabupaten Bantul, Daerah Istimewa Yogyakarta 55188.",
     "email_1": "info@k3arafah.com",
     "email_2": "psb@k3arafah.com",
-    "phone_title": "Telepon / WhatsApp",
     "email_title": "Email",
-    "hours_title": "Jam Operasional Kantor",
-    "hours_desc": "Senin - Sabtu: 08.00 - 15.00 WIB",
-    "hours_desc_2": "Ahad: Libur",
     "send_message": "Kirim Pesan",
     "form_name": "Nama Lengkap",
     "form_name_placeholder": "Nama Anda",
@@ -175,16 +223,18 @@
     "form_message_placeholder": "Tulis pesan Anda di sini...",
     "btn_submit": "Kirim Pesan",
     "btn_submitting": "Mengirim...",
-    "success_message": "Pesan Anda telah terkirim!",
     "validation_name": "Nama minimal 2 karakter.",
     "validation_email": "Email tidak valid.",
     "validation_subject": "Subjek minimal 5 karakter.",
-    "validation_message": "Pesan minimal 10 karakter."
+    "validation_message": "Pesan minimal 10 karakter.",
+    "toast_success": "Pesan Anda telah terkirim!",
+    "toast_fail": "Gagal mengirim pesan. Silakan coba lagi."
   },
   "Error": {
     "title": "Terjadi Kesalahan!",
     "description": "Kami mengalami kesalahan tak terduga. Tim kami telah diberitahu. Silakan coba lagi atau kembali ke beranda.",
-    "try_again": "Coba Lagi"
+    "try_again": "Coba Lagi",
+    "back_home": "Kembali ke Beranda"
   },
   "NotFound": {
     "title": "Halaman Tidak Ditemukan",
@@ -195,17 +245,17 @@
     "description": "Membangun Generasi Qur'ani yang Berakhlak Mulia, Berwawasan Global, dan Siap Mengabdi untuk Umat.",
     "quick_links": "Jelajahi",
     "contact_us": "Kunjungi Kami",
-    "address_text": "Jl. Pesantren No. 123, Desa Sukamaju, Kecamatan Cigudeg, Kabupaten Bogor, Jawa Barat 16680.",
-    "admin_psb": "(Admin PSB)",
-    "rights_reserved": "Yayasan Pondok Pesantren K3 Arafah. All rights reserved.",
+    "address_text": "Jl. KH. Ali Maksum, Desa Panggungharjo, Kecamatan Sewon, Kabupaten Bantul, Yogyakarta 55188.",
+    "rights_reserved": "All rights reserved.",
     "link_home": "Beranda",
     "link_about": "Tentang Kami",
     "link_programs": "Program Pendidikan",
-    "link_psb": "Pendaftaran Santri Baru (PSB)",
     "link_contact": "Hubungi Kami",
     "link_news": "Berita & Artikel",
-    "phone": "+62 812-3456-7890",
-    "email": "info@k3arafah.com"
+    "email": "info@k3arafah.com",
+    "brand_name": "Komplek Arafah",
+    "address_label": "Alamat",
+    "email_label": "Email"
   },
   "Home": {
     "gallery_title": "Galeri Aktivitas",
@@ -240,13 +290,20 @@
       "articles": "Berita / Artikel",
       "gallery": "Galeri Kegiatan",
       "users": "Manajemen User",
-      "logout": "Keluar"
+      "logout": "Keluar",
+      "videos": "Video Profil",
+      "achievements": "Prestasi Santri",
+      "messages": "Pesan"
     },
     "Groups": {
       "main": "Utama",
       "academic": "Akademik & Kesiswaan",
       "content": "Konten Website",
       "system": "Sistem"
+    },
+    "User": {
+      "admin": "Administrator",
+      "super_admin": "Super Admin"
     },
     "Stats": {
       "total_students": "Total Santri",
@@ -279,10 +336,7 @@
       "upload_gallery": "Upload Galeri",
       "student_data": "Data Santri"
     },
-    "User": {
-      "admin": "Administrator",
-      "super_admin": "Super Admin"
-    },
+
     "StudentsPage": {
       "title": "Data Santri Aktif",
       "description": "Direktori santri yang telah diterima.",
@@ -355,6 +409,56 @@
       "toast_deleted": "Artikel berhasil dihapus",
       "toast_failed": "Gagal menghapus artikel"
     },
+    "AdminsPage": {
+      "title": "Manajemen Admin",
+      "description": "Kelola user admin yang dapat mengakses dashboard.",
+      "add_new": "Tambah Admin",
+      "access_denied": "Akses Ditolak",
+      "super_admin_only": "Hanya Super Admin yang dapat mengakses halaman ini.",
+      "error_loading": "Gagal memuat daftar admin.",
+      "empty": "Tidak ada admin yang ditemukan.",
+      "delete_confirm": "Apakah Anda yakin ingin menghapus admin ini?",
+      "dialog_title": "Buat Admin Baru",
+      "dialog_description": "Isi formulir di bawah untuk membuat akun admin baru.",
+      "form": {
+        "username": "Username",
+        "password": "Password",
+        "name": "Nama Lengkap",
+        "create": "Buat Admin",
+        "creating": "Membuat..."
+      },
+      "table": {
+        "title": "Daftar Admin",
+        "description": "Daftar semua akun admin dalam sistem.",
+        "username": "Username",
+        "name": "Nama",
+        "role": "Role",
+        "action": "Aksi"
+      }
+    },
+    "VideosPage": {
+      "title": "Video Profil",
+      "description": "Kelola video profil yang ditampilkan di halaman depan.",
+      "add_new": "Tambah Video",
+      "table": {
+        "title": "Judul Video",
+        "youtube_id": "Youtube ID",
+        "created_at": "Tanggal",
+        "action": "Aksi"
+      },
+      "form": {
+        "title": "Judul Video",
+        "youtube_id": "Youtube ID (contoh: P-b78PQNsGE)",
+        "thumbnail": "Thumbnail URL (Opsional)",
+        "submit": "Simpan Video",
+        "cancel": "Batal"
+      },
+      "empty": "Belum ada video.",
+      "delete_confirm": "Hapus video ini?",
+      "toast_deleted": "Video dihapus",
+      "toast_failed": "Gagal menghapus video",
+      "toast_created": "Video berhasil ditambahkan"
+    },
     "GalleryPage": {
       "title": "Galeri Kegiatan",
       "description": "Kelola album foto kegiatan pondok.",
@@ -366,7 +470,40 @@
       "no_desc": "Tidak ada deskripsi",
       "delete_confirm": "Apakah Anda yakin? Ini akan menghapus album beserta semua foto di dalamnya.",
       "toast_deleted": "Galeri dihapus",
-      "toast_failed": "Gagal menghapus galeri"
+      "toast_failed": "Gagal menghapus galeri",
+      "edit_title": "Edit Galeri",
+      "edit_description": "Perbarui detail galeri",
+      "form_title": "Judul",
+      "form_description": "Deskripsi",
+      "cancel": "Batal",
+      "save": "Simpan",
+      "toast_updated": "Galeri berhasil diperbarui"
+    },
+    "AchievementsPage": {
+      "title": "Prestasi Santri",
+      "description": "Kelola daftar prestasi santri yang ditampilkan di halaman depan.",
+      "add_new": "Tambah Prestasi",
+      "table": {
+        "icon": "Ikon",
+        "title": "Judul Prestasi",
+        "subtitle": "Keterangan / Tingkat",
+        "created_at": "Tanggal",
+        "action": "Aksi"
+      },
+      "form": {
+        "title": "Judul Prestasi",
+        "subtitle": "Subjudul (Contoh: Juara 1 Tingkat Nasional)",
+        "description": "Deskripsi (Contoh: Nama Santri)",
+        "icon": "Pilih Ikon",
+        "color": "Warna Tema",
+        "submit": "Simpan",
+        "cancel": "Batal"
+      },
+      "empty": "Belum ada data prestasi.",
+      "delete_confirm": "Hapus prestasi ini?",
+      "toast_deleted": "Prestasi dihapus",
+      "toast_failed": "Gagal menghapus prestasi",
+      "toast_created": "Prestasi berhasil ditambahkan"
     },
     "UsersPage": {
       "title": "Manajemen Pengguna",

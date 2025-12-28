@@ -1,10 +1,13 @@
 package utils
 
 import (
+	"backend-go/internal/logger"
 	"errors"
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 )
 
 type APIResponse struct {
@@ -25,8 +28,24 @@ func SuccessResponse(c *gin.Context, code int, message string, data interface{})
 }
 
 func ErrorResponse(c *gin.Context, code int, message string, err interface{}) {
+	// Get context information for structured logging
+	requestID := c.GetString("RequestID")
+	userID, _ := c.Get("user_id")
+	
+	// Log the error with full context
+	logger.Error("API Error Response",
+		zap.String("request_id", requestID),
+		zap.Any("user_id", userID),
+		zap.String("method", c.Request.Method),
+		zap.String("path", c.Request.URL.Path),
+		zap.String("client_ip", c.ClientIP()),
+		zap.Int("status", code),
+		zap.String("message", message),
+		zap.String("error_details", fmt.Sprintf("%v", err)),
+	)
+
 	c.AbortWithStatusJSON(code, APIResponse{
-		RequestID: c.GetString("RequestID"),
+		RequestID: requestID,
 		Status:    false,
 		Message:   message,
 		Error:     err,

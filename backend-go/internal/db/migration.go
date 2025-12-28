@@ -2,13 +2,14 @@ package db
 
 import (
 	"backend-go/config"
+	"backend-go/internal/logger"
 	"backend-go/migrations"
 	"fmt"
-	"log"
 
 	"github.com/golang-migrate/migrate/v4"
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
 	"github.com/golang-migrate/migrate/v4/source/iofs"
+	"go.uber.org/zap"
 )
 
 func MigrateDatabase(action string, version int) {
@@ -19,7 +20,7 @@ func MigrateDatabase(action string, version int) {
 
 	sourceDriver, err := iofs.New(migrations.MigrationFS, ".")
 	if err != nil {
-		log.Fatal("Failed to create iofs source driver: ", err)
+		logger.Fatal("Failed to create iofs source driver", zap.Error(err))
 	}
 
 	m, err := migrate.NewWithSourceInstance(
@@ -28,42 +29,42 @@ func MigrateDatabase(action string, version int) {
 		dsn,
 	)
 	if err != nil {
-		log.Fatal("Failed to create migration instance: ", err)
+		logger.Fatal("Failed to create migration instance", zap.Error(err))
 	}
 
     curVer, dirty, err := m.Version()
     if err != nil && err != migrate.ErrNilVersion {
-        log.Printf("Failed to get version: %v", err)
+        logger.Error("Failed to get version", zap.Error(err))
     } else {
-        log.Printf("Current DB Version: %d, Dirty: %v", curVer, dirty)
+        logger.Info("Current DB Version", zap.Uint("version", curVer), zap.Bool("dirty", dirty))
     }
 
 	if action == "force" {
 		if err := m.Force(version); err != nil {
-			log.Fatal("Failed to force version: ", err)
+			logger.Fatal("Failed to force version", zap.Error(err))
 		}
-		log.Printf("Force version %d successfully!", version)
+		logger.Info("Force version successfully", zap.Int("version", version))
 		return
 	}
 
 	if action == "up" {
 		if err := m.Up(); err != nil {
 			if err == migrate.ErrNoChange {
-				log.Println("Database is up to date.")
+				logger.Info("Database is up to date")
 			} else {
-				log.Fatal("Failed to run migrations (Up): ", err)
+				logger.Fatal("Failed to run migrations (Up)", zap.Error(err))
 			}
 		} else {
-			log.Println("Migrations (Up) applied successfully!")
+			logger.Info("Migrations (Up) applied successfully")
 		}
 		return
 	}
 	
 	if action == "down" {
 		if err := m.Down(); err != nil {
-			log.Fatal("Failed to run migrations (Down): ", err)
+			logger.Fatal("Failed to run migrations (Down)", zap.Error(err))
 		}
-		log.Println("Migrations (Down) applied successfully!")
+		logger.Info("Migrations (Down) applied successfully")
 		return
 	}
 }

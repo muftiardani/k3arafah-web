@@ -34,7 +34,7 @@ func main() {
 
 	// Create Super Admin
 	username := "superadmin"
-	password := "superpassword123" // Default password
+	password := "SuperAdmin123" // Default password
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
 		log.Fatal("Failed to hash password:", err)

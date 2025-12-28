@@ -15,6 +15,8 @@ type SantriRepository interface {
 	FindByID(ctx context.Context, id uint) (*models.Santri, error)
 	UpdateStatus(ctx context.Context, id uint, status models.SantriStatus) error
 	UpdateAcademicInfo(ctx context.Context, id uint, nis string, class string, entryYear int) error
+	VerifyAndAcceptSantri(ctx context.Context, id uint, nis string, class string, entryYear int) error
+	Count(ctx context.Context) (int64, error)
 }
 
 type santriRepository struct {
@@ -58,4 +60,44 @@ func (r *santriRepository) UpdateAcademicInfo(ctx context.Context, id uint, nis 
 		"entry_year": entryYear,
 		"status":     models.StatusAccepted,
 	}).Error)
+}
+
+// VerifyAndAcceptSantri performs atomic verification of a santri using a database transaction.
+// This ensures all updates succeed together or none at all.
+func (r *santriRepository) VerifyAndAcceptSantri(ctx context.Context, id uint, nis string, class string, entryYear int) error {
+	return r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		// First, verify the santri exists and is in a verifiable state
+		var santri models.Santri
+		if err := tx.First(&santri, id).Error; err != nil {
+			return utils.HandleDBError(err)
+		}
+
+		// Check if already accepted
+		if santri.Status == models.StatusAccepted {
+			return utils.NewAppError(400, "Santri already accepted")
+		}
+
+		// Update to VERIFIED status first
+		if err := tx.Model(&santri).Update("status", models.StatusVerified).Error; err != nil {
+			return utils.HandleDBError(err)
+		}
+
+		// Then update academic info and set to ACCEPTED
+		if err := tx.Model(&santri).Updates(map[string]interface{}{
+			"nis":        nis,
+			"class":      class,
+			"entry_year": entryYear,
+			"status":     models.StatusAccepted,
+		}).Error; err != nil {
+			return utils.HandleDBError(err)
+		}
+
+		return nil
+	})
+}
+
+func (r *santriRepository) Count(ctx context.Context) (int64, error) {
+	var count int64
+	err := r.db.WithContext(ctx).Model(&models.Santri{}).Count(&count).Error
+	return count, utils.HandleDBError(err)
 }

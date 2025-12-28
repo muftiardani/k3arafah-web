@@ -12,12 +12,11 @@ import (
 	"backend-go/internal/handlers"
 	"backend-go/internal/repository"
 	"backend-go/internal/services"
+
 	"github.com/gin-gonic/gin"
 	"github.com/google/wire"
 	"gorm.io/gorm"
-)
 
-import (
 	_ "backend-go/docs"
 )
 
@@ -26,13 +25,13 @@ import (
 func InitializeAPI() (*gin.Engine, error) {
 	db := ProvideDB()
 	userRepository := repository.NewUserRepository(db)
-	authService := services.NewAuthService(userRepository)
+	cacheService := services.NewCacheService()
+	authService := services.NewAuthService(userRepository, cacheService)
 	authHandler := handlers.NewAuthHandler(authService)
 	santriRepository := repository.NewSantriRepository(db)
 	psbService := services.NewPSBService(santriRepository)
 	psbHandler := handlers.NewPSBHandler(psbService)
 	articleRepository := repository.NewArticleRepository(db)
-	cacheService := services.NewCacheService()
 	articleService := services.NewArticleService(articleRepository, cacheService)
 	articleHandler := handlers.NewArticleHandler(articleService)
 	mediaService, err := services.NewMediaService()
@@ -48,14 +47,24 @@ func InitializeAPI() (*gin.Engine, error) {
 	messageRepository := repository.NewMessageRepository(db)
 	messageService := services.NewMessageService(messageRepository)
 	messageHandler := handlers.NewMessageHandler(messageService)
+	videoRepository := repository.NewVideoRepository(db)
+	videoService := services.NewVideoService(videoRepository)
+	videoHandler := handlers.NewVideoHandler(videoService)
+	achievementRepository := repository.NewAchievementRepository(db)
+	achievementService := services.NewAchievementService(achievementRepository)
+	achievementHandler := handlers.NewAchievementHandler(achievementService)
+	healthHandler := handlers.NewHealthHandler()
 	apiHandlers := api.Handlers{
-		AuthHandler:      authHandler,
-		PSBHandler:       psbHandler,
-		ArticleHandler:   articleHandler,
-		MediaHandler:     mediaHandler,
-		DashboardHandler: dashboardHandler,
-		GalleryHandler:   galleryHandler,
-		MessageHandler:   messageHandler,
+		AuthHandler:        authHandler,
+		PSBHandler:         psbHandler,
+		ArticleHandler:     articleHandler,
+		MediaHandler:       mediaHandler,
+		DashboardHandler:   dashboardHandler,
+		GalleryHandler:     galleryHandler,
+		MessageHandler:     messageHandler,
+		VideoHandler:       videoHandler,
+		AchievementHandler: achievementHandler,
+		HealthHandler:      healthHandler,
 	}
 	engine := api.NewRouter(apiHandlers)
 	return engine, nil

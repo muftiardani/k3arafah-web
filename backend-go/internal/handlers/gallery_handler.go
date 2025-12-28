@@ -53,7 +53,12 @@ func (h *GalleryHandler) GetAll(c *gin.Context) {
 }
 
 func (h *GalleryHandler) GetDetail(c *gin.Context) {
-	id, _ := strconv.Atoi(c.Param("id"))
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		utils.ErrorResponse(c, http.StatusBadRequest, "Invalid ID", err.Error())
+		return
+	}
+
 	gallery, err := h.service.GetGalleryByID(c.Request.Context(), uint(id))
 	if err != nil {
 		utils.ResponseWithError(c, err)
@@ -63,7 +68,11 @@ func (h *GalleryHandler) GetDetail(c *gin.Context) {
 }
 
 func (h *GalleryHandler) UploadPhotos(c *gin.Context) {
-	id, _ := strconv.Atoi(c.Param("id"))
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		utils.ErrorResponse(c, http.StatusBadRequest, "Invalid ID", err.Error())
+		return
+	}
 
 	form, _ := c.MultipartForm()
 	files := form.File["photos"]
@@ -81,8 +90,43 @@ func (h *GalleryHandler) UploadPhotos(c *gin.Context) {
 	utils.SuccessResponse(c, http.StatusOK, "Photos uploaded successfully", nil)
 }
 
+func (h *GalleryHandler) Update(c *gin.Context) {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		utils.ErrorResponse(c, http.StatusBadRequest, "Invalid ID", err.Error())
+		return
+	}
+
+	var input struct {
+		Title       string `json:"title"`
+		Description string `json:"description"`
+	}
+
+	if err := c.ShouldBindJSON(&input); err != nil {
+		utils.ErrorResponse(c, http.StatusBadRequest, "Invalid input", err.Error())
+		return
+	}
+
+	galleryData := &models.Gallery{
+		Title:       input.Title,
+		Description: input.Description,
+	}
+
+	if err := h.service.UpdateGallery(c.Request.Context(), uint(id), galleryData); err != nil {
+		utils.ResponseWithError(c, err)
+		return
+	}
+
+	utils.SuccessResponse(c, http.StatusOK, "Gallery updated successfully", nil)
+}
+
 func (h *GalleryHandler) Delete(c *gin.Context) {
-	id, _ := strconv.Atoi(c.Param("id"))
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		utils.ErrorResponse(c, http.StatusBadRequest, "Invalid ID", err.Error())
+		return
+	}
+
 	if err := h.service.DeleteGallery(c.Request.Context(), uint(id)); err != nil {
 		utils.ResponseWithError(c, err)
 		return
@@ -91,7 +135,12 @@ func (h *GalleryHandler) Delete(c *gin.Context) {
 }
 
 func (h *GalleryHandler) DeletePhoto(c *gin.Context) {
-	id, _ := strconv.Atoi(c.Param("photo_id"))
+	id, err := strconv.Atoi(c.Param("photo_id"))
+	if err != nil {
+		utils.ErrorResponse(c, http.StatusBadRequest, "Invalid photo ID", err.Error())
+		return
+	}
+
 	if err := h.service.DeletePhoto(c.Request.Context(), uint(id)); err != nil {
 		utils.ResponseWithError(c, err)
 		return

@@ -43,10 +43,10 @@ export default function ContactForm() {
     setIsSubmitting(true);
     try {
       await submitContactForm(values);
-      toast.success("Pesan Anda telah terkirim!");
+      toast.success(t("toast_success"));
       form.reset();
     } catch (error) {
-      toast.error("Gagal mengirim pesan. Silakan coba lagi.");
+      toast.error(t("toast_fail"));
     } finally {
       setIsSubmitting(false);
     }
@@ -115,8 +115,20 @@ export default function ContactForm() {
           type="submit"
           className="w-full bg-linear-to-r from-emerald-600 to-teal-600 font-bold text-white shadow-lg transition-all hover:from-emerald-700 hover:to-teal-700 hover:shadow-emerald-500/25"
           disabled={isSubmitting}
+          aria-busy={isSubmitting}
+          aria-describedby={isSubmitting ? "contact-form-loading" : undefined}
         >
-          {isSubmitting ? t("btn_submitting") : t("btn_submit")}
+          {isSubmitting ? (
+            <>
+              <span
+                className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"
+                aria-hidden="true"
+              />
+              <span id="contact-form-loading">{t("btn_submitting")}</span>
+            </>
+          ) : (
+            t("btn_submit")
+          )}
         </Button>
       </form>
     </Form>

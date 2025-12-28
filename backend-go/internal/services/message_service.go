@@ -3,12 +3,14 @@ package services
 import (
 	"backend-go/internal/models"
 	"backend-go/internal/repository"
+	"context"
 )
 
 type MessageService interface {
-	CreateMessage(input *models.Message) error
-	GetAllMessages() ([]models.Message, error)
-	DeleteMessage(id uint) error
+	CreateMessage(ctx context.Context, input *models.Message) error
+	GetAllMessages(ctx context.Context) ([]models.Message, error)
+	MarkAsRead(ctx context.Context, id uint) error
+	DeleteMessage(ctx context.Context, id uint) error
 }
 
 type messageService struct {
@@ -19,14 +21,19 @@ func NewMessageService(repo repository.MessageRepository) MessageService {
 	return &messageService{repo}
 }
 
-func (s *messageService) CreateMessage(input *models.Message) error {
-	return s.repo.Create(input)
+func (s *messageService) CreateMessage(ctx context.Context, input *models.Message) error {
+	return s.repo.Create(ctx, input)
 }
 
-func (s *messageService) GetAllMessages() ([]models.Message, error) {
-	return s.repo.GetAll()
+func (s *messageService) GetAllMessages(ctx context.Context) ([]models.Message, error) {
+	return s.repo.FindAll(ctx)
 }
 
-func (s *messageService) DeleteMessage(id uint) error {
-	return s.repo.Delete(id)
+func (s *messageService) MarkAsRead(ctx context.Context, id uint) error {
+	return s.repo.MarkAsRead(ctx, id)
 }
+
+func (s *messageService) DeleteMessage(ctx context.Context, id uint) error {
+	return s.repo.Delete(ctx, id)
+}
+

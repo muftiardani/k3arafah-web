@@ -19,7 +19,7 @@ func NewDashboardHandler(service services.DashboardService) *DashboardHandler {
 func (h *DashboardHandler) GetStats(c *gin.Context) {
 	stats, err := h.service.GetStats(c.Request.Context())
 	if err != nil {
-		utils.ErrorResponse(c, http.StatusInternalServerError, "Failed to fetch dashboard stats", err.Error())
+		utils.ResponseWithError(c, err)
 		return
 	}
 

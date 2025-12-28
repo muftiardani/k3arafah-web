@@ -47,14 +47,9 @@ export default function StudentsPage() {
 
   const fetchStudents = async () => {
     try {
-      // In real implementation, we should have a specific endpoint for Active Students
-      // For now we use the same getAll endpoints but filter by status client-side or use FindByStatus if exposed
-      // Backend PSBHandler GetAll returns all.
-      // Ideally we should add query param ?status=ACCEPTED to API.
-      // But let's fetch all and filter client side for MVP.
-      const response = await api.get("/psb/registrants");
-      const allData: Santri[] = response.data.data;
-      const activeStudents = allData.filter((s) => s.status === "ACCEPTED");
+      // Use backend filter for better performance
+      const response = await api.get("/psb/registrants?status=ACCEPTED");
+      const activeStudents: Santri[] = response.data.data || [];
       setStudents(activeStudents);
       setFilteredStudents(activeStudents);
     } catch (error) {
@@ -65,62 +60,78 @@ export default function StudentsPage() {
   };
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-lg font-semibold md:text-2xl">{t("title")}</h1>
-          <p className="text-muted-foreground text-sm">{t("description")}</p>
+    <div className="flex w-full flex-col gap-8 pb-10">
+      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <div className="space-y-1">
+          <h1 className="text-3xl font-bold tracking-tight">{t("title")}</h1>
+          <p className="text-muted-foreground text-lg">{t("description")}</p>
         </div>
       </div>
 
-      <div className="flex items-center gap-2">
-        <div className="relative max-w-sm flex-1">
-          <Search className="text-muted-foreground absolute top-2.5 left-2.5 h-4 w-4" />
+      <div className="bg-background/50 flex items-center gap-4 rounded-lg border p-4 shadow-sm backdrop-blur-[1px]">
+        <div className="relative flex-1">
+          <Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
           <Input
             type="search"
             placeholder={t("search_placeholder")}
-            className="pl-8"
+            className="bg-background focus:ring-primary/20 pl-9 transition-all focus:ring-2"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
       </div>
 
-      <div className="bg-card rounded-md border">
+      <div className="bg-card overflow-hidden rounded-xl border shadow-md transition-all hover:shadow-lg">
         <Table>
-          <TableHeader>
+          <TableHeader className="bg-muted/50">
             <TableRow>
-              <TableHead>{t("table.nis")}</TableHead>
-              <TableHead>{t("table.name")}</TableHead>
-              <TableHead>{t("table.class")}</TableHead>
-              <TableHead>{t("table.entry_year")}</TableHead>
-              <TableHead>{t("table.parent_phone")}</TableHead>
-              <TableHead>{t("table.status")}</TableHead>
+              <TableHead className="text-center font-semibold">{t("table.nis")}</TableHead>
+              <TableHead className="text-center font-semibold">{t("table.name")}</TableHead>
+              <TableHead className="text-center font-semibold">{t("table.class")}</TableHead>
+              <TableHead className="text-center font-semibold">{t("table.entry_year")}</TableHead>
+              <TableHead className="text-center font-semibold">{t("table.parent_phone")}</TableHead>
+              <TableHead className="text-center font-semibold">{t("table.status")}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {loading ? (
               <TableRow>
-                <TableCell colSpan={6} className="py-10 text-center">
-                  {t("loading")}
+                <TableCell colSpan={6} className="h-24 text-center">
+                  <div className="text-muted-foreground flex items-center justify-center gap-2">
+                    <span className="animate-pulse">{t("loading")}</span>
+                  </div>
                 </TableCell>
               </TableRow>
             ) : filteredStudents.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={6} className="py-10 text-center">
-                  {t("empty")}
+                <TableCell colSpan={6} className="h-64 text-center">
+                  <div className="text-muted-foreground flex flex-col items-center justify-center gap-2">
+                    <p className="text-lg font-semibold">{t("empty")}</p>
+                    <p className="text-sm">Tidak ada data santri yang ditemukan.</p>
+                  </div>
                 </TableCell>
               </TableRow>
             ) : (
               filteredStudents.map((item) => (
-                <TableRow key={item.id}>
-                  <TableCell className="font-mono">{item.nis || "-"}</TableCell>
-                  <TableCell className="font-medium">{item.full_name}</TableCell>
-                  <TableCell>{item.class || "-"}</TableCell>
-                  <TableCell>{item.entry_year || "-"}</TableCell>
-                  <TableCell>{item.parent_phone}</TableCell>
-                  <TableCell>
-                    <Badge variant="default" className="bg-green-600">
+                <TableRow key={item.id} className="group hover:bg-muted/50 transition-colors">
+                  <TableCell className="text-primary text-center font-mono font-medium">
+                    {item.nis || "-"}
+                  </TableCell>
+                  <TableCell className="font-semibold">{item.full_name}</TableCell>
+                  <TableCell className="text-center">
+                    <Badge variant="outline" className="bg-background">
+                      {item.class || "-"}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="text-center">{item.entry_year || "-"}</TableCell>
+                  <TableCell className="text-center font-mono text-xs">
+                    {item.parent_phone}
+                  </TableCell>
+                  <TableCell className="text-center">
+                    <Badge
+                      variant="default"
+                      className="bg-green-100 text-green-700 hover:bg-green-200 dark:bg-green-900/30 dark:text-green-400"
+                    >
                       {t("active")}
                     </Badge>
                   </TableCell>

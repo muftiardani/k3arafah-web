@@ -2,18 +2,10 @@
 
 import { useEffect, useState } from "react";
 import api from "@/lib/api";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
-import { Plus, Pencil, Trash2, Search, FileText, Globe, Lock } from "lucide-react";
+import { Plus, Pencil, Trash2, Search, FileText } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -87,85 +79,76 @@ export default function ArticlesPage() {
   }
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex w-full flex-col gap-8 pb-10">
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">{t("title")}</h1>
-          <p className="text-muted-foreground">{t("description")}</p>
+        <div className="space-y-1">
+          <h1 className="text-3xl font-bold tracking-tight">{t("title")}</h1>
+          <p className="text-muted-foreground text-lg">{t("description")}</p>
         </div>
-        <Button asChild>
-          <Link href="/articles/create">
+        <Button asChild className="shadow-primary/20 shadow-lg transition-all hover:scale-105">
+          <Link href="/dashboard/articles/create">
             <Plus className="mr-2 h-4 w-4" /> {t("add_new")}
           </Link>
         </Button>
       </div>
 
-      <Card>
-        <CardHeader className="p-4 pb-0">
-          {/* No title in header to save space if utilizing tabs above nicely, or keep it simple */}
-        </CardHeader>
-        <CardContent className="p-4">
-          <div className="flex flex-col gap-4">
-            <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-              <div className="bg-muted/50 flex w-fit items-center gap-2 rounded-lg p-1">
-                <Button
-                  variant={activeTab === "all" ? "secondary" : "ghost"}
-                  size="sm"
-                  onClick={() => setActiveTab("all")}
-                  className={
-                    activeTab === "all" ? "bg-background hover:bg-background shadow-sm" : ""
-                  }
+      <div className="space-y-6">
+        {/* Filters & Search */}
+        <div className="bg-card flex flex-col gap-4 rounded-xl border p-4 shadow-sm md:flex-row md:items-center md:justify-between">
+          <div className="bg-muted/30 flex gap-1 overflow-x-auto rounded-lg p-1.5">
+            {["all", "published", "draft"].map((tab) => (
+              <Button
+                key={tab}
+                variant={activeTab === tab ? "default" : "ghost"}
+                size="sm"
+                onClick={() => setActiveTab(tab)}
+                className={`rounded-md transition-all ${
+                  activeTab === tab
+                    ? "font-semibold shadow-sm"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                {t(`tabs.${tab}` as any)}
+                <Badge
+                  variant="secondary"
+                  className={`ml-2 h-5 px-1.5 text-[10px] font-normal ${
+                    activeTab === tab
+                      ? "bg-primary-foreground/20 text-primary-foreground"
+                      : "bg-muted text-muted-foreground"
+                  }`}
                 >
-                  {t("tabs.all")}
-                </Button>
-                <Button
-                  variant={activeTab === "published" ? "secondary" : "ghost"}
-                  size="sm"
-                  onClick={() => setActiveTab("published")}
-                  className={
-                    activeTab === "published" ? "bg-background hover:bg-background shadow-sm" : ""
+                  {
+                    articles.filter((a) => {
+                      if (tab === "published") return a.is_published;
+                      if (tab === "draft") return !a.is_published;
+                      return true;
+                    }).length
                   }
-                >
-                  {t("tabs.published")}
-                </Button>
-                <Button
-                  variant={activeTab === "draft" ? "secondary" : "ghost"}
-                  size="sm"
-                  onClick={() => setActiveTab("draft")}
-                  className={
-                    activeTab === "draft" ? "bg-background hover:bg-background shadow-sm" : ""
-                  }
-                >
-                  {t("tabs.draft")}
-                </Button>
-              </div>
+                </Badge>
+              </Button>
+            ))}
+          </div>
 
-              <div className="relative w-full md:w-72">
-                <Search className="text-muted-foreground absolute top-2.5 left-2.5 h-4 w-4" />
-                <Input
-                  type="search"
-                  placeholder={t("search")}
-                  className="pl-8"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
-              </div>
-            </div>
-
-            <ArticlesTable
-              articles={filteredArticles}
-              onDelete={deleteArticle}
-              t={t}
-              locale={locale}
+          <div className="relative w-full md:w-72">
+            <Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
+            <Input
+              type="search"
+              placeholder={t("search")}
+              className="bg-background/50 border-input/60 focus:bg-background pl-9 transition-colors"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
-        </CardContent>
-      </Card>
+        </div>
+
+        {/* Articles Grid */}
+        <ArticlesGrid articles={filteredArticles} onDelete={deleteArticle} t={t} locale={locale} />
+      </div>
     </div>
   );
 }
 
-function ArticlesTable({
+function ArticlesGrid({
   articles,
   onDelete,
   t,
@@ -173,84 +156,80 @@ function ArticlesTable({
 }: {
   articles: Article[];
   onDelete: (id: number) => void;
-  t: any;
+  t: (key: string) => string;
   locale: string;
 }) {
   if (articles.length === 0) {
     return (
-      <div className="text-muted-foreground flex flex-col items-center justify-center py-12 text-center">
-        <FileText className="mb-4 h-12 w-12 opacity-20" />
-        <p>{t("empty")}</p>
+      <div className="bg-muted/30 flex flex-col items-center justify-center rounded-xl border-2 border-dashed py-12 text-center">
+        <div className="bg-background mb-4 rounded-full p-4 shadow-sm">
+          <FileText className="text-muted-foreground h-8 w-8" />
+        </div>
+        <h3 className="text-lg font-semibold">{t("empty")}</h3>
+        <p className="text-muted-foreground mt-1 max-w-sm text-sm">{t("description")}</p>
       </div>
     );
   }
 
   return (
-    <div className="rounded-md border">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead className="w-[400px]">{t("table.title")}</TableHead>
-            <TableHead>{t("table.status")}</TableHead>
-            <TableHead>{t("table.date")}</TableHead>
-            <TableHead className="text-right">{t("table.action")}</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {articles.map((item) => (
-            <TableRow key={item.id}>
-              <TableCell className="font-medium">
-                <div className="flex items-center gap-3">
-                  <div className="bg-primary/10 text-primary flex h-9 w-9 items-center justify-center rounded">
-                    <FileText className="h-4 w-4" />
-                  </div>
-                  <span className="line-clamp-1">{item.title}</span>
-                </div>
-              </TableCell>
-              <TableCell>
+    <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+      {articles.map((item) => (
+        <Card
+          key={item.id}
+          className="group overflow-hidden border-none shadow-sm transition-all duration-300 hover:shadow-md"
+        >
+          <CardHeader className="p-0">
+            {/* Thumbnail Placeholder - To be replaced with actual image if available */}
+            <div className="relative flex aspect-video w-full items-center justify-center bg-linear-to-br from-blue-50 to-indigo-50 transition-transform duration-500 group-hover:scale-105 dark:from-slate-800 dark:to-slate-900">
+              <FileText className="h-12 w-12 text-blue-200 dark:text-slate-700" />
+              <div className="absolute top-3 right-3">
                 <Badge
                   variant={item.is_published ? "default" : "secondary"}
-                  className={item.is_published ? "bg-green-600 hover:bg-green-700" : ""}
+                  className={`${item.is_published ? "bg-green-500 shadow-lg shadow-green-500/20 hover:bg-green-600" : "bg-zinc-500 text-white"}`}
                 >
-                  {item.is_published ? (
-                    <div className="flex items-center gap-1">
-                      <Globe className="h-3 w-3" /> {t("status.published")}
-                    </div>
-                  ) : (
-                    <div className="flex items-center gap-1">
-                      <Lock className="h-3 w-3" /> {t("status.draft")}
-                    </div>
-                  )}
+                  {item.is_published ? t("status.published") : t("status.draft")}
                 </Badge>
-              </TableCell>
-              <TableCell className="text-muted-foreground">
-                {new Date(item.created_at).toLocaleDateString(locale === "en" ? "en-US" : "id-ID", {
-                  day: "numeric",
-                  month: "short",
-                  year: "numeric",
-                })}
-              </TableCell>
-              <TableCell className="flex justify-end gap-2 text-right">
-                <Button variant="ghost" size="icon" asChild>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent className="p-2">
+            <div className="flex flex-col gap-3">
+              <div className="space-y-2">
+                <h3 className="group-hover:text-primary line-clamp-2 text-lg leading-tight font-bold transition-colors">
+                  {item.title}
+                </h3>
+                <p className="text-muted-foreground flex items-center gap-2 text-xs">
+                  <span className="bg-muted-foreground/30 inline-block h-2 w-2 rounded-full"></span>
+                  {new Date(item.created_at).toLocaleDateString(
+                    locale === "en" ? "en-US" : "id-ID",
+                    {
+                      day: "numeric",
+                      month: "long",
+                      year: "numeric",
+                    }
+                  )}
+                </p>
+              </div>
+
+              <div className="mt-auto flex items-center justify-end gap-2 border-t pt-4">
+                <Button variant="outline" size="sm" className="h-8 text-xs" asChild>
                   <Link href={`/dashboard/articles/edit/${item.id}`}>
-                    {" "}
-                    {/* Assuming edit page exists or will exist, keeping link clean */}
-                    <Pencil className="text-muted-foreground hover:text-foreground h-4 w-4" />
+                    <Pencil className="mr-1.5 h-3 w-3" /> Edit
                   </Link>
                 </Button>
                 <Button
                   variant="ghost"
-                  size="icon"
-                  className="text-red-500 hover:bg-red-50 hover:text-red-600"
+                  size="sm"
+                  className="text-muted-foreground h-8 w-8 p-0 hover:bg-red-50 hover:text-red-600"
                   onClick={() => onDelete(item.id)}
                 >
-                  <Trash2 className="h-4 w-4" />
+                  <Trash2 className="h-3.5 w-3.5" />
                 </Button>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      ))}
     </div>
   );
 }
