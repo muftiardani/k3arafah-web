@@ -2,6 +2,7 @@ package repository
 
 import (
 	"backend-go/internal/models"
+	"backend-go/internal/utils"
 	"context"
 
 	"gorm.io/gorm"
@@ -13,6 +14,7 @@ type AchievementRepository interface {
 	FindByID(ctx context.Context, id uint) (*models.Achievement, error)
 	Update(ctx context.Context, achievement *models.Achievement) error
 	Delete(ctx context.Context, id uint) error
+	Count(ctx context.Context) (int64, error)
 }
 
 type achievementRepository struct {
@@ -24,29 +26,32 @@ func NewAchievementRepository(db *gorm.DB) AchievementRepository {
 }
 
 func (r *achievementRepository) Create(ctx context.Context, achievement *models.Achievement) error {
-	return r.db.WithContext(ctx).Create(achievement).Error
+	return utils.HandleDBError(r.db.WithContext(ctx).Create(achievement).Error)
 }
 
 func (r *achievementRepository) FindAll(ctx context.Context) ([]models.Achievement, error) {
 	var achievements []models.Achievement
-	if err := r.db.WithContext(ctx).Order("created_at desc").Find(&achievements).Error; err != nil {
-		return nil, err
-	}
-	return achievements, nil
+	err := r.db.WithContext(ctx).Order("created_at desc").Find(&achievements).Error
+	return achievements, utils.HandleDBError(err)
 }
 
 func (r *achievementRepository) FindByID(ctx context.Context, id uint) (*models.Achievement, error) {
 	var achievement models.Achievement
-	if err := r.db.WithContext(ctx).First(&achievement, id).Error; err != nil {
-		return nil, err
-	}
-	return &achievement, nil
+	err := r.db.WithContext(ctx).First(&achievement, id).Error
+	return &achievement, utils.HandleDBError(err)
 }
 
 func (r *achievementRepository) Update(ctx context.Context, achievement *models.Achievement) error {
-	return r.db.WithContext(ctx).Save(achievement).Error
+	return utils.HandleDBError(r.db.WithContext(ctx).Save(achievement).Error)
 }
 
 func (r *achievementRepository) Delete(ctx context.Context, id uint) error {
-	return r.db.WithContext(ctx).Delete(&models.Achievement{}, id).Error
+	return utils.HandleDBError(r.db.WithContext(ctx).Delete(&models.Achievement{}, id).Error)
 }
+
+func (r *achievementRepository) Count(ctx context.Context) (int64, error) {
+	var count int64
+	err := r.db.WithContext(ctx).Model(&models.Achievement{}).Count(&count).Error
+	return count, utils.HandleDBError(err)
+}
+

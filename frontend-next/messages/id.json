@@ -236,6 +236,31 @@
     "try_again": "Coba Lagi",
     "back_home": "Kembali ke Beranda"
   },
+  "Errors": {
+    "generic": "Terjadi kesalahan. Silakan coba lagi.",
+    "network": "Koneksi terputus. Periksa internet Anda.",
+    "rate_limit": "Terlalu banyak permintaan. Coba lagi nanti.",
+    "server": "Terjadi kesalahan server.",
+    "unauthorized": "Sesi Anda telah berakhir. Silakan login kembali.",
+    "validation": "Data tidak valid. Periksa inputan Anda.",
+    "login_failed": "Login gagal: Username atau password salah",
+    "create_failed": "Gagal membuat {item}",
+    "update_failed": "Gagal memperbarui {item}",
+    "delete_failed": "Gagal menghapus {item}",
+    "load_failed": "Gagal memuat {item}",
+    "upload_failed": "Gagal mengupload {item}",
+    "required_fields": "Semua field wajib diisi",
+    "items": {
+      "video": "video",
+      "article": "artikel",
+      "achievement": "prestasi",
+      "gallery": "galeri",
+      "photo": "foto",
+      "message": "pesan",
+      "admin": "admin",
+      "album": "album"
+    }
+  },
   "NotFound": {
     "title": "Halaman Tidak Ditemukan",
     "description": "Maaf, kami tidak dapat menemukan halaman yang Anda cari. Mungkin telah dihapus, diganti namanya, atau tidak ada.",

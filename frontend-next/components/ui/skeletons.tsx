@@ -195,3 +195,71 @@ export function TableSkeleton({ rows = 5, columns = 5 }: { rows?: number; column
     </div>
   );
 }
+
+// Article Detail Skeleton
+export function ArticleDetailSkeleton() {
+  return (
+    <article className="mx-auto max-w-3xl space-y-6">
+      {/* Title */}
+      <Skeleton className="h-10 w-3/4" />
+
+      {/* Meta info */}
+      <div className="flex items-center gap-4">
+        <Skeleton className="h-10 w-10 rounded-full" />
+        <div className="space-y-2">
+          <Skeleton className="h-4 w-24" />
+          <Skeleton className="h-3 w-32" />
+        </div>
+      </div>
+
+      {/* Featured image */}
+      <Skeleton className="h-64 w-full rounded-xl md:h-96" />
+
+      {/* Content paragraphs */}
+      <div className="space-y-4">
+        <Skeleton className="h-4 w-full" />
+        <Skeleton className="h-4 w-full" />
+        <Skeleton className="h-4 w-5/6" />
+        <Skeleton className="h-4 w-full" />
+        <Skeleton className="h-4 w-4/5" />
+        <Skeleton className="h-4 w-full" />
+        <Skeleton className="h-4 w-3/4" />
+      </div>
+    </article>
+  );
+}
+
+// Gallery Detail Skeleton
+export function GalleryDetailSkeleton() {
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="space-y-2">
+        <Skeleton className="h-8 w-1/2" />
+        <Skeleton className="h-4 w-3/4" />
+      </div>
+
+      {/* Photo grid */}
+      <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+        {Array.from({ length: 8 }).map((_, i) => (
+          <Skeleton key={i} className="aspect-square rounded-lg" />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// Form Skeleton
+export function FormSkeleton() {
+  return (
+    <div className="space-y-6">
+      {Array.from({ length: 4 }).map((_, i) => (
+        <div key={i} className="space-y-2">
+          <Skeleton className="h-4 w-24" />
+          <Skeleton className="h-10 w-full" />
+        </div>
+      ))}
+      <Skeleton className="h-10 w-32" />
+    </div>
+  );
+}

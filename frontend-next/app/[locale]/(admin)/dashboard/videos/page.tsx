@@ -1,30 +1,24 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import {
   Plus,
   Trash2,
   Video as VideoIcon,
-  Loader2,
   Pencil,
   ExternalLink,
   PlayCircle,
   MoreVertical,
   Link as LinkIcon,
   AlertCircle,
+  Loader2,
 } from "lucide-react";
 import { toast } from "sonner";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import Image from "next/image";
 
-import {
-  getAllVideos,
-  createVideo,
-  updateVideo,
-  deleteVideo,
-  type Video,
-} from "@/lib/services/videoService";
+import { useVideos, useCreateVideo, useUpdateVideo, useDeleteVideo } from "@/lib/hooks";
+import { type Video } from "@/lib/services/videoService";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -49,7 +43,6 @@ import { Separator } from "@/components/ui/separator";
 export default function VideosPage() {
   const t = useTranslations("Dashboard.VideosPage");
   const locale = useLocale();
-  const queryClient = useQueryClient();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingVideo, setEditingVideo] = useState<Video | null>(null);
   const [formData, setFormData] = useState({
@@ -58,58 +51,11 @@ export default function VideosPage() {
     thumbnail: "",
   });
 
-  // Fetch Videos
-  const { data: videos, isLoading } = useQuery({
-    queryKey: ["videos"],
-    queryFn: getAllVideos,
-  });
-
-  // Create Mutation
-  const createMutation = useMutation({
-    mutationFn: createVideo,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["videos"] });
-      toast.success(t("toast_created"));
-      closeDialog();
-    },
-    onError: (error: any) => {
-      console.error(error);
-      toast.error(t("toast_failed") + ": " + (error.response?.data?.message || error.message));
-    },
-  });
-
-  // Update Mutation
-  const updateMutation = useMutation({
-    mutationFn: ({
-      id,
-      data,
-    }: {
-      id: number;
-      data: { title?: string; youtube_id?: string; thumbnail?: string };
-    }) => updateVideo(id, data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["videos"] });
-      toast.success(t("toast_updated") || "Video updated successfully");
-      closeDialog();
-    },
-    onError: (error: any) => {
-      console.error(error);
-      toast.error(t("toast_failed") + ": " + (error.response?.data?.message || error.message));
-    },
-  });
-
-  // Delete Mutation
-  const deleteMutation = useMutation({
-    mutationFn: deleteVideo,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["videos"] });
-      toast.success(t("toast_deleted"));
-    },
-    onError: (error) => {
-      console.error(error);
-      toast.error(t("toast_failed"));
-    },
-  });
+  // Use hooks with caching
+  const { data: videos, isLoading } = useVideos();
+  const createMutation = useCreateVideo();
+  const updateMutation = useUpdateVideo();
+  const deleteMutation = useDeleteVideo();
 
   const handleDelete = (id: number) => {
     if (confirm(t("delete_confirm"))) {
@@ -148,9 +94,30 @@ export default function VideosPage() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (editingVideo) {
-      updateMutation.mutate({ id: editingVideo.id, data: formData });
+      updateMutation.mutate(
+        { id: editingVideo.id, data: formData },
+        {
+          onSuccess: () => {
+            toast.success(t("toast_updated") || "Video updated successfully");
+            closeDialog();
+          },
+          onError: (error: any) => {
+            toast.error(
+              t("toast_failed") + ": " + (error.response?.data?.message || error.message)
+            );
+          },
+        }
+      );
     } else {
-      createMutation.mutate(formData);
+      createMutation.mutate(formData, {
+        onSuccess: () => {
+          toast.success(t("toast_created"));
+          closeDialog();
+        },
+        onError: (error: any) => {
+          toast.error(t("toast_failed") + ": " + (error.response?.data?.message || error.message));
+        },
+      });
     }
   };
 
@@ -165,9 +132,32 @@ export default function VideosPage() {
 
   if (isLoading) {
     return (
-      <div className="flex h-[80vh] flex-col items-center justify-center gap-4">
-        <Loader2 className="text-primary h-10 w-10 animate-spin" />
-        <p className="text-muted-foreground animate-pulse">Memuat koleksi video...</p>
+      <div className="flex w-full flex-col gap-8 pb-10">
+        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+          <div>
+            <div className="h-9 w-48 animate-pulse rounded bg-gray-200 dark:bg-gray-700" />
+            <div className="mt-2 h-5 w-72 animate-pulse rounded bg-gray-200 dark:bg-gray-700" />
+          </div>
+          <div className="h-10 w-36 animate-pulse rounded bg-gray-200 dark:bg-gray-700" />
+        </div>
+        <div className="h-px w-full bg-gray-200 dark:bg-gray-700" />
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {Array.from({ length: 8 }).map((_, i) => (
+            <div
+              key={i}
+              className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800"
+            >
+              <div className="aspect-video w-full animate-pulse bg-gray-200 dark:bg-gray-700" />
+              <div className="space-y-2 p-3">
+                <div className="h-5 w-3/4 animate-pulse rounded bg-gray-200 dark:bg-gray-700" />
+                <div className="flex justify-between">
+                  <div className="h-4 w-20 animate-pulse rounded bg-gray-200 dark:bg-gray-700" />
+                  <div className="h-4 w-16 animate-pulse rounded bg-gray-200 dark:bg-gray-700" />
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     );
   }

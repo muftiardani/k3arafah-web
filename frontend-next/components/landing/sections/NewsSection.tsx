@@ -5,25 +5,11 @@ import { Link } from "@/navigation";
 import { Calendar } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Article } from "@/lib/services/articleService";
+import { fadeIn, staggerContainer } from "@/lib/animations";
 
 interface NewsSectionProps {
   articles: Article[];
 }
-
-const fadeIn = {
-  hidden: { opacity: 0, y: 20 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
-};
-
-const staggerContainer = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.2,
-    },
-  },
-};
 
 export default function NewsSection({ articles }: NewsSectionProps) {
   const tHome = useTranslations("Home");

@@ -8,7 +8,7 @@ import { motion } from "framer-motion";
 import { fadeIn, staggerContainer, slideUp } from "@/lib/animations";
 import { usePaginatedArticles, articleKeys } from "@/lib/hooks";
 import { Article } from "@/lib/services/articleService";
-import { ArticleListSkeleton } from "@/components/skeletons";
+import { ArticlesListSkeleton } from "@/components/ui/skeletons";
 import { useState } from "react";
 
 interface ArticlesContentProps {
@@ -64,7 +64,7 @@ export default function ArticlesContent({ initialArticles = [] }: ArticlesConten
       <section className="py-16 md:py-24">
         <div className="container px-4 md:px-6">
           {isLoading ? (
-            <ArticleListSkeleton count={6} />
+            <ArticlesListSkeleton count={6} />
           ) : isError ? (
             <div className="flex justify-center py-20 text-center text-red-500">
               <p>Failed to load articles. Please try again later.</p>

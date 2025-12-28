@@ -19,6 +19,18 @@ func NewAchievementHandler(service services.AchievementService) *AchievementHand
 	return &AchievementHandler{service}
 }
 
+// Create godoc
+// @Summary      Create a new achievement
+// @Description  Create a new achievement entry (admin only)
+// @Tags         achievements
+// @Accept       json
+// @Produce      json
+// @Param        achievement  body      dto.CreateAchievementRequest  true  "Achievement data"
+// @Success      201          {object}  utils.APIResponse
+// @Failure      400          {object}  utils.APIResponse
+// @Failure      401          {object}  utils.APIResponse
+// @Security     BearerAuth
+// @Router       /achievements [post]
 func (h *AchievementHandler) Create(c *gin.Context) {
 	var req dto.CreateAchievementRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -42,6 +54,14 @@ func (h *AchievementHandler) Create(c *gin.Context) {
 	utils.SuccessResponse(c, http.StatusCreated, "Achievement created successfully", achievement)
 }
 
+// GetAll godoc
+// @Summary      Get all achievements
+// @Description  Get all achievements
+// @Tags         achievements
+// @Produce      json
+// @Success      200  {object}  utils.APIResponse
+// @Failure      500  {object}  utils.APIResponse
+// @Router       /achievements [get]
 func (h *AchievementHandler) GetAll(c *gin.Context) {
 	achievements, err := h.service.GetAllAchievements(c.Request.Context())
 	if err != nil {
@@ -52,6 +72,18 @@ func (h *AchievementHandler) GetAll(c *gin.Context) {
 	utils.SuccessResponse(c, http.StatusOK, "Achievements retrieved successfully", achievements)
 }
 
+// Delete godoc
+// @Summary      Delete an achievement
+// @Description  Delete an achievement (admin only)
+// @Tags         achievements
+// @Produce      json
+// @Param        id   path      int  true  "Achievement ID"
+// @Success      200  {object}  utils.APIResponse
+// @Failure      400  {object}  utils.APIResponse
+// @Failure      401  {object}  utils.APIResponse
+// @Failure      404  {object}  utils.APIResponse
+// @Security     BearerAuth
+// @Router       /achievements/{id} [delete]
 func (h *AchievementHandler) Delete(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := strconv.ParseUint(idStr, 10, 32)
@@ -68,6 +100,20 @@ func (h *AchievementHandler) Delete(c *gin.Context) {
 	utils.SuccessResponse(c, http.StatusOK, "Achievement deleted successfully", nil)
 }
 
+// Update godoc
+// @Summary      Update an achievement
+// @Description  Update an existing achievement (admin only)
+// @Tags         achievements
+// @Accept       json
+// @Produce      json
+// @Param        id           path      int                           true  "Achievement ID"
+// @Param        achievement  body      dto.UpdateAchievementRequest  true  "Updated achievement data"
+// @Success      200          {object}  utils.APIResponse
+// @Failure      400          {object}  utils.APIResponse
+// @Failure      401          {object}  utils.APIResponse
+// @Failure      404          {object}  utils.APIResponse
+// @Security     BearerAuth
+// @Router       /achievements/{id} [put]
 func (h *AchievementHandler) Update(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := strconv.ParseUint(idStr, 10, 32)
@@ -97,3 +143,4 @@ func (h *AchievementHandler) Update(c *gin.Context) {
 
 	utils.SuccessResponse(c, http.StatusOK, "Achievement updated successfully", nil)
 }
+

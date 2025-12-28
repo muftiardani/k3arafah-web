@@ -7,6 +7,7 @@ import React from "react";
 import { useQuery } from "@tanstack/react-query";
 import { getAllAchievements, type Achievement } from "@/lib/services/achievementService";
 import { Skeleton } from "@/components/ui/skeleton";
+import { fadeIn } from "@/lib/animations";
 
 // Map string keys to Lucide components
 const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -92,11 +93,6 @@ function AchievementCard({ item }: { item: Achievement }) {
     </div>
   );
 }
-
-const fadeIn = {
-  hidden: { opacity: 0, y: 20 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
-};
 
 export default function AchievementSection() {
   const t = useTranslations("Achievements");

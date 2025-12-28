@@ -19,15 +19,14 @@ import {
   Star,
 } from "lucide-react";
 import { toast } from "sonner";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 import {
-  getAllAchievements,
-  createAchievement,
-  updateAchievement,
-  deleteAchievement,
-  type Achievement,
-} from "@/lib/services/achievementService";
+  useAchievements,
+  useCreateAchievement,
+  useUpdateAchievement,
+  useDeleteAchievement,
+} from "@/lib/hooks";
+import { type Achievement } from "@/lib/services/achievementService";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -134,7 +133,6 @@ const COLOR_MAP: Record<
 export default function AchievementsPage() {
   const t = useTranslations("Dashboard.AchievementsPage");
   const locale = useLocale();
-  const queryClient = useQueryClient();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingAchievement, setEditingAchievement] = useState<Achievement | null>(null);
   const [formData, setFormData] = useState({
@@ -145,53 +143,11 @@ export default function AchievementsPage() {
     color: "yellow",
   });
 
-  // Fetch Achievements
-  const { data: achievements, isLoading } = useQuery({
-    queryKey: ["achievements"],
-    queryFn: getAllAchievements,
-  });
-
-  // Create Mutation
-  const createMutation = useMutation({
-    mutationFn: createAchievement,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["achievements"] });
-      toast.success(t("toast_created"));
-      closeDialog();
-    },
-    onError: (error: any) => {
-      console.error(error);
-      toast.error(t("toast_failed") + ": " + (error.response?.data?.message || error.message));
-    },
-  });
-
-  // Update Mutation
-  const updateMutation = useMutation({
-    mutationFn: ({ id, data }: { id: number; data: Partial<typeof formData> }) =>
-      updateAchievement(id, data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["achievements"] });
-      toast.success(t("toast_updated") || "Achievement updated successfully");
-      closeDialog();
-    },
-    onError: (error: any) => {
-      console.error(error);
-      toast.error(t("toast_failed") + ": " + (error.response?.data?.message || error.message));
-    },
-  });
-
-  // Delete Mutation
-  const deleteMutation = useMutation({
-    mutationFn: deleteAchievement,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["achievements"] });
-      toast.success(t("toast_deleted"));
-    },
-    onError: (error) => {
-      console.error(error);
-      toast.error(t("toast_failed"));
-    },
-  });
+  // Use hooks with caching
+  const { data: achievements, isLoading } = useAchievements();
+  const createMutation = useCreateAchievement();
+  const updateMutation = useUpdateAchievement();
+  const deleteMutation = useDeleteAchievement();
 
   const handleDelete = (id: number) => {
     if (confirm(t("delete_confirm"))) {
@@ -237,9 +193,30 @@ export default function AchievementsPage() {
 
   if (isLoading) {
     return (
-      <div className="flex h-[80vh] flex-col items-center justify-center gap-4">
-        <Loader2 className="text-primary h-10 w-10 animate-spin" />
-        <p className="text-muted-foreground animate-pulse">Memuat daftar prestasi...</p>
+      <div className="flex w-full flex-col gap-8 pb-10">
+        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+          <div>
+            <div className="h-9 w-48 animate-pulse rounded bg-gray-200 dark:bg-gray-700" />
+            <div className="mt-2 h-5 w-72 animate-pulse rounded bg-gray-200 dark:bg-gray-700" />
+          </div>
+          <div className="h-10 w-40 animate-pulse rounded bg-gray-200 dark:bg-gray-700" />
+        </div>
+        <div className="h-px w-full bg-gray-200 dark:bg-gray-700" />
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {Array.from({ length: 8 }).map((_, i) => (
+            <div
+              key={i}
+              className="overflow-hidden rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800"
+            >
+              <div className="mx-auto mb-4 h-14 w-14 animate-pulse rounded-full bg-gray-200 dark:bg-gray-700" />
+              <div className="space-y-2 text-center">
+                <div className="mx-auto h-5 w-3/4 animate-pulse rounded bg-gray-200 dark:bg-gray-700" />
+                <div className="mx-auto h-4 w-1/2 animate-pulse rounded bg-gray-200 dark:bg-gray-700" />
+                <div className="mx-auto h-3 w-full animate-pulse rounded bg-gray-200 dark:bg-gray-700" />
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     );
   }

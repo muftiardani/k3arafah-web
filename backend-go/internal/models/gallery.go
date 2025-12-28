@@ -24,3 +24,15 @@ type Photo struct {
 	Caption   string    `json:"caption"`
 	CreatedAt time.Time `json:"created_at"`
 }
+
+// GallerySummary is an optimized struct for list views (without loading all photos)
+type GallerySummary struct {
+	ID          uint      `json:"id"`
+	Title       string    `json:"title"`
+	Description string    `json:"description"`
+	CoverImage  string    `json:"cover_image"`
+	PhotoCount  int       `json:"photo_count"`
+	CreatedAt   time.Time `json:"created_at"`
+	UpdatedAt   time.Time `json:"updated_at"`
+}
+

@@ -22,6 +22,28 @@ export {
   usePrefetchGallery,
 } from "./useGalleries";
 
+// Video Hooks
+export {
+  videoKeys,
+  useVideos,
+  useVideo,
+  useCreateVideo,
+  useUpdateVideo,
+  useDeleteVideo,
+  usePrefetchVideo,
+} from "./useVideos";
+
+// Achievement Hooks
+export {
+  achievementKeys,
+  useAchievements,
+  useAchievement,
+  useCreateAchievement,
+  useUpdateAchievement,
+  useDeleteAchievement,
+  usePrefetchAchievement,
+} from "./useAchievements";
+
 // Auth Hooks
 export { authKeys, useLogin, useLogout, useAuth, useForceLogout } from "./useAuth";
 

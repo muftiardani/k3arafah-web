@@ -6,11 +6,7 @@ import { Play } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { getAllVideos, type Video } from "@/lib/services/videoService";
 import { Skeleton } from "@/components/ui/skeleton";
-
-const fadeIn = {
-  hidden: { opacity: 0, y: 20 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
-};
+import { fadeIn } from "@/lib/animations";
 
 // Video Section Skeleton
 function VideoSectionSkeleton() {
