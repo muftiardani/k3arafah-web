@@ -18,7 +18,13 @@ import { toast } from "sonner";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import Image from "next/image";
 
-import { getVideos, createVideo, updateVideo, deleteVideo, Video } from "@/lib/api";
+import {
+  getAllVideos,
+  createVideo,
+  updateVideo,
+  deleteVideo,
+  type Video,
+} from "@/lib/services/videoService";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -55,7 +61,7 @@ export default function VideosPage() {
   // Fetch Videos
   const { data: videos, isLoading } = useQuery({
     queryKey: ["videos"],
-    queryFn: getVideos,
+    queryFn: getAllVideos,
   });
 
   // Create Mutation

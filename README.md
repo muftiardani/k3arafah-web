@@ -1,17 +1,4 @@
-# 🕌 Pondok Pesantren K3 Arafah - Web Application
-
-<p align="center">
-  <strong>🌟 Website Resmi Pondok Pesantren K3 Arafah 🌟</strong><br>
-  <em>Membangun Generasi Qur'ani yang Berakhlak Mulia</em>
-</p>
-
-<p align="center">
-  <a href="#-fitur-utama">✨ Fitur</a> •
-  <a href="#-tech-stack">🛠️ Tech Stack</a> •
-  <a href="#-getting-started">🚀 Getting Started</a> •
-  <a href="#-api-endpoints">📡 API</a> •
-  <a href="#-project-structure">📂 Structure</a>
-</p>
+# 🕌 K3 Arafah Web Application
 
 <p align="center">
   <img src="https://img.shields.io/badge/Next.js-15-black?style=for-the-badge&logo=next.js&logoColor=white" alt="Next.js">

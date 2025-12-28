@@ -1,6 +1,7 @@
 import axios from "axios";
 import { useUIStore } from "@/store/useUIStore";
 import { BACKEND_API_URL } from "@/lib/config";
+import { toast } from "sonner";
 
 const IS_SERVER = typeof window === "undefined";
 
@@ -72,9 +73,19 @@ api.interceptors.response.use(
       useUIStore.getState().setLoading(false);
 
       const originalRequest = error.config;
+      const status = error.response?.status;
+
+      // Handle Rate Limit (429)
+      if (status === 429) {
+        toast.error("Terlalu banyak permintaan", {
+          description: "Mohon tunggu beberapa saat sebelum mencoba lagi.",
+          duration: 5000,
+        });
+        return Promise.reject(error);
+      }
 
       // Handle CSRF Token Miss (403 usually from gin-csrf)
-      if (error.response?.status === 403 && !originalRequest._retry) {
+      if (status === 403 && !originalRequest._retry) {
         originalRequest._retry = true;
         const newToken = await fetchCsrfToken();
         if (newToken) {
@@ -84,9 +95,17 @@ api.interceptors.response.use(
         }
       }
 
-      // Optional: Handle 401 globally by redirecting to /login
-      if (error.response && error.response.status === 401) {
+      // Handle 401 globally by redirecting to /login
+      if (status === 401) {
         window.location.href = "/login";
+      }
+
+      // Handle 500 Server Error
+      if (status >= 500) {
+        toast.error("Terjadi kesalahan server", {
+          description: "Silakan coba lagi nanti.",
+          duration: 5000,
+        });
       }
     }
     return Promise.reject(error);

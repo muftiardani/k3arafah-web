@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"backend-go/internal/dto"
 	"backend-go/internal/models"
 	"backend-go/internal/services"
 	"backend-go/internal/utils"
@@ -24,18 +25,25 @@ func NewMessageHandler(service services.MessageService) *MessageHandler {
 // @Tags         messages
 // @Accept       json
 // @Produce      json
-// @Param        message  body      models.Message  true  "Message Data"
+// @Param        message  body      dto.CreateMessageRequest  true  "Message Data"
 // @Success      201      {object}  utils.APIResponse
 // @Failure      400      {object}  utils.APIResponse
 // @Router       /contact [post]
 func (h *MessageHandler) SubmitMessage(c *gin.Context) {
-	var input models.Message
+	var input dto.CreateMessageRequest
 	if err := c.ShouldBindJSON(&input); err != nil {
-		utils.ErrorResponse(c, http.StatusBadRequest, "Invalid input", err.Error())
+		utils.ErrorResponse(c, http.StatusBadRequest, "Validation failed", err.Error())
 		return
 	}
 
-	if err := h.service.CreateMessage(c.Request.Context(), &input); err != nil {
+	message := &models.Message{
+		Name:    input.Name,
+		Email:   input.Email,
+		Subject: input.Subject,
+		Message: input.Message,
+	}
+
+	if err := h.service.CreateMessage(c.Request.Context(), message); err != nil {
 		utils.ResponseWithError(c, err)
 		return
 	}

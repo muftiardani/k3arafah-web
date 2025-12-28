@@ -6,9 +6,10 @@ import { useTranslations } from "next-intl";
 import React from "react";
 import { useQuery } from "@tanstack/react-query";
 import { getAllAchievements, type Achievement } from "@/lib/services/achievementService";
+import { Skeleton } from "@/components/ui/skeleton";
 
 // Map string keys to Lucide components
-const ICON_MAP: Record<string, any> = {
+const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
   trophy: Trophy,
   award: Award,
   mic: Mic,
@@ -32,8 +33,48 @@ const COLOR_STYLES: Record<string, string> = {
   orange: "bg-orange-100 text-orange-600 dark:bg-orange-900/30 dark:text-orange-400",
 };
 
+// Achievement Card Skeleton
+function AchievementCardSkeleton() {
+  return (
+    <div className="flex w-[350px] shrink-0 items-start space-x-4 rounded-xl border border-emerald-100 bg-white p-5 shadow-sm dark:border-emerald-800 dark:bg-slate-900">
+      <Skeleton className="h-12 w-12 shrink-0 rounded-full" />
+      <div className="flex-1 space-y-2">
+        <Skeleton className="h-5 w-3/4" />
+        <Skeleton className="h-3 w-1/2" />
+        <Skeleton className="h-4 w-full" />
+      </div>
+    </div>
+  );
+}
+
+// Achievement Section Skeleton
+function AchievementSectionSkeleton() {
+  return (
+    <section className="overflow-hidden bg-emerald-50 py-16 md:py-24">
+      <div className="container mb-12 px-4 md:px-6">
+        <div className="text-center">
+          <Skeleton className="mx-auto h-10 w-64" />
+          <Skeleton className="mx-auto mt-4 h-5 w-96" />
+        </div>
+      </div>
+      <div className="flex flex-col gap-8">
+        <div className="flex gap-6 px-4">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <AchievementCardSkeleton key={i} />
+          ))}
+        </div>
+        <div className="flex gap-6 px-4">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <AchievementCardSkeleton key={i} />
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function AchievementCard({ item }: { item: Achievement }) {
-  const IconComponent = ICON_MAP[item.icon] || Trophy; // Fallback to Trophy
+  const IconComponent = ICON_MAP[item.icon] || Trophy;
   const colorClass = COLOR_STYLES[item.color] || COLOR_STYLES.yellow;
 
   return (
@@ -60,22 +101,19 @@ const fadeIn = {
 export default function AchievementSection() {
   const t = useTranslations("Achievements");
 
-  const { data: achievements } = useQuery({
+  const { data: achievements, isLoading } = useQuery({
     queryKey: ["achievements"],
     queryFn: getAllAchievements,
   });
 
-  // If no data yet, show skeleton or just empty (or keep static fallback?)
-  // Requirement was to make it dynamic. Let's assume emptiness if no data.
-  // Or splitting into rows if we have data.
+  if (isLoading) {
+    return <AchievementSectionSkeleton />;
+  }
 
   const items = achievements || [];
   const middleIndex = Math.ceil(items.length / 2);
   const row1 = items.slice(0, middleIndex);
   const row2 = items.slice(middleIndex);
-
-  // If empty, we could hide the section or show a message.
-  // For now, if empty, we just render nothing inside the marquee but keep the header.
 
   return (
     <section className="overflow-hidden bg-emerald-50 py-16 md:py-24">

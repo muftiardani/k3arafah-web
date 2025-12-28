@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"backend-go/internal/dto"
 	"backend-go/internal/models"
 	"backend-go/internal/services"
 	"backend-go/internal/utils"
@@ -97,13 +98,9 @@ func (h *GalleryHandler) Update(c *gin.Context) {
 		return
 	}
 
-	var input struct {
-		Title       string `json:"title"`
-		Description string `json:"description"`
-	}
-
+	var input dto.UpdateGalleryRequest
 	if err := c.ShouldBindJSON(&input); err != nil {
-		utils.ErrorResponse(c, http.StatusBadRequest, "Invalid input", err.Error())
+		utils.ErrorResponse(c, http.StatusBadRequest, "Validation failed", err.Error())
 		return
 	}
 

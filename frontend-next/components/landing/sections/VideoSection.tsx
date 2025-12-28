@@ -2,14 +2,42 @@ import { motion } from "framer-motion";
 import { useTranslations } from "next-intl";
 import { useState, useEffect } from "react";
 import Image from "next/image";
-import { Play, Loader2 } from "lucide-react";
+import { Play } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { getAllVideos, type Video } from "@/lib/services/videoService";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const fadeIn = {
   hidden: { opacity: 0, y: 20 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
 };
+
+// Video Section Skeleton
+function VideoSectionSkeleton() {
+  return (
+    <section className="bg-emerald-900 py-16 text-white md:py-24">
+      <div className="container px-4 md:px-6">
+        <div className="mb-10 text-center">
+          <Skeleton className="mx-auto h-10 w-64 bg-emerald-800" />
+          <Skeleton className="mx-auto mt-4 h-5 w-96 bg-emerald-800" />
+        </div>
+        <div className="mx-auto mb-12 w-full overflow-hidden rounded-2xl">
+          <Skeleton className="aspect-video w-full bg-emerald-800" />
+        </div>
+        <div className="grid grid-cols-2 gap-4 lg:grid-cols-6">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className="overflow-hidden rounded-xl">
+              <Skeleton className="aspect-video w-full bg-emerald-800" />
+              <div className="bg-emerald-800/50 p-3">
+                <Skeleton className="h-4 w-3/4 bg-emerald-700" />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
 
 export default function VideoSection() {
   const t = useTranslations("VideoProfile");
@@ -35,11 +63,7 @@ export default function VideoSection() {
   };
 
   if (isLoading) {
-    return (
-      <section className="flex min-h-[500px] items-center justify-center bg-emerald-900 py-16 text-white md:py-24">
-        <Loader2 className="h-10 w-10 animate-spin text-emerald-400" />
-      </section>
-    );
+    return <VideoSectionSkeleton />;
   }
 
   if (!videos || videos.length === 0) {

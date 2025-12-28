@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"backend-go/internal/dto"
 	"backend-go/internal/models"
 	"backend-go/internal/services"
 	"backend-go/internal/utils"
@@ -19,14 +20,9 @@ func NewVideoHandler(service services.VideoService) *VideoHandler {
 }
 
 func (h *VideoHandler) Create(c *gin.Context) {
-	var input struct {
-		Title     string `json:"title" binding:"required"`
-		YoutubeID string `json:"youtube_id" binding:"required"`
-		Thumbnail string `json:"thumbnail"`
-	}
-
+	var input dto.CreateVideoRequest
 	if err := c.ShouldBindJSON(&input); err != nil {
-		utils.ErrorResponse(c, http.StatusBadRequest, "Invalid input", err.Error())
+		utils.ErrorResponse(c, http.StatusBadRequest, "Validation failed", err.Error())
 		return
 	}
 
@@ -75,14 +71,9 @@ func (h *VideoHandler) Update(c *gin.Context) {
 		return
 	}
 
-	var input struct {
-		Title     string `json:"title"`
-		YoutubeID string `json:"youtube_id"`
-		Thumbnail string `json:"thumbnail"`
-	}
-
+	var input dto.UpdateVideoRequest
 	if err := c.ShouldBindJSON(&input); err != nil {
-		utils.ErrorResponse(c, http.StatusBadRequest, "Invalid input", err.Error())
+		utils.ErrorResponse(c, http.StatusBadRequest, "Validation failed", err.Error())
 		return
 	}
 

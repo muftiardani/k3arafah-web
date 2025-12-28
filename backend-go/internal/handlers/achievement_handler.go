@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"backend-go/internal/dto"
 	"backend-go/internal/models"
 	"backend-go/internal/services"
 	"backend-go/internal/utils"
@@ -19,16 +20,9 @@ func NewAchievementHandler(service services.AchievementService) *AchievementHand
 }
 
 func (h *AchievementHandler) Create(c *gin.Context) {
-	var req struct {
-		Title       string `json:"title" binding:"required"`
-		Subtitle    string `json:"subtitle"`
-		Description string `json:"description"`
-		Icon        string `json:"icon" binding:"required"`
-		Color       string `json:"color" binding:"required"`
-	}
-
+	var req dto.CreateAchievementRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		utils.ErrorResponse(c, http.StatusBadRequest, "Invalid request body", err.Error())
+		utils.ErrorResponse(c, http.StatusBadRequest, "Validation failed", err.Error())
 		return
 	}
 
@@ -82,16 +76,9 @@ func (h *AchievementHandler) Update(c *gin.Context) {
 		return
 	}
 
-	var req struct {
-		Title       string `json:"title"`
-		Subtitle    string `json:"subtitle"`
-		Description string `json:"description"`
-		Icon        string `json:"icon"`
-		Color       string `json:"color"`
-	}
-
+	var req dto.UpdateAchievementRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		utils.ErrorResponse(c, http.StatusBadRequest, "Invalid request body", err.Error())
+		utils.ErrorResponse(c, http.StatusBadRequest, "Validation failed", err.Error())
 		return
 	}
 

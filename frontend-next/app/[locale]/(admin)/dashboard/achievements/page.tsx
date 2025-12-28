@@ -22,12 +22,12 @@ import { toast } from "sonner";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 import {
-  getAchievements,
+  getAllAchievements,
   createAchievement,
   updateAchievement,
   deleteAchievement,
-  Achievement,
-} from "@/lib/api";
+  type Achievement,
+} from "@/lib/services/achievementService";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -148,7 +148,7 @@ export default function AchievementsPage() {
   // Fetch Achievements
   const { data: achievements, isLoading } = useQuery({
     queryKey: ["achievements"],
-    queryFn: getAchievements,
+    queryFn: getAllAchievements,
   });
 
   // Create Mutation
