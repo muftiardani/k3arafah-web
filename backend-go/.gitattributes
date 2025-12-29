@@ -1,0 +1,28 @@
+# Auto detect text files and perform LF normalization
+* text=auto eol=lf
+
+# Go files
+*.go text eol=lf
+
+# Shell scripts
+*.sh text eol=lf
+
+# Markdown
+*.md text eol=lf
+
+# JSON/YAML
+*.json text eol=lf
+*.yaml text eol=lf
+*.yml text eol=lf
+
+# SQL
+*.sql text eol=lf
+
+# Config
+*.env text eol=lf
+*.env.* text eol=lf
+
+# Binaries (should not be normalized)
+*.exe binary
+*.dll binary
+*.so binary

@@ -173,5 +173,12 @@ export async function deleteAdmin(id: number): Promise<void> {
   await authApi.delete(`/admins/${id}`);
 }
 
+/**
+ * Update admin password (super_admin only)
+ */
+export async function updateAdminPassword(id: number, newPassword: string): Promise<void> {
+  await authApi.put(`/admins/${id}/password`, { password: newPassword });
+}
+
 // Export the configured axios instance for use in other services
 export { authApi };

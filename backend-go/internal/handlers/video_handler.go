@@ -123,30 +123,18 @@ func (h *VideoHandler) Update(c *gin.Context) {
 		return
 	}
 
-	// Get existing video
-	existing, err := h.service.GetVideoByID(c.Request.Context(), uint(id))
-	if err != nil {
+	video := &models.Video{
+		Title:     input.Title,
+		YoutubeID: input.YoutubeID,
+		Thumbnail: input.Thumbnail,
+	}
+
+	if err := h.service.UpdateVideo(c.Request.Context(), uint(id), video); err != nil {
 		utils.ResponseWithError(c, err)
 		return
 	}
 
-	// Update fields
-	if input.Title != "" {
-		existing.Title = input.Title
-	}
-	if input.YoutubeID != "" {
-		existing.YoutubeID = input.YoutubeID
-	}
-	if input.Thumbnail != "" {
-		existing.Thumbnail = input.Thumbnail
-	}
-
-	if err := h.service.UpdateVideo(c.Request.Context(), existing); err != nil {
-		utils.ResponseWithError(c, err)
-		return
-	}
-
-	utils.SuccessResponse(c, http.StatusOK, "Video updated successfully", existing)
+	utils.SuccessResponse(c, http.StatusOK, "Video updated successfully", nil)
 }
 
 // Delete godoc
@@ -174,4 +162,3 @@ func (h *VideoHandler) Delete(c *gin.Context) {
 	}
 	utils.SuccessResponse(c, http.StatusOK, "Video deleted successfully", nil)
 }
-

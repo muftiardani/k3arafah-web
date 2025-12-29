@@ -47,7 +47,7 @@ func (h *AchievementHandler) Create(c *gin.Context) {
 	}
 
 	if err := h.service.CreateAchievement(c.Request.Context(), achievement); err != nil {
-		utils.ResponseWithError(c, utils.HandleDBError(err))
+		utils.ResponseWithError(c, err)
 		return
 	}
 
@@ -65,7 +65,7 @@ func (h *AchievementHandler) Create(c *gin.Context) {
 func (h *AchievementHandler) GetAll(c *gin.Context) {
 	achievements, err := h.service.GetAllAchievements(c.Request.Context())
 	if err != nil {
-		utils.ResponseWithError(c, utils.HandleDBError(err))
+		utils.ResponseWithError(c, err)
 		return
 	}
 
@@ -85,15 +85,14 @@ func (h *AchievementHandler) GetAll(c *gin.Context) {
 // @Security     BearerAuth
 // @Router       /achievements/{id} [delete]
 func (h *AchievementHandler) Delete(c *gin.Context) {
-	idStr := c.Param("id")
-	id, err := strconv.ParseUint(idStr, 10, 32)
+	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		utils.ErrorResponse(c, http.StatusBadRequest, "Invalid ID", err.Error())
 		return
 	}
 
 	if err := h.service.DeleteAchievement(c.Request.Context(), uint(id)); err != nil {
-		utils.ResponseWithError(c, utils.HandleDBError(err))
+		utils.ResponseWithError(c, err)
 		return
 	}
 
@@ -115,8 +114,7 @@ func (h *AchievementHandler) Delete(c *gin.Context) {
 // @Security     BearerAuth
 // @Router       /achievements/{id} [put]
 func (h *AchievementHandler) Update(c *gin.Context) {
-	idStr := c.Param("id")
-	id, err := strconv.ParseUint(idStr, 10, 32)
+	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		utils.ErrorResponse(c, http.StatusBadRequest, "Invalid ID", err.Error())
 		return
@@ -137,7 +135,7 @@ func (h *AchievementHandler) Update(c *gin.Context) {
 	}
 
 	if err := h.service.UpdateAchievement(c.Request.Context(), uint(id), achievement); err != nil {
-		utils.ResponseWithError(c, utils.HandleDBError(err))
+		utils.ResponseWithError(c, err)
 		return
 	}
 

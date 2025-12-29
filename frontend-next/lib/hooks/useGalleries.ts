@@ -4,11 +4,13 @@ import {
   getAllGalleries,
   getGalleryDetail,
   createGallery,
+  updateGallery,
   deleteGallery,
   uploadGalleryPhoto,
   deleteGalleryPhoto,
   Gallery,
   CreateGalleryData,
+  UpdateGalleryData,
   GalleryPhoto,
 } from "@/lib/services/galleryService";
 
@@ -101,6 +103,25 @@ export function useDeleteGallery() {
 
     onSuccess: () => {
       toast.success("Galeri berhasil dihapus");
+    },
+  });
+}
+
+/**
+ * Hook for updating a gallery
+ */
+export function useUpdateGallery() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, data }: { id: number; data: UpdateGalleryData }) => updateGallery(id, data),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: galleryKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: galleryKeys.detail(variables.id) });
+      toast.success("Galeri berhasil diperbarui");
+    },
+    onError: (error: Error) => {
+      toast.error(`Gagal memperbarui galeri: ${error.message}`);
     },
   });
 }

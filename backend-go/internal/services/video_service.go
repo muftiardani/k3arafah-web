@@ -10,7 +10,7 @@ type VideoService interface {
 	CreateVideo(ctx context.Context, video *models.Video) error
 	GetAllVideos(ctx context.Context) ([]models.Video, error)
 	GetVideoByID(ctx context.Context, id uint) (*models.Video, error)
-	UpdateVideo(ctx context.Context, video *models.Video) error
+	UpdateVideo(ctx context.Context, id uint, data *models.Video) error
 	DeleteVideo(ctx context.Context, id uint) error
 }
 
@@ -34,11 +34,26 @@ func (s *videoService) GetVideoByID(ctx context.Context, id uint) (*models.Video
 	return s.repo.FindByID(ctx, id)
 }
 
-func (s *videoService) UpdateVideo(ctx context.Context, video *models.Video) error {
-	return s.repo.Update(ctx, video)
+func (s *videoService) UpdateVideo(ctx context.Context, id uint, data *models.Video) error {
+	existing, err := s.repo.FindByID(ctx, id)
+	if err != nil {
+		return err
+	}
+
+	// Update fields only if provided
+	if data.Title != "" {
+		existing.Title = data.Title
+	}
+	if data.YoutubeID != "" {
+		existing.YoutubeID = data.YoutubeID
+	}
+	if data.Thumbnail != "" {
+		existing.Thumbnail = data.Thumbnail
+	}
+
+	return s.repo.Update(ctx, existing)
 }
 
 func (s *videoService) DeleteVideo(ctx context.Context, id uint) error {
 	return s.repo.Delete(ctx, id)
 }
-

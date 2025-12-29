@@ -33,7 +33,7 @@ func (h *AuthHandler) Login(c *gin.Context) {
 	var input dto.LoginRequest
 
 	if err := c.ShouldBindJSON(&input); err != nil {
-		utils.ErrorResponse(c, http.StatusBadRequest, "Invalid input or validation failed", err.Error())
+		utils.ErrorResponse(c, http.StatusBadRequest, "Validation failed", err.Error())
 		return
 	}
 

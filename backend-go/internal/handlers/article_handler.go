@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"backend-go/internal/consts"
+	"backend-go/internal/dto"
 	"backend-go/internal/models"
 	"backend-go/internal/services"
 	"backend-go/internal/utils"
@@ -32,20 +33,27 @@ func NewArticleHandler(service services.ArticleService) *ArticleHandler {
 // @Security     BearerAuth
 // @Router       /articles [post]
 func (h *ArticleHandler) Create(c *gin.Context) {
-	var article models.Article
-	if err := c.ShouldBindJSON(&article); err != nil {
-		utils.ErrorResponse(c, http.StatusBadRequest, "Invalid input", err.Error())
+	var input dto.CreateArticleRequest
+	if err := c.ShouldBindJSON(&input); err != nil {
+		utils.ErrorResponse(c, http.StatusBadRequest, "Validation failed", err.Error())
 		return
 	}
 
-	if userID, exists := c.Get("user_id"); exists {
-		article.AuthorID = userID.(uint)
-	} else {
+	userID, exists := c.Get("user_id")
+	if !exists {
 		utils.ResponseWithError(c, utils.ErrUnauthorized)
 		return
 	}
 
-	if err := h.service.CreateArticle(c.Request.Context(), &article); err != nil {
+	article := &models.Article{
+		Title:        input.Title,
+		Content:      input.Content,
+		ThumbnailURL: input.ThumbnailURL,
+		IsPublished:  input.IsPublished,
+		AuthorID:     userID.(uint),
+	}
+
+	if err := h.service.CreateArticle(c.Request.Context(), article); err != nil {
 		utils.ResponseWithError(c, err)
 		return
 	}
@@ -163,13 +171,22 @@ func (h *ArticleHandler) Update(c *gin.Context) {
 		return
 	}
 
-	var article models.Article
-	if err := c.ShouldBindJSON(&article); err != nil {
-		utils.ErrorResponse(c, http.StatusBadRequest, "Invalid input", err.Error())
+	var input dto.UpdateArticleRequest
+	if err := c.ShouldBindJSON(&input); err != nil {
+		utils.ErrorResponse(c, http.StatusBadRequest, "Validation failed", err.Error())
 		return
 	}
 
-	if err := h.service.UpdateArticle(c.Request.Context(), uint(id), &article); err != nil {
+	article := &models.Article{
+		Title:        input.Title,
+		Content:      input.Content,
+		ThumbnailURL: input.ThumbnailURL,
+	}
+	if input.IsPublished != nil {
+		article.IsPublished = *input.IsPublished
+	}
+
+	if err := h.service.UpdateArticle(c.Request.Context(), uint(id), article); err != nil {
 		utils.ResponseWithError(c, err)
 		return
 	}

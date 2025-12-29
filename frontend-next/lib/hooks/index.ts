@@ -16,6 +16,7 @@ export {
   useGalleries,
   useGallery,
   useCreateGallery,
+  useUpdateGallery,
   useDeleteGallery,
   useUploadGalleryPhoto,
   useDeleteGalleryPhoto,
