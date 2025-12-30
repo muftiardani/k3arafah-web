@@ -161,16 +161,23 @@ export default async function DashboardPage({ params }: Props) {
       <div className="grid gap-6 lg:grid-cols-3">
         {/* Main Content: Recent Registrants */}
         <div className="space-y-6 lg:col-span-2">
-          <Card className="h-full border-none bg-white/50 shadow-lg backdrop-blur-sm dark:bg-slate-900/50">
-            <CardHeader className="flex flex-row items-center justify-between pb-1">
+          <Card className="h-full overflow-hidden border-zinc-200 bg-white shadow-xl shadow-zinc-200/50 dark:border-zinc-800 dark:bg-slate-950 dark:shadow-black/20">
+            {/* Decorative Header Background */}
+            <div className="pointer-events-none absolute top-0 right-0 -mt-16 -mr-16 h-64 w-64 rounded-full bg-linear-to-br from-indigo-500 to-purple-500 opacity-20 blur-3xl" />
+
+            <CardHeader className="relative z-10 flex flex-row items-center justify-between pb-2">
               <div className="space-y-1">
-                <CardTitle className="text-xl font-bold">{t("Registrants.title")}</CardTitle>
-                <CardDescription>{t("Registrants.description")}</CardDescription>
+                <CardTitle className="text-xl font-bold tracking-tight">
+                  {t("Registrants.title")}
+                </CardTitle>
+                <CardDescription className="text-base">
+                  {t("Registrants.description")}
+                </CardDescription>
               </div>
               <Button
-                variant="ghost"
+                variant="outline"
                 size="sm"
-                className="text-primary hover:bg-primary/10"
+                className="text-primary bg-primary/5 border-primary/20 hover:bg-primary/10 transition-colors"
                 asChild
               >
                 <Link href="/registrants" className="group">
@@ -179,21 +186,24 @@ export default async function DashboardPage({ params }: Props) {
                 </Link>
               </Button>
             </CardHeader>
-            <CardContent>
+            <CardContent className="relative z-10 pt-2">
               <div className="space-y-3">
                 {recentRegistrants.length === 0 ? (
-                  <div className="text-muted-foreground bg-muted/30 flex flex-col items-center justify-center rounded-xl border border-dashed py-12 text-center">
-                    <Users className="mb-3 h-10 w-10 opacity-20" />
-                    <p>{t("Registrants.empty")}</p>
+                  <div className="text-muted-foreground flex flex-col items-center justify-center rounded-2xl border border-dashed border-zinc-200 bg-zinc-50/50 py-16 text-center dark:border-zinc-800 dark:bg-zinc-900/50">
+                    <div className="mb-4 rounded-full bg-zinc-100 p-4 dark:bg-zinc-800">
+                      <Users className="h-8 w-8 opacity-40" />
+                    </div>
+                    <p className="font-medium">{t("Registrants.empty")}</p>
+                    <p className="text-sm opacity-70">Belum ada data pendaftar baru.</p>
                   </div>
                 ) : (
                   recentRegistrants.map((registrant) => (
                     <div
                       key={registrant.id}
-                      className="group/item flex items-center justify-between rounded-xl border border-transparent p-3 transition-all duration-200 hover:scale-[1.01] hover:bg-white hover:shadow-md dark:hover:bg-slate-800"
+                      className="group/item flex items-center justify-between rounded-2xl border border-zinc-100 bg-zinc-50/50 p-4 transition-all duration-300 hover:-translate-y-0.5 hover:border-indigo-100 hover:bg-white hover:shadow-lg hover:shadow-indigo-100/20 dark:border-zinc-800 dark:bg-zinc-900/30 dark:hover:border-indigo-900/50 dark:hover:bg-slate-900 dark:hover:shadow-black/40"
                     >
                       <div className="flex items-center gap-4">
-                        <Avatar className="h-10 w-10 border-2 border-white shadow-sm ring-2 ring-slate-100 dark:border-slate-800 dark:ring-slate-800">
+                        <Avatar className="h-12 w-12 border-2 border-white shadow-sm ring-2 ring-zinc-100 transition-transform group-hover/item:scale-105 dark:border-slate-800 dark:ring-slate-800">
                           {registrant.photo_url ? (
                             <AvatarImage
                               src={registrant.photo_url}
@@ -201,24 +211,34 @@ export default async function DashboardPage({ params }: Props) {
                               className="object-cover"
                             />
                           ) : (
-                            <AvatarFallback className="bg-linear-to-br from-indigo-500 to-purple-500 font-bold text-white">
+                            <AvatarFallback className="bg-linear-to-br from-indigo-500 to-purple-600 font-bold text-white shadow-inner">
                               {registrant.full_name.substring(0, 2).toUpperCase()}
                             </AvatarFallback>
                           )}
                         </Avatar>
-                        <div className="space-y-1">
-                          <p className="text-foreground group-hover/item:text-primary text-sm leading-none font-semibold transition-colors">
+                        <div className="space-y-1.5">
+                          <p className="text-foreground text-sm leading-none font-semibold tracking-tight transition-colors group-hover/item:text-indigo-600 dark:group-hover/item:text-indigo-400">
                             {registrant.full_name}
                           </p>
-                          <p className="text-muted-foreground flex items-center gap-1 text-xs">
-                            <Clock className="h-3 w-3" />
-                            {t("Registrants.registered_on", {
-                              date: formatDate(registrant.created_at),
-                            })}
-                          </p>
+                          <div className="flex items-center gap-2">
+                            <Badge
+                              variant="outline"
+                              className="h-5 border-zinc-200 bg-white/50 px-1.5 text-[10px] font-medium dark:border-zinc-700 dark:bg-slate-900"
+                            >
+                              ID: #{registrant.id}
+                            </Badge>
+                            <p className="text-muted-foreground flex items-center gap-1 text-xs">
+                              <Clock className="h-3 w-3" />
+                              <span className="text-[11px] font-medium opacity-80">
+                                {formatDate(registrant.created_at)}
+                              </span>
+                            </p>
+                          </div>
                         </div>
                       </div>
-                      <div className="scale-90">{getStatusBadge(registrant.status)}</div>
+                      <div className="scale-95 transition-transform group-hover/item:scale-100">
+                        {getStatusBadge(registrant.status)}
+                      </div>
                     </div>
                   ))
                 )}
@@ -230,10 +250,12 @@ export default async function DashboardPage({ params }: Props) {
         {/* Sidebar: Quick Actions */}
         <div className="space-y-6">
           <Card className="border-none bg-transparent shadow-none">
-            <CardHeader className="px-0 pt-0 pb-1">
+            <CardHeader className="px-0 pt-0 pb-2">
               <div className="space-y-1">
-                <CardTitle className="flex items-center gap-2 text-xl font-bold">
-                  <CheckCircle2 className="text-primary h-5 w-5" />
+                <CardTitle className="flex items-center gap-2 text-xl font-bold tracking-tight">
+                  <div className="bg-primary/10 rounded-lg p-1.5">
+                    <CheckCircle2 className="text-primary h-5 w-5" />
+                  </div>
                   {t("Actions.title")}
                 </CardTitle>
                 <CardDescription>{t("Actions.description")}</CardDescription>
@@ -242,53 +264,85 @@ export default async function DashboardPage({ params }: Props) {
             <CardContent className="grid gap-3 p-0">
               <Button
                 variant="outline"
-                className="group h-auto w-full justify-start gap-4 border-none bg-white p-4 shadow-sm transition-all hover:scale-[1.02] hover:shadow-md dark:bg-slate-900"
+                className="group relative h-auto w-full justify-start gap-4 overflow-hidden rounded-2xl border-zinc-200 bg-white p-4 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-purple-200 hover:shadow-md dark:border-zinc-800 dark:bg-slate-950 dark:hover:border-purple-900"
                 asChild
               >
                 <Link href="/dashboard/messages">
-                  <div className="rounded-xl bg-purple-100 p-3 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400">
+                  <div className="absolute inset-0 bg-linear-to-r from-purple-50 to-transparent opacity-0 transition-opacity group-hover:opacity-100 dark:from-purple-900/10" />
+                  <div className="relative z-10 rounded-xl bg-purple-100 p-2.5 text-purple-600 shadow-sm dark:bg-purple-900/30 dark:text-purple-400">
                     <Mail className="h-5 w-5" />
                   </div>
-                  <span className="text-base font-bold">Cek Pesan Masuk</span>
+                  <div className="relative z-10 text-left">
+                    <span className="text-foreground block text-base font-bold">
+                      Cek Pesan Masuk
+                    </span>
+                    <span className="text-muted-foreground text-xs font-medium">
+                      Lihat pesan dari pengunjung
+                    </span>
+                  </div>
                 </Link>
               </Button>
 
               <Button
                 variant="outline"
-                className="group h-auto w-full justify-start gap-4 border-none bg-white p-4 shadow-sm transition-all hover:scale-[1.02] hover:shadow-md dark:bg-slate-900"
+                className="group relative h-auto w-full justify-start gap-4 overflow-hidden rounded-2xl border-zinc-200 bg-white p-4 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-orange-200 hover:shadow-md dark:border-zinc-800 dark:bg-slate-950 dark:hover:border-orange-900"
                 asChild
               >
                 <Link href="/registrants">
-                  <div className="rounded-xl bg-orange-100 p-3 text-orange-600 dark:bg-orange-900/30 dark:text-orange-400">
+                  <div className="absolute inset-0 bg-linear-to-r from-orange-50 to-transparent opacity-0 transition-opacity group-hover:opacity-100 dark:from-orange-900/10" />
+                  <div className="relative z-10 rounded-xl bg-orange-100 p-2.5 text-orange-600 shadow-sm dark:bg-orange-900/30 dark:text-orange-400">
                     <Users className="h-5 w-5" />
                   </div>
-                  <span className="text-base font-bold">{t("Actions.verify_registrants")}</span>
+                  <div className="relative z-10 text-left">
+                    <span className="text-foreground block text-base font-bold">
+                      {t("Actions.verify_registrants")}
+                    </span>
+                    <span className="text-muted-foreground text-xs font-medium">
+                      Verifikasi data santri baru
+                    </span>
+                  </div>
                 </Link>
               </Button>
 
               <Button
                 variant="outline"
-                className="group h-auto w-full justify-start gap-4 border-none bg-white p-4 shadow-sm transition-all hover:scale-[1.02] hover:shadow-md dark:bg-slate-900"
+                className="group relative h-auto w-full justify-start gap-4 overflow-hidden rounded-2xl border-zinc-200 bg-white p-4 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-blue-200 hover:shadow-md dark:border-zinc-800 dark:bg-slate-950 dark:hover:border-blue-900"
                 asChild
               >
                 <Link href="/dashboard/articles/create">
-                  <div className="rounded-xl bg-blue-100 p-3 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400">
+                  <div className="absolute inset-0 bg-linear-to-r from-blue-50 to-transparent opacity-0 transition-opacity group-hover:opacity-100 dark:from-blue-900/10" />
+                  <div className="relative z-10 rounded-xl bg-blue-100 p-2.5 text-blue-600 shadow-sm dark:bg-blue-900/30 dark:text-blue-400">
                     <FileText className="h-5 w-5" />
                   </div>
-                  <span className="text-base font-bold">{t("Actions.write_article")}</span>
+                  <div className="relative z-10 text-left">
+                    <span className="text-foreground block text-base font-bold">
+                      {t("Actions.write_article")}
+                    </span>
+                    <span className="text-muted-foreground text-xs font-medium">
+                      Buat konten artikel baru
+                    </span>
+                  </div>
                 </Link>
               </Button>
 
               <Button
                 variant="outline"
-                className="group h-auto w-full justify-start gap-4 border-none bg-white p-4 shadow-sm transition-all hover:scale-[1.02] hover:shadow-md dark:bg-slate-900"
+                className="group relative h-auto w-full justify-start gap-4 overflow-hidden rounded-2xl border-zinc-200 bg-white p-4 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-yellow-200 hover:shadow-md dark:border-zinc-800 dark:bg-slate-950 dark:hover:border-yellow-900"
                 asChild
               >
                 <Link href="/dashboard/achievements">
-                  <div className="rounded-xl bg-yellow-100 p-3 text-yellow-600 dark:bg-yellow-900/30 dark:text-yellow-400">
+                  <div className="absolute inset-0 bg-linear-to-r from-yellow-50 to-transparent opacity-0 transition-opacity group-hover:opacity-100 dark:from-yellow-900/10" />
+                  <div className="relative z-10 rounded-xl bg-yellow-100 p-2.5 text-yellow-600 shadow-sm dark:bg-yellow-900/30 dark:text-yellow-400">
                     <Medal className="h-5 w-5" />
                   </div>
-                  <span className="text-base font-bold">Kelola Prestasi</span>
+                  <div className="relative z-10 text-left">
+                    <span className="text-foreground block text-base font-bold">
+                      Kelola Prestasi
+                    </span>
+                    <span className="text-muted-foreground text-xs font-medium">
+                      Update data prestasi santri
+                    </span>
+                  </div>
                 </Link>
               </Button>
             </CardContent>

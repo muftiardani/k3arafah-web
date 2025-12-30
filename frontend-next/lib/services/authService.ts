@@ -119,7 +119,18 @@ export async function login(credentials: LoginCredentials): Promise<User> {
  * Logout user
  */
 export async function logout(): Promise<void> {
-  await authApi.post("/logout");
+  try {
+    const csrfToken = await getCSRFToken();
+    await authApi.post("/logout", null, {
+      headers: {
+        "X-CSRF-TOKEN": csrfToken,
+      },
+    });
+  } catch (error) {
+    console.error("Logout failed on server:", error);
+    // Proceed to clear client state anyway (handled by caller or store)
+    throw error;
+  }
 }
 
 /**
@@ -156,7 +167,12 @@ export async function checkAuth(): Promise<User | null> {
  * Create admin (super_admin only)
  */
 export async function createAdmin(data: { username: string; password: string }): Promise<User> {
-  const response = await authApi.post<{ success: boolean; data: User }>("/admins", data);
+  const csrfToken = await getCSRFToken();
+  const response = await authApi.post<{ success: boolean; data: User }>("/admins", data, {
+    headers: {
+      "X-CSRF-TOKEN": csrfToken,
+    },
+  });
   return response.data.data;
 }
 
@@ -172,14 +188,28 @@ export async function getAllAdmins(): Promise<User[]> {
  * Delete admin (super_admin only)
  */
 export async function deleteAdmin(id: number): Promise<void> {
-  await authApi.delete(`/admins/${id}`);
+  const csrfToken = await getCSRFToken();
+  await authApi.delete(`/admins/${id}`, {
+    headers: {
+      "X-CSRF-TOKEN": csrfToken,
+    },
+  });
 }
 
 /**
  * Update admin password (super_admin only)
  */
 export async function updateAdminPassword(id: number, newPassword: string): Promise<void> {
-  await authApi.put(`/admins/${id}/password`, { password: newPassword });
+  const csrfToken = await getCSRFToken();
+  await authApi.put(
+    `/admins/${id}/password`,
+    { password: newPassword },
+    {
+      headers: {
+        "X-CSRF-TOKEN": csrfToken,
+      },
+    }
+  );
 }
 
 // Export the configured axios instance for use in other services

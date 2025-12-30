@@ -92,9 +92,43 @@ export default function AdminsPage() {
 
   if (isLoading) {
     return (
-      <div className="space-y-4">
-        <div className="bg-muted h-10 w-48 animate-pulse rounded" />
-        <div className="bg-muted h-64 w-full animate-pulse rounded-md border" />
+      <div className="flex flex-col gap-8">
+        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+          <div className="space-y-2">
+            <div className="bg-muted h-8 w-48 animate-pulse rounded" />
+            <div className="bg-muted h-4 w-72 animate-pulse rounded" />
+          </div>
+          <div className="bg-muted h-10 w-32 animate-pulse rounded" />
+        </div>
+
+        <Card>
+          <CardHeader>
+            <div className="bg-muted mb-2 h-6 w-32 animate-pulse rounded" />
+            <div className="bg-muted h-4 w-64 animate-pulse rounded" />
+          </CardHeader>
+          <CardContent>
+            <div className="rounded-md border">
+              <div className="bg-muted/50 grid grid-cols-4 border-b p-4">
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <div key={i} className="bg-muted h-4 w-20 animate-pulse rounded" />
+                ))}
+              </div>
+              {Array.from({ length: 5 }).map((_, i) => (
+                <div
+                  key={i}
+                  className="grid grid-cols-4 items-center gap-4 border-b p-4 last:border-0"
+                >
+                  <div className="bg-muted h-4 w-8 animate-pulse rounded" />
+                  <div className="bg-muted h-4 w-32 animate-pulse rounded" />
+                  <div className="bg-muted h-6 w-24 animate-pulse rounded-full" />
+                  <div className="flex justify-end">
+                    <div className="bg-muted h-8 w-8 animate-pulse rounded" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
       </div>
     );
   }
@@ -104,11 +138,11 @@ export default function AdminsPage() {
   }
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-8">
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">{t("title")}</h1>
-          <p className="text-muted-foreground">{t("description")}</p>
+          <h1 className="text-3xl font-bold tracking-tight">{t("title")}</h1>
+          <p className="text-muted-foreground text-lg">{t("description")}</p>
         </div>
 
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>

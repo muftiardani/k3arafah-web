@@ -179,31 +179,31 @@ function SidebarContent({
   ];
 
   return (
-    <div className="flex h-full flex-col bg-slate-50/50 dark:bg-slate-950/50">
+    <div className="flex h-full flex-col border-r border-zinc-200 bg-white dark:border-zinc-800 dark:bg-slate-950">
       {/* Header / Brand */}
-      <div className="bg-background/50 sticky top-0 z-10 flex h-16 items-center border-b px-6 backdrop-blur-md">
-        <Link
-          href="/"
-          className="text-foreground flex items-center gap-3 text-lg font-bold tracking-tight"
-        >
-          <div className="bg-primary shadow-primary/20 flex h-9 w-9 items-center justify-center rounded-lg shadow-sm transition-transform hover:scale-105">
-            <School className="text-primary-foreground h-5 w-5" />
+      <div className="relative z-10 flex h-20 items-center px-6">
+        <Link href="/" className="flex items-center gap-3 transition-opacity hover:opacity-80">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-linear-to-br from-emerald-500 to-teal-600 text-white shadow-lg shadow-emerald-500/20">
+            <School className="h-6 w-6" />
           </div>
-          <span className="from-primary to-primary/60 bg-linear-to-r bg-clip-text text-transparent">
-            K3 Arafah
-          </span>
+          <div className="flex flex-col">
+            <span className="text-foreground text-lg font-bold tracking-tight">K3 Arafah</span>
+            <span className="text-muted-foreground text-[10px] font-medium tracking-wider uppercase">
+              Admin Panel
+            </span>
+          </div>
         </Link>
       </div>
 
       {/* Navigation */}
-      <div className="scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent flex-1 space-y-8 overflow-auto py-6">
-        <nav className="px-4 text-sm font-medium">
+      <div className="scrollbar-thin scrollbar-thumb-zinc-200 dark:scrollbar-thumb-zinc-800 flex-1 space-y-8 overflow-y-auto px-4 py-4">
+        <nav className="space-y-6">
           {menuGroups.map((group, index) => (
-            <div key={index} className="mb-6 last:mb-0">
+            <div key={index}>
               {group.items.some(
                 (item) => !item.role || item.role === user?.role || user?.role === "super_admin"
               ) && (
-                <h4 className="text-muted-foreground/60 mb-3 px-3 text-[10px] font-bold tracking-widest uppercase select-none">
+                <h4 className="text-muted-foreground/50 mb-2 px-4 text-xs font-semibold tracking-wider uppercase">
                   {group.title}
                 </h4>
               )}
@@ -218,20 +218,24 @@ function SidebarContent({
                     <Link
                       key={itemIndex}
                       href={item.href}
-                      className={`group relative flex items-center justify-between rounded-lg px-3 py-2.5 transition-all duration-200 ${
+                      className={`group relative flex items-center justify-between rounded-xl px-4 py-3 transition-all duration-300 ${
                         isActive
-                          ? "bg-primary text-primary-foreground shadow-primary/20 font-semibold shadow-md"
-                          : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                          ? "bg-slate-900 text-white shadow-md shadow-slate-900/10 dark:bg-white dark:text-slate-950 dark:shadow-white/5"
+                          : "text-muted-foreground hover:bg-slate-50 hover:text-slate-900 dark:hover:bg-slate-900 dark:hover:text-white"
                       }`}
                     >
                       <div className="flex items-center gap-3">
                         <item.icon
-                          className={`h-4.5 w-4.5 transition-colors ${isActive ? "text-primary-foreground" : "text-muted-foreground group-hover:text-foreground"}`}
+                          className={`h-5 w-5 transition-colors ${
+                            isActive
+                              ? "text-emerald-400 dark:text-emerald-600"
+                              : "text-slate-400 group-hover:text-slate-600 dark:text-slate-500 dark:group-hover:text-slate-300"
+                          }`}
                         />
-                        <span>{item.title}</span>
+                        <span className="text-sm font-medium">{item.title}</span>
                       </div>
                       {isActive && (
-                        <div className="h-1.5 w-1.5 animate-pulse rounded-full bg-white" />
+                        <div className="h-1.5 w-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
                       )}
                     </Link>
                   );
@@ -243,29 +247,32 @@ function SidebarContent({
       </div>
 
       {/* User Footer */}
-      <div className="bg-background/50 sticky bottom-0 z-10 mt-auto border-t p-4 backdrop-blur-md">
-        <div className="bg-card flex items-center gap-3 rounded-xl border p-3 shadow-sm transition-all hover:shadow-md">
-          <Avatar className="border-background ring-primary/10 h-10 w-10 border-2 ring-2">
-            <AvatarFallback className="from-primary to-primary/60 text-primary-foreground bg-linear-to-br font-bold">
+      <div className="border-t border-zinc-100 bg-zinc-50/50 p-4 dark:border-zinc-800 dark:bg-slate-900/50">
+        <div className="flex items-center gap-3 rounded-2xl bg-white p-3 shadow-sm ring-1 ring-zinc-950/5 dark:bg-slate-950 dark:ring-white/10">
+          <Avatar className="h-10 w-10 border-2 border-white shadow-sm ring-1 ring-emerald-100 dark:border-slate-800 dark:ring-emerald-900/30">
+            <AvatarFallback className="bg-linear-to-br from-emerald-500 to-teal-600 font-bold text-white">
               {user?.username?.substring(0, 2).toUpperCase() || "AD"}
             </AvatarFallback>
           </Avatar>
           <div className="min-w-0 flex-1 overflow-hidden">
-            <p className="text-foreground truncate text-sm font-semibold">
+            <p className="text-foreground truncate text-sm font-bold">
               {user?.username || "Admin"}
             </p>
-            <p className="text-muted-foreground flex items-center gap-1 truncate text-xs">
-              <span className="inline-block h-1.5 w-1.5 rounded-full bg-green-500" />
-              <span className="capitalize">
-                {user?.role ? t(("User." + user.role) as any) : t("User.admin")}
+            <div className="flex items-center gap-1.5">
+              <span className="relative flex h-2 w-2">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500"></span>
               </span>
-            </p>
+              <p className="text-muted-foreground truncate text-xs font-medium capitalize">
+                {user?.role ? t(("User." + user.role) as any) : t("User.admin")}
+              </p>
+            </div>
           </div>
           <Button
             onClick={handleLogout}
             variant="ghost"
             size="icon"
-            className="text-muted-foreground hover:text-destructive hover:bg-destructive/10 h-8 w-8 shrink-0"
+            className="text-muted-foreground h-8 w-8 transition-colors hover:bg-rose-50 hover:text-rose-600 dark:hover:bg-rose-950/30 dark:hover:text-rose-400"
             title={t("Nav.logout")}
           >
             <LogOut className="h-4 w-4" />

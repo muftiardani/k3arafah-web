@@ -228,7 +228,8 @@
     "validation_subject": "Subjek minimal 5 karakter.",
     "validation_message": "Pesan minimal 10 karakter.",
     "toast_success": "Pesan Anda telah terkirim!",
-    "toast_fail": "Gagal mengirim pesan. Silakan coba lagi."
+    "toast_fail": "Gagal mengirim pesan. Silakan coba lagi.",
+    "whatsapp_message": "Assalamu'alaikum, saya ingin bertanya mengenai info PSB Pondok Pesantren K3 Arafah..."
   },
   "Error": {
     "title": "Terjadi Kesalahan!",

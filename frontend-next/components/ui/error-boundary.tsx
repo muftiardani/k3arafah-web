@@ -3,6 +3,7 @@
 import React, { Component, ReactNode } from "react";
 import { AlertTriangle, RotateCcw, Home } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import * as Sentry from "@sentry/nextjs";
 
 interface Props {
   children: ReactNode;
@@ -38,7 +39,10 @@ export class ErrorBoundary extends Component<Props, State> {
     // Call optional onError callback
     this.props.onError?.(error, errorInfo);
 
-    // TODO: Send to error reporting service (Sentry, etc.)
+    // Send to error reporting service (Sentry)
+    Sentry.captureException(error, {
+      extra: errorInfo as any,
+    });
   }
 
   handleReset = (): void => {

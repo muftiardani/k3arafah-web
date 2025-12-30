@@ -43,17 +43,35 @@ export default function ActivityLogPage() {
     return (
       <div className="flex w-full flex-col gap-8 pb-10">
         <div className="space-y-1">
-          <div className="h-9 w-48 animate-pulse rounded bg-gray-200 dark:bg-gray-700" />
-          <div className="mt-2 h-5 w-72 animate-pulse rounded bg-gray-200 dark:bg-gray-700" />
+          <div className="flex items-center gap-3">
+            <div className="bg-muted h-10 w-10 animate-pulse rounded-lg" />
+            <div className="space-y-2">
+              <div className="bg-muted h-9 w-48 animate-pulse rounded" />
+              <div className="bg-muted h-4 w-72 animate-pulse rounded" />
+            </div>
+          </div>
         </div>
-        <div className="h-px w-full bg-gray-200 dark:bg-gray-700" />
-        <div className="space-y-3">
-          {Array.from({ length: 10 }).map((_, i) => (
-            <div
-              key={i}
-              className="h-12 w-full animate-pulse rounded bg-gray-200 dark:bg-gray-700"
-            />
-          ))}
+
+        <Separator className="bg-border/60" />
+
+        <div className="overflow-hidden rounded-xl border shadow-sm">
+          <div className="bg-muted/50 grid grid-cols-6 gap-4 p-4">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="bg-muted h-4 w-20 animate-pulse rounded" />
+            ))}
+          </div>
+          <div className="bg-card">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <div key={i} className="grid grid-cols-6 items-center gap-4 border-b p-4">
+                <div className="bg-muted col-span-1 h-3 w-full animate-pulse rounded" />
+                <div className="bg-muted col-span-1 h-4 w-24 animate-pulse rounded" />
+                <div className="bg-muted col-span-1 h-5 w-16 animate-pulse rounded-full" />
+                <div className="bg-muted col-span-1 h-3 w-full animate-pulse rounded" />
+                <div className="bg-muted col-span-1 h-3 w-20 animate-pulse rounded" />
+                <div className="bg-muted col-span-1 h-3 w-full animate-pulse rounded" />
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     );
@@ -71,7 +89,9 @@ export default function ActivityLogPage() {
           </div>
           <div>
             <h1 className="text-3xl font-bold tracking-tight">Activity Log</h1>
-            <p className="text-muted-foreground">Lihat semua aktivitas sistem dan audit trail</p>
+            <p className="text-muted-foreground text-lg">
+              Lihat semua aktivitas sistem dan audit trail
+            </p>
           </div>
         </div>
       </div>

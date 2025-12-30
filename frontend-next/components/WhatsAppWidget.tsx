@@ -5,11 +5,8 @@ import { useTranslations } from "next-intl";
 
 export default function WhatsAppWidget() {
   const t = useTranslations("Contact");
-
-  // Hardcoded or fetched from translations.
-  // Cleaning the phone number format for URL: +62 812-3456-7890 -> 6281234567890
-  const phoneNumber = "6281234567890";
-  const message = "Assalamu'alaikum, saya ingin bertanya mengenai info PSB...";
+  const phoneNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "6281234567890";
+  const message = t("whatsapp_message");
 
   const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
 
@@ -22,10 +19,11 @@ export default function WhatsAppWidget() {
       animate={{ scale: 1, opacity: 1 }}
       transition={{ delay: 1, type: "spring", stiffness: 260, damping: 20 }}
       whileHover={{ scale: 1.1 }}
-      className="fixed right-6 bottom-6 z-50 flex h-12 w-12 items-center justify-center rounded-full bg-[#25D366] text-white shadow-lg transition-shadow hover:shadow-xl hover:shadow-[#25D366]/40"
+      className="fixed right-6 bottom-6 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-[#25D366] text-white shadow-lg transition-shadow hover:shadow-xl hover:shadow-[#25D366]/40"
       aria-label="Chat via WhatsApp"
+      title="Chat via WhatsApp"
     >
-      <WhatsAppIcon className="h-6 w-6" />
+      <WhatsAppIcon className="h-7 w-7" />
     </motion.a>
   );
 }

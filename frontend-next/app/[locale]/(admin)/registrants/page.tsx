@@ -101,15 +101,18 @@ export default function RegistrantsPage() {
 
   return (
     <div className="flex w-full flex-col gap-8 pb-10">
-      <div className="space-y-1">
-        <h1 className="text-3xl font-bold tracking-tight">{t("title")}</h1>
-        <p className="text-muted-foreground text-lg">
-          Kelola data pendaftar baru yang masuk sistem.
-        </p>
-      </div>
-
-      <div className="flex items-center justify-end">
-        <Button variant="outline" onClick={handleExportExcel}>
+      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <div className="space-y-1">
+          <h1 className="text-3xl font-bold tracking-tight">{t("title")}</h1>
+          <p className="text-muted-foreground text-lg">
+            Kelola data pendaftar baru yang masuk sistem.
+          </p>
+        </div>
+        <Button
+          variant="outline"
+          onClick={handleExportExcel}
+          className="shadow-sm transition-all hover:shadow-md"
+        >
           <Download className="mr-2 h-4 w-4" />
           Export Excel
         </Button>

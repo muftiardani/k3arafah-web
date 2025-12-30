@@ -68,13 +68,16 @@ export default function UsersPage() {
   };
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-8 pb-10">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-lg font-semibold md:text-2xl">{t("title")}</h1>
-          <p className="text-muted-foreground text-sm">{t("description")}</p>
+          <h1 className="text-foreground text-3xl font-bold tracking-tight">{t("title")}</h1>
+          <p className="text-muted-foreground text-lg">{t("description")}</p>
         </div>
-        <Button onClick={() => setCreateOpen(true)}>
+        <Button
+          onClick={() => setCreateOpen(true)}
+          className="shadow-primary/20 shadow-lg transition-all hover:scale-105"
+        >
           <Plus className="mr-2 h-4 w-4" /> {t("add_new")}
         </Button>
       </div>

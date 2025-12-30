@@ -228,7 +228,8 @@
     "validation_subject": "Subject minimum 5 characters.",
     "validation_message": "Message minimum 10 characters.",
     "toast_success": "Your message has been sent successfully!",
-    "toast_fail": "Failed to send message. Please try again."
+    "toast_fail": "Failed to send message. Please try again.",
+    "whatsapp_message": "Assalamu'alaikum, I would like to ask about new student admission information..."
   },
   "Error": {
     "title": "Something Went Wrong!",
