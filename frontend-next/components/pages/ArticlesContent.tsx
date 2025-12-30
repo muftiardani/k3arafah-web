@@ -9,6 +9,7 @@ import { fadeIn, staggerContainer, slideUp } from "@/lib/animations";
 import { usePaginatedArticles } from "@/lib/hooks";
 import { useCategories } from "@/lib/hooks/useCategories";
 import { useTags } from "@/lib/hooks/useTags";
+import { useDebounce } from "@/lib/hooks/useDebounce";
 import {
   Article,
   searchArticles,
@@ -17,28 +18,12 @@ import {
   PaginatedResponse,
 } from "@/lib/services/articleService";
 import { ArticlesListSkeleton } from "@/components/ui/skeletons";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { formatDate } from "@/lib/utils/date";
 
 interface ArticlesContentProps {
   initialArticles?: Article[];
-}
-
-// Debounce hook
-function useDebounce<T>(value: T, delay: number): T {
-  const [debouncedValue, setDebouncedValue] = useState<T>(value);
-
-  useEffect(() => {
-    const handler = setTimeout(() => {
-      setDebouncedValue(value);
-    }, delay);
-
-    return () => {
-      clearTimeout(handler);
-    };
-  }, [value, delay]);
-
-  return debouncedValue;
 }
 
 export default function ArticlesContent({ initialArticles = [] }: ArticlesContentProps) {
@@ -290,11 +275,7 @@ export default function ArticlesContent({ initialArticles = [] }: ArticlesConten
                         <div className="mb-4 flex items-center gap-4 text-xs text-gray-500 dark:text-gray-400">
                           <div className="flex items-center gap-1">
                             <Calendar className="h-3 w-3" />
-                            {new Date(article.published_at).toLocaleDateString("id-ID", {
-                              day: "numeric",
-                              month: "long",
-                              year: "numeric",
-                            })}
+                            {formatDate(article.published_at, "long")}
                           </div>
                           <div className="flex items-center gap-1">
                             <User className="h-3 w-3" />

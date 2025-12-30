@@ -1,7 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import api from "@/lib/api";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Plus, Trash2, Eye, Pencil, Loader2, ImageIcon, MoreHorizontal } from "lucide-react";
@@ -25,51 +24,25 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { updateGallery } from "@/lib/services/galleryService";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-
-interface Gallery {
-  id: number;
-  title: string;
-  description: string;
-  cover_url: string;
-  created_at: string;
-}
+import { formatDate } from "@/lib/utils/date";
+import { useGalleries, useDeleteGallery, useUpdateGallery } from "@/lib/hooks/useGalleries";
+import type { Gallery } from "@/lib/services/galleryService";
 
 export default function GalleryPage() {
   const t = useTranslations("Dashboard.GalleryPage");
-  const [galleries, setGalleries] = useState<Gallery[]>([]);
-  const [loading, setLoading] = useState(true);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [editingGallery, setEditingGallery] = useState<Gallery | null>(null);
   const [editForm, setEditForm] = useState({ title: "", description: "" });
-  const [updating, setUpdating] = useState(false);
 
-  useEffect(() => {
-    fetchGalleries();
-  }, []);
+  const { data: galleries = [], isLoading } = useGalleries();
+  const deleteMutation = useDeleteGallery();
+  const updateMutation = useUpdateGallery();
 
-  const fetchGalleries = async () => {
-    try {
-      const response = await api.get("/galleries");
-      setGalleries(response.data.data);
-    } catch (error) {
-      console.error("Failed to fetch galleries", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const deleteGallery = async (id: number) => {
+  const deleteGallery = (id: number) => {
     if (!confirm(t("delete_confirm"))) return;
-    try {
-      await api.delete(`/galleries/${id}`);
-      toast.success(t("toast_deleted"));
-      fetchGalleries();
-    } catch {
-      toast.error(t("toast_failed"));
-    }
+    deleteMutation.mutate(id);
   };
 
   const handleEdit = (gallery: Gallery) => {
@@ -78,23 +51,20 @@ export default function GalleryPage() {
     setEditDialogOpen(true);
   };
 
-  const handleUpdate = async () => {
+  const handleUpdate = () => {
     if (!editingGallery) return;
-    setUpdating(true);
-    try {
-      await updateGallery(editingGallery.id, editForm);
-      toast.success(t("toast_updated") || "Gallery updated successfully");
-      setEditDialogOpen(false);
-      setEditingGallery(null);
-      fetchGalleries();
-    } catch {
-      toast.error(t("toast_failed"));
-    } finally {
-      setUpdating(false);
-    }
+    updateMutation.mutate(
+      { id: editingGallery.id, data: editForm },
+      {
+        onSuccess: () => {
+          setEditDialogOpen(false);
+          setEditingGallery(null);
+        },
+      }
+    );
   };
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="flex h-[80vh] flex-col items-center justify-center gap-4">
         <Loader2 className="text-primary h-10 w-10 animate-spin" />
@@ -211,7 +181,7 @@ export default function GalleryPage() {
                   )}
                 </p>
                 <div className="text-muted-foreground/70 mt-2 w-full border-t pt-2 text-xs">
-                  {new Date(gallery.created_at).toLocaleDateString("id-ID", { dateStyle: "long" })}
+                  {formatDate(gallery.created_at, "long")}
                 </div>
               </CardContent>
             </Card>
@@ -253,8 +223,8 @@ export default function GalleryPage() {
             <Button variant="outline" onClick={() => setEditDialogOpen(false)}>
               {t("cancel") || "Cancel"}
             </Button>
-            <Button onClick={handleUpdate} disabled={updating}>
-              {updating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            <Button onClick={handleUpdate} disabled={updateMutation.isPending}>
+              {updateMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               {t("save") || "Save"}
             </Button>
           </DialogFooter>

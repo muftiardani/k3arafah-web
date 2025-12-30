@@ -17,6 +17,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Separator } from "@/components/ui/separator";
+import { formatDateTime } from "@/lib/utils/date";
 
 const ACTION_COLORS: Record<string, string> = {
   CREATE: "bg-green-100 text-green-700",
@@ -32,16 +33,6 @@ export default function ActivityLogPage() {
   const limit = 20;
 
   const { data, isLoading } = useActivityLogs(page, limit);
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleString("id-ID", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
 
   const getActionBadge = (action: string) => {
     const colorClass = ACTION_COLORS[action] || "bg-gray-100 text-gray-700";
@@ -125,7 +116,7 @@ export default function ActivityLogPage() {
                 {logs.map((log) => (
                   <TableRow key={log.id} className="hover:bg-muted/30">
                     <TableCell className="text-muted-foreground text-sm">
-                      {formatDate(log.created_at)}
+                      {formatDateTime(log.created_at)}
                     </TableCell>
                     <TableCell>
                       <span className="font-medium">

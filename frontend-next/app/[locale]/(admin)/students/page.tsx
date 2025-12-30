@@ -1,7 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import api from "@/lib/api";
+import { useState, useMemo } from "react";
 import {
   Table,
   TableBody,
@@ -14,50 +13,24 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
 import { useTranslations } from "next-intl";
-
-interface Santri {
-  id: number;
-  full_name: string;
-  nis: string;
-  class: string;
-  entry_year: number;
-  status: string;
-  parent_phone: string;
-}
+import { useStudents } from "@/lib/hooks/usePsb";
+import { TableSkeleton } from "@/components/ui/table-skeleton";
+import { TableEmptyState } from "@/components/ui/table-empty-state";
 
 export default function StudentsPage() {
   const t = useTranslations("Dashboard.StudentsPage");
-  const [students, setStudents] = useState<Santri[]>([]);
-  const [filteredStudents, setFilteredStudents] = useState<Santri[]>([]);
-  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
 
-  useEffect(() => {
-    fetchStudents();
-  }, []);
+  const { data: students = [], isLoading } = useStudents();
 
-  useEffect(() => {
+  const filteredStudents = useMemo(() => {
+    if (!search) return students;
     const lowerSearch = search.toLowerCase();
-    const filtered = students.filter(
+    return students.filter(
       (s) =>
         s.full_name.toLowerCase().includes(lowerSearch) || (s.nis && s.nis.includes(lowerSearch))
     );
-    setFilteredStudents(filtered);
   }, [search, students]);
-
-  const fetchStudents = async () => {
-    try {
-      // Use backend filter for better performance
-      const response = await api.get("/psb/registrants?status=ACCEPTED");
-      const activeStudents: Santri[] = response.data.data || [];
-      setStudents(activeStudents);
-      setFilteredStudents(activeStudents);
-    } catch (error) {
-      console.error("Failed to fetch students", error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   return (
     <div className="flex w-full flex-col gap-8 pb-10">
@@ -94,23 +67,14 @@ export default function StudentsPage() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {loading ? (
-              <TableRow>
-                <TableCell colSpan={6} className="h-24 text-center">
-                  <div className="text-muted-foreground flex items-center justify-center gap-2">
-                    <span className="animate-pulse">{t("loading")}</span>
-                  </div>
-                </TableCell>
-              </TableRow>
+            {isLoading ? (
+              <TableSkeleton cols={6} rows={5} />
             ) : filteredStudents.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={6} className="h-64 text-center">
-                  <div className="text-muted-foreground flex flex-col items-center justify-center gap-2">
-                    <p className="text-lg font-semibold">{t("empty")}</p>
-                    <p className="text-sm">Tidak ada data santri yang ditemukan.</p>
-                  </div>
-                </TableCell>
-              </TableRow>
+              <TableEmptyState
+                cols={6}
+                title={t("empty")}
+                description="Tidak ada data santri yang ditemukan."
+              />
             ) : (
               filteredStudents.map((item) => (
                 <TableRow key={item.id} className="group hover:bg-muted/50 transition-colors">

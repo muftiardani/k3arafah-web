@@ -55,6 +55,7 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
+import { formatDate } from "@/lib/utils/date";
 
 const ICON_OPTIONS = [
   { value: "trophy", label: "Trophy", icon: Trophy },
@@ -441,12 +442,7 @@ export default function AchievementsPage() {
                 </div>
                 <div className="text-muted-foreground/60 mt-4 flex w-full items-center justify-between border-t pt-3 text-[10px]">
                   <span>Ditambahkan:</span>
-                  <span>
-                    {new Date(item.created_at).toLocaleDateString("id-ID", {
-                      month: "long",
-                      year: "numeric",
-                    })}
-                  </span>
+                  <span>{formatDate(item.created_at, "long")}</span>
                 </div>
               </div>
             );

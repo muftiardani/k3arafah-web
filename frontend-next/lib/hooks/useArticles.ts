@@ -4,6 +4,7 @@ import {
   getAllArticles,
   getPaginatedArticles,
   getArticleBySlug,
+  getArticleById,
   createArticle,
   updateArticle,
   deleteArticle,
@@ -23,6 +24,7 @@ export const articleKeys = {
   list: (page: number, limit: number) => [...articleKeys.lists(), { page, limit }] as const,
   details: () => [...articleKeys.all, "detail"] as const,
   detail: (slug: string) => [...articleKeys.details(), slug] as const,
+  detailById: (id: number) => [...articleKeys.details(), "id", id] as const,
 };
 
 /**
@@ -66,6 +68,22 @@ export function useArticle(
     queryFn: () => getArticleBySlug(slug),
     staleTime: 10 * 60 * 1000, // 10 minutes for detail views
     enabled: !!slug,
+    ...options,
+  });
+}
+
+/**
+ * Hook for fetching a single article by ID (for edit pages)
+ */
+export function useArticleById(
+  id: number,
+  options?: Omit<UseQueryOptions<Article | null>, "queryKey" | "queryFn">
+) {
+  return useQuery({
+    queryKey: articleKeys.detailById(id),
+    queryFn: () => getArticleById(id),
+    staleTime: 5 * 60 * 1000,
+    enabled: !!id,
     ...options,
   });
 }

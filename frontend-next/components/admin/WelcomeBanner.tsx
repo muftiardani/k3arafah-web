@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
+import { formatDate } from "@/lib/utils/date";
 
 export function WelcomeBanner() {
   const [user, setUser] = useState<{ username: string; role: string } | null>(null);
@@ -94,10 +95,7 @@ export function WelcomeBanner() {
               Hari ini
             </div>
             <p className="mt-2 text-3xl font-bold tracking-tight">
-              {new Date().toLocaleDateString("id-ID", {
-                weekday: "long",
-                day: "numeric",
-              })}
+              {formatDate(new Date(), "full").split(",")[0]}, {new Date().getDate()}
             </p>
             <p className="text-sm text-slate-500">
               {new Date().toLocaleDateString("id-ID", {

@@ -22,6 +22,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { BACKEND_API_URL } from "@/lib/config";
+import { formatDate } from "@/lib/utils/date";
 
 interface DashboardStats {
   total_santri: number;
@@ -212,14 +213,7 @@ export default async function DashboardPage({ params }: Props) {
                           <p className="text-muted-foreground flex items-center gap-1 text-xs">
                             <Clock className="h-3 w-3" />
                             {t("Registrants.registered_on", {
-                              date: new Date(registrant.created_at).toLocaleDateString(
-                                locale === "en" ? "en-US" : "id-ID",
-                                {
-                                  day: "numeric",
-                                  month: "short",
-                                  year: "numeric",
-                                }
-                              ),
+                              date: formatDate(registrant.created_at),
                             })}
                           </p>
                         </div>

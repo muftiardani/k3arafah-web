@@ -1,10 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import api from "@/lib/api";
 import { useRouter, useParams } from "next/navigation";
 import { toast } from "sonner";
 
@@ -25,6 +24,7 @@ import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import { Loader2, ArrowLeft, Save, FileText, Globe, Image as ImageIcon } from "lucide-react";
 import Link from "next/link";
+import { useArticleById, useUpdateArticle } from "@/lib/hooks/useArticles";
 
 const formSchema = z.object({
   title: z.string().min(5, { message: "Judul minimal 5 karakter." }),
@@ -38,10 +38,10 @@ type FormValues = z.infer<typeof formSchema>;
 export default function EditArticlePage() {
   const router = useRouter();
   const params = useParams();
-  const id = params.id; // Get ID from URL
+  const id = Number(params.id);
 
-  const [isLoading, setIsLoading] = useState(true);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { data: article, isLoading } = useArticleById(id);
+  const updateMutation = useUpdateArticle();
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -53,46 +53,27 @@ export default function EditArticlePage() {
     },
   });
 
-  // Fetch Exisiting Article
+  // Update form when article data is loaded
   useEffect(() => {
-    async function fetchArticle() {
-      try {
-        const response = await api.get(`/articles/${id}`);
-        // Response format: { status: true, message: "...", data: { ... } }
-        const article = response.data.data;
+    if (article) {
+      form.reset({
+        title: article.title,
+        content: article.content,
+        is_published: article.is_published,
+        thumbnail_url: article.image || "",
+      });
+    }
+  }, [article, form]);
 
-        form.reset({
-          title: article.title,
-          content: article.content,
-          is_published: article.is_published,
-          thumbnail_url: article.thumbnail_url || "",
-        });
-      } catch (error) {
-        console.error("Failed to fetch article", error);
-        toast.error("Gagal memuat artikel");
-        router.push("/dashboard/articles");
-      } finally {
-        setIsLoading(false);
+  function onSubmit(values: z.infer<typeof formSchema>) {
+    updateMutation.mutate(
+      { id, data: values },
+      {
+        onSuccess: () => {
+          router.push("/dashboard/articles");
+        },
       }
-    }
-
-    if (id) {
-      fetchArticle();
-    }
-  }, [id, form, router]);
-
-  async function onSubmit(values: z.infer<typeof formSchema>) {
-    setIsSubmitting(true);
-    try {
-      await api.put(`/articles/${id}`, values);
-      toast.success("Artikel berhasil diperbarui");
-      router.push("/dashboard/articles"); // Return to Dashboard List
-    } catch (error) {
-      console.error(error);
-      toast.error("Gagal memperbarui artikel");
-    } finally {
-      setIsSubmitting(false);
-    }
+    );
   }
 
   if (isLoading) {
@@ -123,10 +104,10 @@ export default function EditArticlePage() {
           </Button>
           <Button
             onClick={form.handleSubmit(onSubmit)}
-            disabled={isSubmitting}
+            disabled={updateMutation.isPending}
             className="min-w-[120px]"
           >
-            {isSubmitting ? (
+            {updateMutation.isPending ? (
               "Menyimpan..."
             ) : (
               <>

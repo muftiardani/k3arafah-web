@@ -1,8 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import api from "@/lib/api";
-import { AxiosError } from "axios";
+import { useState } from "react";
 import {
   Table,
   TableBody,
@@ -32,73 +30,41 @@ import {
 import { toast } from "sonner";
 import { Loader2, Plus, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
-
-interface User {
-  id: number;
-  username: string;
-  role: string;
-  created_at: string;
-}
+import { formatDate } from "@/lib/utils/date";
+import { useAdmins, useCreateAdmin, useDeleteAdmin } from "@/lib/hooks/useUsers";
+import { TableSkeleton } from "@/components/ui/table-skeleton";
+import { TableEmptyState } from "@/components/ui/table-empty-state";
 
 export default function UsersPage() {
   const t = useTranslations("Dashboard.UsersPage");
-  const [users, setUsers] = useState<User[]>([]);
-  const [loading, setLoading] = useState(true);
   const [createOpen, setCreateOpen] = useState(false);
-  const [creating, setCreating] = useState(false);
-
   const [formData, setFormData] = useState({
     username: "",
     password: "",
     role: "admin",
   });
 
-  useEffect(() => {
-    fetchUsers();
-  }, []);
+  const { data: users = [], isLoading } = useAdmins();
+  const createMutation = useCreateAdmin();
+  const deleteMutation = useDeleteAdmin();
 
-  const fetchUsers = async () => {
-    try {
-      const response = await api.get("/admins");
-      setUsers(response.data.data);
-    } catch (error) {
-      console.error("Failed to fetch users", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleCreate = async () => {
+  const handleCreate = () => {
     if (!formData.username || !formData.password) {
       toast.error("Username dan Password wajib diisi");
       return;
     }
 
-    setCreating(true);
-    try {
-      await api.post("/admins", formData);
-      toast.success("Admin berhasil dibuat");
-      setCreateOpen(false);
-      setFormData({ username: "", password: "", role: "admin" });
-      fetchUsers();
-    } catch (error) {
-      console.error(error);
-      const msg = (error as AxiosError<{ error: string }>).response?.data?.error || "Error";
-      toast.error("Gagal membuat admin: " + msg);
-    } finally {
-      setCreating(false);
-    }
+    createMutation.mutate(formData, {
+      onSuccess: () => {
+        setCreateOpen(false);
+        setFormData({ username: "", password: "", role: "admin" });
+      },
+    });
   };
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = (id: number) => {
     if (!confirm(t("delete_confirm"))) return;
-    try {
-      await api.delete(`/admins/${id}`);
-      toast.success(t("toast_deleted"));
-      fetchUsers();
-    } catch {
-      toast.error(t("toast_failed"));
-    }
+    deleteMutation.mutate(id);
   };
 
   return (
@@ -124,18 +90,10 @@ export default function UsersPage() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {loading ? (
-              <TableRow>
-                <TableCell colSpan={4} className="py-10 text-center">
-                  {t("loading")}
-                </TableCell>
-              </TableRow>
+            {isLoading ? (
+              <TableSkeleton cols={4} rows={3} />
             ) : users.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={4} className="py-10 text-center">
-                  {t("empty")}
-                </TableCell>
-              </TableRow>
+              <TableEmptyState cols={4} title={t("empty")} />
             ) : (
               users.map((item) => (
                 <TableRow key={item.id}>
@@ -145,7 +103,7 @@ export default function UsersPage() {
                       {t(`roles.${item.role}`)}
                     </Badge>
                   </TableCell>
-                  <TableCell>{new Date(item.created_at).toLocaleDateString()}</TableCell>
+                  <TableCell>{formatDate(item.created_at || "")}</TableCell>
                   <TableCell className="text-right">
                     <Button
                       variant="ghost"
@@ -205,8 +163,8 @@ export default function UsersPage() {
             <Button variant="outline" onClick={() => setCreateOpen(false)}>
               Batal
             </Button>
-            <Button onClick={handleCreate} disabled={creating}>
-              {creating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            <Button onClick={handleCreate} disabled={createMutation.isPending}>
+              {createMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Buat User
             </Button>
           </DialogFooter>

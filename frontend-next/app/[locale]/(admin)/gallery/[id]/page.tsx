@@ -1,56 +1,29 @@
 "use client";
 
-import { useEffect, useState, useCallback, useRef } from "react";
-import api from "@/lib/api";
+import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { ArrowLeft, Trash2, Upload, Loader2, Image as ImageIcon, X, ZoomIn } from "lucide-react";
-import Link from "next/link";
+import { ArrowLeft, Trash2, Upload, Loader2, Image as ImageIcon } from "lucide-react";
 import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-
-interface Photo {
-  id: number;
-  photo_url: string;
-  caption: string;
-}
-
-interface Gallery {
-  id: number;
-  title: string;
-  description: string;
-  cover_url: string;
-  photos: Photo[];
-  created_at: string;
-}
+import { formatDate } from "@/lib/utils/date";
+import { useGallery, useUploadGalleryPhoto, useDeleteGalleryPhoto } from "@/lib/hooks/useGalleries";
 
 export default function GalleryDetailPage() {
   const { id } = useParams();
   const router = useRouter();
-  const [gallery, setGallery] = useState<Gallery | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [uploading, setUploading] = useState(false);
+  const galleryId = Number(id);
+
   const [uploadFiles, setUploadFiles] = useState<File[]>([]);
+  const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const fetchGallery = useCallback(async () => {
-    try {
-      const response = await api.get(`/galleries/${id}`);
-      setGallery(response.data.data);
-    } catch (error) {
-      console.error("Failed to fetch gallery", error);
-      toast.error("Gagal memuat galeri");
-    } finally {
-      setLoading(false);
-    }
-  }, [id]);
-
-  useEffect(() => {
-    fetchGallery();
-  }, [fetchGallery]);
+  const { data: gallery, isLoading } = useGallery(galleryId);
+  const uploadMutation = useUploadGalleryPhoto(galleryId);
+  const deleteMutation = useDeleteGalleryPhoto(galleryId);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -62,46 +35,26 @@ export default function GalleryDetailPage() {
     if (uploadFiles.length === 0) return;
 
     setUploading(true);
-    const data = new FormData();
-    uploadFiles.forEach((file) => {
-      data.append("photos", file);
-    });
-
     try {
-      await api.post(`/galleries/${id}/photos`, data, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
-      toast.success("Foto berhasil diupload");
+      // Upload files one by one
+      for (const file of uploadFiles) {
+        await uploadMutation.mutateAsync(file);
+      }
       setUploadFiles([]);
       if (fileInputRef.current) fileInputRef.current.value = "";
-      fetchGallery();
     } catch (error) {
       console.error(error);
-      toast.error("Gagal upload foto");
     } finally {
       setUploading(false);
     }
   };
 
-  const handleDeletePhoto = async (photoId: number) => {
+  const handleDeletePhoto = (photoId: number) => {
     if (!confirm("Hapus foto ini?")) return;
-    try {
-      await api.delete(`/galleries/photos/${photoId}`);
-      toast.success("Foto dihapus");
-      setGallery((prev) =>
-        prev
-          ? {
-              ...prev,
-              photos: prev.photos.filter((p) => p.id !== photoId),
-            }
-          : null
-      );
-    } catch {
-      toast.error("Gagal menghapus foto");
-    }
+    deleteMutation.mutate(photoId);
   };
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="flex h-[80vh] flex-col items-center justify-center gap-4">
         <Loader2 className="text-primary h-10 w-10 animate-spin" />
@@ -149,9 +102,7 @@ export default function GalleryDetailPage() {
               <ImageIcon className="h-4 w-4" /> {gallery.photos?.length || 0} Foto
             </span>
             <span>•</span>
-            <span>
-              {new Date(gallery.created_at).toLocaleDateString("id-ID", { dateStyle: "long" })}
-            </span>
+            <span>{formatDate(gallery.created_at, "long")}</span>
           </div>
         </div>
       </div>

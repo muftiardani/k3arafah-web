@@ -379,21 +379,26 @@ go build -o server ./cmd/api  # Build binary
 
 ### 🌐 Public Routes (No Auth Required)
 
-| Method | Endpoint                   | Description                  |
-| ------ | -------------------------- | ---------------------------- |
-| `GET`  | `/api/csrf`                | 🔑 Get CSRF token            |
-| `POST` | `/api/login`               | 🔐 Login admin               |
-| `POST` | `/api/logout`              | 🚪 Logout                    |
-| `POST` | `/api/refresh`             | 🔄 Refresh JWT token         |
-| `POST` | `/api/psb/register`        | 📝 Daftar santri baru        |
-| `GET`  | `/api/articles`            | 📰 List artikel (pagination) |
-| `GET`  | `/api/articles/:id`        | 📄 Detail artikel by ID      |
-| `GET`  | `/api/articles/slug/:slug` | 📄 Detail artikel by slug    |
-| `GET`  | `/api/galleries`           | 🖼️ List galeri               |
-| `GET`  | `/api/galleries/:id`       | 🖼️ Detail galeri             |
-| `GET`  | `/api/videos`              | 🎬 List video                |
-| `GET`  | `/api/achievements`        | 🏆 List prestasi             |
-| `POST` | `/api/contact`             | 📬 Kirim pesan               |
+| Method | Endpoint                     | Description                   |
+| ------ | ---------------------------- | ----------------------------- |
+| `GET`  | `/api/csrf`                  | 🔑 Get CSRF token             |
+| `POST` | `/api/login`                 | 🔐 Login admin                |
+| `POST` | `/api/logout`                | 🚪 Logout                     |
+| `POST` | `/api/refresh`               | 🔄 Refresh JWT token          |
+| `POST` | `/api/psb/register`          | 📝 Daftar santri baru         |
+| `GET`  | `/api/articles`              | 📰 List artikel (pagination)  |
+| `GET`  | `/api/articles/:id`          | 📄 Detail artikel by ID       |
+| `GET`  | `/api/articles/slug/:slug`   | 📄 Detail artikel by slug     |
+| `GET`  | `/api/articles/search`       | 🔍 Search artikel by query    |
+| `GET`  | `/api/articles/category/:id` | 📂 Filter artikel by category |
+| `GET`  | `/api/articles/tag/:id`      | 🏷️ Filter artikel by tag      |
+| `GET`  | `/api/categories`            | 📂 List kategori              |
+| `GET`  | `/api/tags`                  | 🏷️ List tag                   |
+| `GET`  | `/api/galleries`             | 🖼️ List galeri                |
+| `GET`  | `/api/galleries/:id`         | 🖼️ Detail galeri              |
+| `GET`  | `/api/videos`                | 🎬 List video                 |
+| `GET`  | `/api/achievements`          | 🏆 List prestasi              |
+| `POST` | `/api/contact`               | 📬 Kirim pesan                |
 
 ### 🔐 Protected Routes (JWT Required)
 
@@ -404,6 +409,8 @@ go build -o server ./cmd/api  # Build binary
 | `GET`    | `/api/psb/registrants/:id`        | 📋 Detail pendaftar           |
 | `PUT`    | `/api/psb/registrants/:id/status` | 🔄 Update status              |
 | `PUT`    | `/api/psb/registrants/:id/verify` | ✅ Verifikasi pendaftar       |
+| `DELETE` | `/api/psb/registrants/:id`        | 🗑️ Delete pendaftar           |
+| `GET`    | `/api/export/santri`              | 📥 Export santri to Excel     |
 | `GET`    | `/api/dashboard/stats`            | 📊 Dashboard statistics       |
 | `GET`    | `/api/messages`                   | 📬 List pesan masuk           |
 | `PUT`    | `/api/messages/:id/read`          | ✅ Mark as read               |
@@ -411,6 +418,14 @@ go build -o server ./cmd/api  # Build binary
 | `POST`   | `/api/articles`                   | ➕ Create artikel             |
 | `PUT`    | `/api/articles/:id`               | ✏️ Update artikel             |
 | `DELETE` | `/api/articles/:id`               | 🗑️ Delete artikel             |
+| `GET`    | `/api/categories/:id`             | 📂 Get kategori by ID         |
+| `POST`   | `/api/categories`                 | ➕ Create kategori            |
+| `PUT`    | `/api/categories/:id`             | ✏️ Update kategori            |
+| `DELETE` | `/api/categories/:id`             | 🗑️ Delete kategori            |
+| `GET`    | `/api/tags/:id`                   | 🏷️ Get tag by ID              |
+| `POST`   | `/api/tags`                       | ➕ Create tag                 |
+| `PUT`    | `/api/tags/:id`                   | ✏️ Update tag                 |
+| `DELETE` | `/api/tags/:id`                   | 🗑️ Delete tag                 |
 | `POST`   | `/api/galleries`                  | ➕ Create galeri              |
 | `PUT`    | `/api/galleries/:id`              | ✏️ Update galeri              |
 | `DELETE` | `/api/galleries/:id`              | 🗑️ Delete galeri              |
@@ -432,6 +447,7 @@ go build -o server ./cmd/api  # Build binary
 | `POST`   | `/api/admins`              | ➕ Create admin baru     |
 | `DELETE` | `/api/admins/:id`          | 🗑️ Delete admin          |
 | `PUT`    | `/api/admins/:id/password` | 🔑 Update admin password |
+| `GET`    | `/api/activity-logs`       | 📋 View activity logs    |
 
 ---
 

@@ -6,6 +6,7 @@ import { Calendar } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Article } from "@/lib/services/articleService";
 import { fadeIn, staggerContainer } from "@/lib/animations";
+import { formatDate } from "@/lib/utils/date";
 
 interface NewsSectionProps {
   articles: Article[];
@@ -53,14 +54,7 @@ export default function NewsSection({ articles }: NewsSectionProps) {
                   </Link>
                   <div className="flex items-center gap-2 text-sm text-emerald-600 dark:text-emerald-400">
                     <Calendar className="h-4 w-4" />
-                    {new Date(article.published_at || article.created_at).toLocaleDateString(
-                      "id-ID",
-                      {
-                        day: "numeric",
-                        month: "long",
-                        year: "numeric",
-                      }
-                    )}
+                    {formatDate(article.published_at || article.created_at, "long")}
                   </div>
                   <h3 className="line-clamp-2 text-lg font-semibold transition-colors group-hover:text-emerald-700">
                     {article.title}

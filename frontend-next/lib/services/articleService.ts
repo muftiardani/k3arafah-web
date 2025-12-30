@@ -10,6 +10,18 @@ const BackendAuthorSchema = z.object({
   email: z.string().optional(), // Backend doesnt send it currently, but good to have
 });
 
+const BackendCategorySchema = z.object({
+  id: z.number(),
+  name: z.string(),
+  slug: z.string(),
+});
+
+const BackendTagSchema = z.object({
+  id: z.number(),
+  name: z.string(),
+  slug: z.string(),
+});
+
 const BackendArticleSchema = z.object({
   id: z.number(),
   title: z.string(),
@@ -19,6 +31,8 @@ const BackendArticleSchema = z.object({
   is_published: z.boolean(),
   author_id: z.number(),
   author: BackendAuthorSchema,
+  category: BackendCategorySchema.nullable().optional(),
+  tags: z.array(BackendTagSchema).optional(),
   created_at: z.string(),
   updated_at: z.string(),
 });
@@ -44,6 +58,16 @@ export type Article = {
     name: string;
     role: string;
   };
+  category?: {
+    id: number;
+    name: string;
+    slug: string;
+  } | null;
+  tags?: {
+    id: number;
+    name: string;
+    slug: string;
+  }[];
 };
 
 export type PaginationMeta = {
@@ -91,6 +115,19 @@ function transformArticle(item: BackendArticle): Article {
       name: item.author.username,
       role: item.author.role,
     },
+    category: item.category
+      ? {
+          id: item.category.id,
+          name: item.category.name,
+          slug: item.category.slug,
+        }
+      : null,
+    tags:
+      item.tags?.map((tag) => ({
+        id: tag.id,
+        name: tag.name,
+        slug: tag.slug,
+      })) || [],
   };
 }
 
@@ -195,6 +232,27 @@ export async function getArticleBySlug(slug: string): Promise<Article | null> {
       return null;
     }
     console.error(`Failed to fetch article by slug ${slug}:`, error);
+    return null;
+  }
+}
+
+export async function getArticleById(id: number): Promise<Article | null> {
+  try {
+    const response = await api.get(`/articles/${id}`);
+
+    const result = SingleArticleResponseSchema.safeParse(response.data);
+
+    if (result.success) {
+      return transformArticle(result.data.data);
+    }
+
+    console.error("Zod Validation Failed (getArticleById):", result.error);
+    return null;
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response?.status === 404) {
+      return null;
+    }
+    console.error(`Failed to fetch article by id ${id}:`, error);
     return null;
   }
 }

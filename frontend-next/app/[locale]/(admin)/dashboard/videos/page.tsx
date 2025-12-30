@@ -39,6 +39,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
+import { formatDate } from "@/lib/utils/date";
 
 export default function VideosPage() {
   const t = useTranslations("Dashboard.VideosPage");
@@ -380,11 +381,7 @@ export default function VideosPage() {
                     <span className="bg-muted rounded px-1.5 py-0.5 font-mono">
                       {video.youtube_id}
                     </span>
-                    <span>
-                      {new Date(video.created_at).toLocaleDateString("id-ID", {
-                        dateStyle: "medium",
-                      })}
-                    </span>
+                    <span>{formatDate(video.created_at)}</span>
                   </div>
                 </div>
               </CardContent>

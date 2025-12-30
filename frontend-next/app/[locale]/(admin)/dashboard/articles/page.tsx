@@ -1,72 +1,42 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import api from "@/lib/api";
+import { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
 import { Plus, Pencil, Trash2, Search, FileText } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { toast } from "sonner";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { useTranslations, useLocale } from "next-intl";
-
-interface Article {
-  id: number;
-  title: string;
-  is_published: boolean;
-  created_at: string;
-  updated_at?: string; // Optional if not in backend yet
-}
+import { formatDate } from "@/lib/utils/date";
+import { useArticles, useDeleteArticle } from "@/lib/hooks/useArticles";
+import type { Article } from "@/lib/services/articleService";
 
 export default function ArticlesPage() {
   const t = useTranslations("Dashboard.ArticlesPage");
   const locale = useLocale();
-  const [articles, setArticles] = useState<Article[]>([]);
-  // const [filteredArticles, setFilteredArticles] = useState<Article[]>([]); // Derived state, use useMemo instead
-  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState("all");
 
-  useEffect(() => {
-    fetchArticles();
-  }, []);
+  const { data: articles = [], isLoading } = useArticles();
+  const deleteMutation = useDeleteArticle();
 
-  const fetchArticles = async () => {
-    try {
-      const response = await api.get("/articles");
-      setArticles(response.data.data || []);
-    } catch (error) {
-      console.error("Failed to fetch articles", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const filteredArticles = useMemo(() => {
+    return articles.filter((article) => {
+      if (activeTab === "published" && !article.is_published) return false;
+      if (activeTab === "draft" && article.is_published) return false;
+      if (searchQuery && !article.title.toLowerCase().includes(searchQuery.toLowerCase()))
+        return false;
+      return true;
+    });
+  }, [articles, activeTab, searchQuery]);
 
-  const filteredArticles = articles.filter((article) => {
-    // Filter by Tab
-    if (activeTab === "published" && !article.is_published) return false;
-    if (activeTab === "draft" && article.is_published) return false;
-
-    // Filter by Search
-    if (searchQuery && !article.title.toLowerCase().includes(searchQuery.toLowerCase()))
-      return false;
-
-    return true;
-  });
-
-  const deleteArticle = async (id: number) => {
+  const deleteArticle = (id: number) => {
     if (!confirm(t("delete_confirm"))) return;
-    try {
-      await api.delete(`/articles/${id}`);
-      toast.success(t("toast_deleted"));
-      fetchArticles(); // Refresh
-    } catch {
-      toast.error(t("toast_failed"));
-    }
+    deleteMutation.mutate(id);
   };
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="space-y-4">
         <div className="flex items-center justify-between">
@@ -200,14 +170,7 @@ function ArticlesGrid({
                 </h3>
                 <p className="text-muted-foreground flex items-center gap-2 text-xs">
                   <span className="bg-muted-foreground/30 inline-block h-2 w-2 rounded-full"></span>
-                  {new Date(item.created_at).toLocaleDateString(
-                    locale === "en" ? "en-US" : "id-ID",
-                    {
-                      day: "numeric",
-                      month: "long",
-                      year: "numeric",
-                    }
-                  )}
+                  {formatDate(item.created_at, "long")}
                 </p>
               </div>
 

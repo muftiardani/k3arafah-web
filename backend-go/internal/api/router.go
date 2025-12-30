@@ -33,6 +33,7 @@ func NewRouter(h Handlers) *gin.Engine {
 	r.Use(gin.Recovery())
 	r.Use(middleware.RequestIDMiddleware()) // Must be first for request tracing
 	r.Use(middleware.LoggerMiddleware())
+	r.Use(middleware.GzipMiddleware())      // Gzip compression for responses
 	r.Use(middleware.CORSMiddleware())
 	r.Use(middleware.SecurityMiddleware())
 	r.Use(middleware.SessionMiddleware()) // Must be before CSRF

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import api from "@/lib/api";
 import {
   Table,
@@ -24,75 +24,78 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { CheckCircle2, Loader2, Download } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { env } from "@/lib/env";
-
-interface Santri {
-  id: number;
-  full_name: string;
-  gender: string;
-  status: string;
-  created_at: string;
-}
+import { formatDate } from "@/lib/utils/date";
+import { useRegistrants, useVerifyRegistrant } from "@/lib/hooks/usePsb";
+import { TableSkeleton } from "@/components/ui/table-skeleton";
+import { TableEmptyState } from "@/components/ui/table-empty-state";
+import type { Santri } from "@/types";
 
 export default function RegistrantsPage() {
   const t = useTranslations("Dashboard.RegistrantsPage");
-  // Also needed Dashboard.Status for status badges
   const tStatus = useTranslations("Dashboard.Status");
-  const [registrants, setRegistrants] = useState<Santri[]>([]);
-  const [loading, setLoading] = useState(true);
+
   const [verifyOpen, setVerifyOpen] = useState(false);
   const [selectedSantri, setSelectedSantri] = useState<Santri | null>(null);
-
-  // Verification Form
   const [verifyData, setVerifyData] = useState({
     nis: "",
     class: "",
     entry_year: new Date().getFullYear(),
   });
-  const [verifying, setVerifying] = useState(false);
 
-  useEffect(() => {
-    fetchRegistrants();
-  }, []);
-
-  const fetchRegistrants = async () => {
-    try {
-      const response = await api.get("/psb/registrants");
-      setRegistrants(response.data.data);
-    } catch (error) {
-      console.error("Failed to fetch data", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const { data: registrants = [], isLoading } = useRegistrants();
+  const verifyMutation = useVerifyRegistrant();
 
   const handleOpenVerify = (santri: Santri) => {
     setSelectedSantri(santri);
     setVerifyData({
       nis: "",
-      class: "1A", // Default class
+      class: "1A",
       entry_year: new Date().getFullYear(),
     });
     setVerifyOpen(true);
   };
 
-  const handleVerify = async () => {
+  const handleVerify = () => {
     if (!verifyData.nis || !verifyData.class) {
       toast.error(t("dialog.validation_required"));
       return;
     }
 
-    setVerifying(true);
+    if (!selectedSantri) return;
+
+    verifyMutation.mutate(
+      { id: selectedSantri.id, data: verifyData },
+      {
+        onSuccess: () => {
+          setVerifyOpen(false);
+        },
+      }
+    );
+  };
+
+  const handleExportExcel = async () => {
     try {
-      await api.put(`/psb/registrants/${selectedSantri?.id}/verify`, verifyData);
-      toast.success(t("dialog.toast_success"));
-      setVerifyOpen(false);
-      fetchRegistrants();
+      toast.info("Memproses export Excel...");
+      const response = await api.get("/export/santri/excel", {
+        responseType: "blob",
+      });
+
+      const blob = new Blob([response.data], {
+        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `santri-export-${new Date().toISOString().split("T")[0]}.xlsx`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+
+      toast.success("Excel berhasil diunduh!");
     } catch (error) {
-      console.error(error);
-      toast.error(t("dialog.toast_fail"));
-    } finally {
-      setVerifying(false);
+      console.error("Export error:", error);
+      toast.error("Gagal mengunduh Excel. Pastikan Anda memiliki akses.");
     }
   };
 
@@ -106,13 +109,7 @@ export default function RegistrantsPage() {
       </div>
 
       <div className="flex items-center justify-end">
-        <Button
-          variant="outline"
-          onClick={() => {
-            window.open(`${env.NEXT_PUBLIC_API_URL}/export/santri`, "_blank");
-            toast.success("Downloading Excel file...");
-          }}
-        >
+        <Button variant="outline" onClick={handleExportExcel}>
           <Download className="mr-2 h-4 w-4" />
           Export Excel
         </Button>
@@ -130,23 +127,14 @@ export default function RegistrantsPage() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {loading ? (
-              <TableRow>
-                <TableCell colSpan={5} className="h-24 text-center">
-                  <div className="text-muted-foreground flex items-center justify-center gap-2">
-                    <span className="animate-pulse">{t("loading")}</span>
-                  </div>
-                </TableCell>
-              </TableRow>
+            {isLoading ? (
+              <TableSkeleton cols={5} rows={5} />
             ) : registrants.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={5} className="h-64 text-center">
-                  <div className="text-muted-foreground flex flex-col items-center justify-center gap-2">
-                    <p className="text-lg font-semibold">{t("empty")}</p>
-                    <p className="text-sm">Belum ada pendaftar baru.</p>
-                  </div>
-                </TableCell>
-              </TableRow>
+              <TableEmptyState
+                cols={5}
+                title={t("empty")}
+                description="Belum ada pendaftar baru."
+              />
             ) : (
               registrants.map((item) => (
                 <TableRow key={item.id} className="group hover:bg-muted/50 transition-colors">
@@ -173,11 +161,17 @@ export default function RegistrantsPage() {
                       }
                       variant="outline"
                     >
-                      {tStatus(item.status.toLowerCase() as any)}
+                      {tStatus(
+                        item.status.toLowerCase() as
+                          | "pending"
+                          | "verified"
+                          | "accepted"
+                          | "rejected"
+                      )}
                     </Badge>
                   </TableCell>
                   <TableCell className="text-muted-foreground text-center font-mono text-sm">
-                    {new Date(item.created_at).toLocaleDateString()}
+                    {formatDate(item.created_at)}
                   </TableCell>
                   <TableCell className="text-center">
                     {item.status !== "ACCEPTED" && (
@@ -239,8 +233,8 @@ export default function RegistrantsPage() {
             <Button variant="outline" onClick={() => setVerifyOpen(false)}>
               {t("dialog.cancel")}
             </Button>
-            <Button onClick={handleVerify} disabled={verifying}>
-              {verifying && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            <Button onClick={handleVerify} disabled={verifyMutation.isPending}>
+              {verifyMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               {t("dialog.submit")}
             </Button>
           </DialogFooter>

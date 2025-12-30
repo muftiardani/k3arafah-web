@@ -68,6 +68,18 @@ definitions:
     - password
     - username
     type: object
+  dto.CreateCategoryRequest:
+    properties:
+      description:
+        maxLength: 500
+        type: string
+      name:
+        maxLength: 100
+        minLength: 2
+        type: string
+    required:
+    - name
+    type: object
   dto.CreateMessageRequest:
     properties:
       email:
@@ -89,6 +101,15 @@ definitions:
     - message
     - name
     - subject
+    type: object
+  dto.CreateTagRequest:
+    properties:
+      name:
+        maxLength: 50
+        minLength: 2
+        type: string
+    required:
+    - name
     type: object
   dto.CreateVideoRequest:
     properties:
@@ -252,6 +273,16 @@ definitions:
         minLength: 3
         type: string
     type: object
+  dto.UpdateCategoryRequest:
+    properties:
+      description:
+        maxLength: 500
+        type: string
+      name:
+        maxLength: 100
+        minLength: 2
+        type: string
+    type: object
   dto.UpdateGalleryRequest:
     properties:
       cover_url:
@@ -263,6 +294,59 @@ definitions:
       title:
         maxLength: 100
         minLength: 3
+        type: string
+    type: object
+  dto.UpdateSantriRequest:
+    properties:
+      address:
+        maxLength: 500
+        minLength: 10
+        type: string
+      birth_date:
+        type: string
+      birth_place:
+        maxLength: 50
+        minLength: 2
+        type: string
+      full_name:
+        maxLength: 100
+        minLength: 3
+        type: string
+      gender:
+        enum:
+        - L
+        - P
+        type: string
+      nik:
+        type: string
+      parent_name:
+        maxLength: 100
+        minLength: 3
+        type: string
+      parent_phone:
+        maxLength: 15
+        minLength: 10
+        type: string
+      photo_url:
+        type: string
+    type: object
+  dto.UpdateSantriStatusRequest:
+    properties:
+      status:
+        enum:
+        - PENDING
+        - VERIFIED
+        - ACCEPTED
+        - REJECTED
+        type: string
+    required:
+    - status
+    type: object
+  dto.UpdateTagRequest:
+    properties:
+      name:
+        maxLength: 50
+        minLength: 2
         type: string
     type: object
   dto.UpdateVideoRequest:
@@ -287,6 +371,25 @@ definitions:
       username:
         type: string
     type: object
+  dto.VerifySantriRequest:
+    properties:
+      class:
+        maxLength: 10
+        minLength: 1
+        type: string
+      entry_year:
+        maximum: 2100
+        minimum: 2000
+        type: integer
+      nis:
+        maxLength: 20
+        minLength: 5
+        type: string
+    required:
+    - class
+    - entry_year
+    - nis
+    type: object
   handlers.HealthResponse:
     properties:
       services:
@@ -302,6 +405,10 @@ definitions:
         $ref: '#/definitions/models.User'
       author_id:
         type: integer
+      category:
+        $ref: '#/definitions/models.Category'
+      category_id:
+        type: integer
       content:
         type: string
       created_at:
@@ -312,9 +419,51 @@ definitions:
         type: boolean
       slug:
         type: string
+      tags:
+        items:
+          $ref: '#/definitions/models.Tag'
+        type: array
       thumbnail_url:
         type: string
       title:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  models.Category:
+    properties:
+      articles:
+        description: Relation
+        items:
+          $ref: '#/definitions/models.Article'
+        type: array
+      created_at:
+        type: string
+      description:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      slug:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  models.Tag:
+    properties:
+      articles:
+        description: Many-to-many relation with articles
+        items:
+          $ref: '#/definitions/models.Article'
+        type: array
+      created_at:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      slug:
         type: string
       updated_at:
         type: string
@@ -479,6 +628,84 @@ paths:
       summary: Update an achievement
       tags:
       - achievements
+  /activity-logs:
+    get:
+      description: Get paginated activity logs (super_admin only)
+      parameters:
+      - description: 'Page number (default: 1)'
+        in: query
+        name: page
+        type: integer
+      - description: 'Items per page (default: 20)'
+        in: query
+        name: limit
+        type: integer
+      - description: Filter by user ID
+        in: query
+        name: user_id
+        type: integer
+      - description: Filter by action (CREATE, UPDATE, DELETE, LOGIN, LOGOUT, VERIFY)
+        in: query
+        name: action
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Get all activity logs
+      tags:
+      - activity-logs
+  /activity-logs/{entity_type}/{entity_id}:
+    get:
+      description: Get activity logs for a specific entity (super_admin only)
+      parameters:
+      - description: Entity type (article, santri, gallery, etc.)
+        in: path
+        name: entity_type
+        required: true
+        type: string
+      - description: Entity ID
+        in: path
+        name: entity_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Get activity logs by entity
+      tags:
+      - activity-logs
   /admins:
     get:
       description: Retrieve list of all admin users
@@ -758,6 +985,68 @@ paths:
       summary: Update an article
       tags:
       - articles
+  /articles/category:
+    get:
+      description: Get articles filtered by category ID
+      parameters:
+      - description: Category ID
+        in: query
+        name: category_id
+        required: true
+        type: integer
+      - description: 'Page number (default: 1)'
+        in: query
+        name: page
+        type: integer
+      - description: 'Items per page (default: 10)'
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+      summary: Get articles by category
+      tags:
+      - articles
+  /articles/search:
+    get:
+      description: Search articles by title or content
+      parameters:
+      - description: Search query
+        in: query
+        name: q
+        required: true
+        type: string
+      - description: 'Page number (default: 1)'
+        in: query
+        name: page
+        type: integer
+      - description: 'Items per page (default: 10)'
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+      summary: Search articles
+      tags:
+      - articles
   /articles/slug/{slug}:
     get:
       description: Get a single article by its URL slug
@@ -781,6 +1070,255 @@ paths:
       summary: Get article by slug
       tags:
       - articles
+  /articles/tag:
+    get:
+      description: Get articles filtered by tag ID
+      parameters:
+      - description: Tag ID
+        in: query
+        name: tag_id
+        required: true
+        type: integer
+      - description: 'Page number (default: 1)'
+        in: query
+        name: page
+        type: integer
+      - description: 'Items per page (default: 10)'
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+      summary: Get articles by tag
+      tags:
+      - articles
+  /categories:
+    get:
+      description: Get all article categories
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+      summary: Get all categories
+      tags:
+      - categories
+    post:
+      consumes:
+      - application/json
+      description: Create a new article category (admin only)
+      parameters:
+      - description: Category data
+        in: body
+        name: category
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateCategoryRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Create a new category
+      tags:
+      - categories
+  /categories/{id}:
+    delete:
+      description: Delete a category (admin only)
+      parameters:
+      - description: Category ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Delete a category
+      tags:
+      - categories
+    get:
+      description: Get a single category by its ID
+      parameters:
+      - description: Category ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+      summary: Get category by ID
+      tags:
+      - categories
+    put:
+      consumes:
+      - application/json
+      description: Update an existing category (admin only)
+      parameters:
+      - description: Category ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Updated category data
+        in: body
+        name: category
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateCategoryRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Update a category
+      tags:
+      - categories
+  /cleanup/cloudinary/delete:
+    post:
+      consumes:
+      - application/json
+      description: Delete a specific image from Cloudinary using its URL (super_admin
+        only)
+      parameters:
+      - description: Image URL to delete
+        in: body
+        name: input
+        required: true
+        schema:
+          properties:
+            url:
+              type: string
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Delete an image from Cloudinary by URL
+      tags:
+      - cleanup
+  /cleanup/cloudinary/usage:
+    get:
+      description: Get storage and bandwidth usage from Cloudinary (super_admin only)
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Get Cloudinary usage statistics
+      tags:
+      - cleanup
   /contact:
     post:
       consumes:
@@ -830,6 +1368,34 @@ paths:
       summary: Get dashboard statistics
       tags:
       - dashboard
+  /export/santri/excel:
+    get:
+      description: Export all or filtered santri data to Excel file (admin only)
+      parameters:
+      - description: Filter by status (PENDING, VERIFIED, ACCEPTED, REJECTED)
+        in: query
+        name: status
+        type: string
+      produces:
+      - application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: file
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Export santri data to Excel
+      tags:
+      - export
   /galleries:
     get:
       description: Get all gallery albums
@@ -1239,12 +1805,21 @@ paths:
       - psb
   /psb/registrants:
     get:
-      description: Get all PSB registrants with optional status filter (admin only)
+      description: Get all PSB registrants with optional status filter and pagination
+        (admin only)
       parameters:
       - description: Filter by status (PENDING, VERIFIED, ACCEPTED, REJECTED)
         in: query
         name: status
         type: string
+      - description: 'Page number (default: 1)'
+        in: query
+        name: page
+        type: integer
+      - description: 'Items per page (default: 10)'
+        in: query
+        name: limit
+        type: integer
       produces:
       - application/json
       responses:
@@ -1266,6 +1841,38 @@ paths:
       tags:
       - psb
   /psb/registrants/{id}:
+    delete:
+      description: Delete a registrant (admin only)
+      parameters:
+      - description: Registrant ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Delete registrant
+      tags:
+      - psb
     get:
       description: Get a single registrant's detail (admin only)
       parameters:
@@ -1298,6 +1905,46 @@ paths:
       summary: Get registrant by ID
       tags:
       - psb
+    put:
+      consumes:
+      - application/json
+      description: Update a registrant's data (admin only)
+      parameters:
+      - description: Registrant ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Update data
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateSantriRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Update registrant data
+      tags:
+      - psb
   /psb/registrants/{id}/status:
     put:
       consumes:
@@ -1314,10 +1961,7 @@ paths:
         name: status
         required: true
         schema:
-          properties:
-            status:
-              type: string
-          type: object
+          $ref: '#/definitions/dto.UpdateSantriStatusRequest'
       produces:
       - application/json
       responses:
@@ -1358,14 +2002,7 @@ paths:
         name: input
         required: true
         schema:
-          properties:
-            class:
-              type: string
-            entry_year:
-              type: integer
-            nis:
-              type: string
-          type: object
+          $ref: '#/definitions/dto.VerifySantriRequest'
       produces:
       - application/json
       responses:
@@ -1440,6 +2077,153 @@ paths:
       summary: Refresh access token
       tags:
       - auth
+  /tags:
+    get:
+      description: Get all article tags
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+      summary: Get all tags
+      tags:
+      - tags
+    post:
+      consumes:
+      - application/json
+      description: Create a new article tag (admin only)
+      parameters:
+      - description: Tag data
+        in: body
+        name: tag
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateTagRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Create a new tag
+      tags:
+      - tags
+  /tags/{id}:
+    delete:
+      description: Delete a tag (admin only)
+      parameters:
+      - description: Tag ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Delete a tag
+      tags:
+      - tags
+    get:
+      description: Get a single tag by its ID
+      parameters:
+      - description: Tag ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+      summary: Get tag by ID
+      tags:
+      - tags
+    put:
+      consumes:
+      - application/json
+      description: Update an existing tag (admin only)
+      parameters:
+      - description: Tag ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Updated tag data
+        in: body
+        name: tag
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateTagRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Update a tag
+      tags:
+      - tags
   /upload:
     post:
       consumes:

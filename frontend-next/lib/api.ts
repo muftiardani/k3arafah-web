@@ -19,6 +19,7 @@ const api = axios.create({
   headers: {
     "Content-Type": "application/json",
   },
+  withCredentials: true, // Always send cookies with requests
 });
 
 // Helper to get CSRF Token
@@ -61,6 +62,24 @@ api.interceptors.request.use(
 );
 
 // Response interceptor for error handling
+// Token refresh state
+let isRefreshingToken = false;
+let refreshQueue: Array<{
+  resolve: (value?: unknown) => void;
+  reject: (reason?: unknown) => void;
+}> = [];
+
+const processRefreshQueue = (error: Error | null) => {
+  refreshQueue.forEach((prom) => {
+    if (error) {
+      prom.reject(error);
+    } else {
+      prom.resolve();
+    }
+  });
+  refreshQueue = [];
+};
+
 api.interceptors.response.use(
   (response) => {
     if (!IS_SERVER) {
@@ -95,9 +114,42 @@ api.interceptors.response.use(
         }
       }
 
-      // Handle 401 globally by redirecting to /login
-      if (status === 401) {
-        window.location.href = "/login";
+      // Handle 401 - Try to refresh token first
+      if (status === 401 && !originalRequest._retry) {
+        // Skip refresh for auth endpoints
+        const authEndpoints = ["/login", "/logout", "/refresh", "/csrf"];
+        const isAuthEndpoint = authEndpoints.some((ep) => originalRequest?.url?.includes(ep));
+
+        if (!isAuthEndpoint) {
+          if (isRefreshingToken) {
+            // Wait for the refresh to complete
+            return new Promise((resolve, reject) => {
+              refreshQueue.push({ resolve, reject });
+            })
+              .then(() => api(originalRequest))
+              .catch((err) => Promise.reject(err));
+          }
+
+          originalRequest._retry = true;
+          isRefreshingToken = true;
+
+          try {
+            // Try to refresh the token
+            await api.post("/refresh");
+            processRefreshQueue(null);
+            return api(originalRequest);
+          } catch (refreshError) {
+            processRefreshQueue(refreshError as Error);
+            // Refresh failed, redirect to login
+            window.location.href = "/login";
+            return Promise.reject(refreshError);
+          } finally {
+            isRefreshingToken = false;
+          }
+        } else {
+          // Auth endpoint failed, redirect to login
+          window.location.href = "/login";
+        }
       }
 
       // Handle 500 Server Error

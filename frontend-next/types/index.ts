@@ -1,50 +1,61 @@
-export interface User {
-  id: number;
-  username: string;
-  created_at: string;
-  updated_at: string;
-}
+/**
+ * Centralized type exports
+ * Re-exports from service files which have complete Zod-validated definitions
+ */
 
-export interface Article {
-  id: number;
-  title: string;
-  slug: string;
-  content: string;
-  thumbnail_url: string;
-  is_published: boolean;
-  author_id: number;
-  author?: User;
-  created_at: string;
-  updated_at: string;
-}
+// Re-export Santri types from psbService (single source of truth)
+export type {
+  Santri,
+  SantriStatus,
+  VerifySantriData,
+  PSBRegistrationData,
+} from "@/lib/services/psbService";
 
-export type SantriStatus = "PENDING" | "VERIFIED" | "ACCEPTED" | "REJECTED";
+// Re-export Article types from articleService (single source of truth)
+export type {
+  Article,
+  PaginatedResponse,
+  PaginationMeta,
+  CreateArticleData,
+  UpdateArticleData,
+} from "@/lib/services/articleService";
 
-export interface Santri {
-  id: number;
-  full_name: string;
-  nik: string;
-  birth_place: string;
-  birth_date: string;
-  gender: string;
-  address: string;
-  parent_name: string;
-  parent_phone: string;
-  status: SantriStatus;
-  created_at: string;
-  updated_at: string;
-}
+// Re-export Gallery types from galleryService
+export type {
+  Gallery,
+  GalleryPhoto,
+  CreateGalleryData,
+  UpdateGalleryData,
+} from "@/lib/services/galleryService";
+
+// Re-export Video types from videoService
+export type { Video, CreateVideoData, UpdateVideoData } from "@/lib/services/videoService";
+
+// Re-export Achievement types from achievementService
+export type {
+  Achievement,
+  CreateAchievementData,
+  UpdateAchievementData,
+} from "@/lib/services/achievementService";
+
+// Re-export Message types from contactService
+export type { Message, ContactFormData } from "@/lib/services/contactService";
+
+// Re-export User type from authService (single source of truth)
+export type { User } from "@/lib/services/authService";
 
 export interface ApiResponse<T> {
+  status: boolean;
+  message: string;
   data: T;
-  message?: string;
   error?: string;
 }
 
 export interface LoginResponse {
   token: string;
   user: {
-    username: string;
     id: number;
+    username: string;
+    role: string;
   };
 }

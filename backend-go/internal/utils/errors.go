@@ -2,6 +2,7 @@ package utils
 
 import (
 	"errors"
+	"strings"
 
 	"gorm.io/gorm"
 )
@@ -32,11 +33,26 @@ func NewAppError(code int, message string) *AppError {
 
 // MapDBError converts database errors to AppErrors or Sentinel Errors
 func HandleDBError(err error) error {
+	if err == nil {
+		return nil
+	}
+
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return ErrNotFound
 	}
 	if errors.Is(err, gorm.ErrDuplicatedKey) {
 		return ErrConflict
 	}
+
+	// PostgreSQL unique constraint violation detection
+	errStr := err.Error()
+	if strings.Contains(errStr, "duplicate key") ||
+		strings.Contains(errStr, "unique constraint") ||
+		strings.Contains(errStr, "UNIQUE constraint") ||
+		strings.Contains(errStr, "23505") { // PostgreSQL error code for unique_violation
+		return ErrConflict
+	}
+
 	return err
 }
+

@@ -4,6 +4,7 @@ import { Calendar, User } from "lucide-react";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { fadeIn, slideUp, staggerContainer } from "@/lib/animations";
+import { formatDate } from "@/lib/utils/date";
 
 import { Article } from "@/lib/services/articleService";
 
@@ -34,11 +35,7 @@ export default function ArticleDetailContent({ article }: ArticleDetailContentPr
           </div>
           <div className="flex items-center gap-1">
             <Calendar className="h-4 w-4" />
-            <span>
-              {new Date(article.published_at).toLocaleDateString("id-ID", {
-                dateStyle: "long",
-              })}
-            </span>
+            <span>{formatDate(article.published_at, "long")}</span>
           </div>
         </div>
       </motion.div>
