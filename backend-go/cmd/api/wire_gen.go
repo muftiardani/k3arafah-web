@@ -54,6 +54,25 @@ func InitializeAPI() (*gin.Engine, error) {
 	achievementService := services.NewAchievementService(achievementRepository)
 	achievementHandler := handlers.NewAchievementHandler(achievementService)
 	healthHandler := handlers.NewHealthHandler()
+	categoryRepository := repository.NewCategoryRepository(db)
+	categoryService := services.NewCategoryService(categoryRepository)
+	categoryHandler := handlers.NewCategoryHandler(categoryService)
+	tagRepository := repository.NewTagRepository(db)
+	tagService := services.NewTagService(tagRepository)
+	tagHandler := handlers.NewTagHandler(tagService)
+	activityLogRepository := repository.NewActivityLogRepository(db)
+	activityLogService := services.NewActivityLogService(activityLogRepository)
+	activityLogHandler := handlers.NewActivityLogHandler(activityLogService)
+	emailService := services.NewEmailService()
+	exportService := services.NewExportService(santriRepository)
+	exportHandler := handlers.NewExportHandler(exportService)
+	cleanupHandler := handlers.NewCleanupHandler(mediaService)
+
+	// Initialize global service helpers for async logging and email
+	services.SetActivityLogger(activityLogService)
+	services.SetEmailer(emailService)
+	services.SetMediaCleaner(mediaService)
+
 	apiHandlers := api.Handlers{
 		AuthHandler:        authHandler,
 		PSBHandler:         psbHandler,
@@ -65,6 +84,11 @@ func InitializeAPI() (*gin.Engine, error) {
 		VideoHandler:       videoHandler,
 		AchievementHandler: achievementHandler,
 		HealthHandler:      healthHandler,
+		CategoryHandler:    categoryHandler,
+		TagHandler:         tagHandler,
+		ActivityLogHandler: activityLogHandler,
+		ExportHandler:      exportHandler,
+		CleanupHandler:     cleanupHandler,
 	}
 	engine := api.NewRouter(apiHandlers)
 	return engine, nil
@@ -77,9 +101,9 @@ func ProvideDB() *gorm.DB {
 }
 
 var repositorySet = wire.NewSet(
-	ProvideDB, repository.NewUserRepository, repository.NewSantriRepository, repository.NewArticleRepository, repository.NewGalleryRepository, repository.NewMessageRepository,
+	ProvideDB, repository.NewUserRepository, repository.NewSantriRepository, repository.NewArticleRepository, repository.NewGalleryRepository, repository.NewMessageRepository, repository.NewVideoRepository, repository.NewAchievementRepository, repository.NewCategoryRepository, repository.NewTagRepository, repository.NewActivityLogRepository,
 )
 
-var serviceSet = wire.NewSet(services.NewMediaService, services.NewCacheService, services.NewAuthService, services.NewPSBService, services.NewArticleService, services.NewDashboardService, services.NewGalleryService, services.NewMessageService)
+var serviceSet = wire.NewSet(services.NewMediaService, services.NewCacheService, services.NewAuthService, services.NewPSBService, services.NewArticleService, services.NewDashboardService, services.NewGalleryService, services.NewMessageService, services.NewVideoService, services.NewAchievementService, services.NewCategoryService, services.NewTagService, services.NewActivityLogService, services.NewEmailService, services.NewExportService)
 
-var handlerSet = wire.NewSet(handlers.NewAuthHandler, handlers.NewPSBHandler, handlers.NewArticleHandler, handlers.NewMediaHandler, handlers.NewDashboardHandler, handlers.NewGalleryHandler, handlers.NewMessageHandler)
+var handlerSet = wire.NewSet(handlers.NewAuthHandler, handlers.NewPSBHandler, handlers.NewArticleHandler, handlers.NewMediaHandler, handlers.NewDashboardHandler, handlers.NewGalleryHandler, handlers.NewMessageHandler, handlers.NewVideoHandler, handlers.NewAchievementHandler, handlers.NewHealthHandler, handlers.NewCategoryHandler, handlers.NewTagHandler, handlers.NewActivityLogHandler, handlers.NewExportHandler, handlers.NewCleanupHandler)

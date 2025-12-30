@@ -73,8 +73,22 @@ func (s *galleryService) UpdateGallery(ctx context.Context, id uint, galleryData
 }
 
 func (s *galleryService) DeleteGallery(ctx context.Context, id uint) error {
-	// Note: Photos are cascade deleted in DB but not removed from Cloudinary storage.
-	// For full cleanup, implement Cloudinary delete API integration.
+	// Get gallery with photos to cleanup Cloudinary
+	gallery, err := s.repo.FindByID(ctx, id)
+	if err != nil {
+		return err
+	}
+
+	// Cleanup cover image from Cloudinary
+	if gallery.CoverURL != "" {
+		_ = s.mediaService.DeleteImageByURL(ctx, gallery.CoverURL)
+	}
+
+	// Cleanup all photo images from Cloudinary
+	for _, photo := range gallery.Photos {
+		_ = s.mediaService.DeleteImageByURL(ctx, photo.PhotoURL)
+	}
+
 	return s.repo.Delete(ctx, id)
 }
 
@@ -117,10 +131,21 @@ func (s *galleryService) AddPhotos(ctx context.Context, galleryID uint, files []
 	if uploadedCount == 0 && failedCount > 0 {
 		return utils.NewAppError(400, "Failed to upload any photos")
 	}
-	
+
 	return nil
 }
 
 func (s *galleryService) DeletePhoto(ctx context.Context, photoID uint) error {
+	// Get photo to cleanup Cloudinary
+	photo, err := s.repo.FindPhotoByID(ctx, photoID)
+	if err != nil {
+		return err
+	}
+
+	// Cleanup from Cloudinary
+	if photo.PhotoURL != "" {
+		_ = s.mediaService.DeleteImageByURL(ctx, photo.PhotoURL)
+	}
+
 	return s.repo.DeletePhoto(ctx, photoID)
 }

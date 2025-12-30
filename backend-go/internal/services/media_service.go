@@ -2,6 +2,7 @@ package services
 
 import (
 	"backend-go/config"
+	"backend-go/internal/logger"
 	"context"
 	"errors"
 	"fmt"
@@ -11,7 +12,9 @@ import (
 	"strings"
 
 	"github.com/cloudinary/cloudinary-go/v2"
+	"github.com/cloudinary/cloudinary-go/v2/api/admin"
 	"github.com/cloudinary/cloudinary-go/v2/api/uploader"
+	"go.uber.org/zap"
 )
 
 // File upload constraints
@@ -29,6 +32,19 @@ var ErrInvalidFileType = errors.New("file type not allowed. Allowed types: JPEG,
 type MediaService interface {
 	UploadImage(ctx context.Context, file multipart.File, header *multipart.FileHeader, folder string) (string, error)
 	ValidateFile(file multipart.File, header *multipart.FileHeader) error
+	DeleteImage(ctx context.Context, publicID string) error
+	DeleteImageByURL(ctx context.Context, imageURL string) error
+	GetUsageStats(ctx context.Context) (*CloudinaryUsage, error)
+}
+
+// CloudinaryUsage represents Cloudinary storage usage
+type CloudinaryUsage struct {
+	UsedStorage     int64   `json:"used_storage"`
+	UsedBandwidth   int64   `json:"used_bandwidth"`
+	TotalResources  int     `json:"total_resources"`
+	StorageLimit    int64   `json:"storage_limit"`
+	BandwidthLimit  int64   `json:"bandwidth_limit"`
+	UsagePercentage float64 `json:"usage_percentage"`
 }
 
 type mediaService struct {
@@ -72,7 +88,7 @@ func (s *mediaService) ValidateFile(file multipart.File, header *multipart.FileH
 
 	// Detect actual MIME type from file content
 	mimeType := http.DetectContentType(buff)
-	
+
 	// Check if MIME type is allowed
 	if !strings.Contains(AllowedMimeTypes, mimeType) {
 		return fmt.Errorf("%w: got %s", ErrInvalidFileType, mimeType)
@@ -98,4 +114,95 @@ func (s *mediaService) UploadImage(ctx context.Context, file multipart.File, hea
 	}
 
 	return uploadResult.SecureURL, nil
+}
+
+// DeleteImage deletes an image from Cloudinary by its public ID
+func (s *mediaService) DeleteImage(ctx context.Context, publicID string) error {
+	if publicID == "" {
+		return errors.New("public ID is required")
+	}
+
+	result, err := s.cld.Upload.Destroy(ctx, uploader.DestroyParams{
+		PublicID: publicID,
+	})
+	if err != nil {
+		logger.Error("Failed to delete image from Cloudinary", zap.String("publicId", publicID), zap.Error(err))
+		return fmt.Errorf("failed to delete image: %w", err)
+	}
+
+	if result.Result != "ok" {
+		logger.Warn("Image deletion returned non-ok result", zap.String("publicId", publicID), zap.String("result", result.Result))
+	}
+
+	logger.Info("Image deleted from Cloudinary", zap.String("publicId", publicID))
+	return nil
+}
+
+// DeleteImageByURL extracts the public ID from a Cloudinary URL and deletes the image
+func (s *mediaService) DeleteImageByURL(ctx context.Context, imageURL string) error {
+	if imageURL == "" {
+		return nil // Nothing to delete
+	}
+
+	// Extract public ID from URL
+	// URL format: https://res.cloudinary.com/{cloud_name}/image/upload/v{version}/{folder}/{public_id}.{format}
+	publicID := extractPublicIDFromURL(imageURL)
+	if publicID == "" {
+		logger.Warn("Could not extract public ID from URL", zap.String("url", imageURL))
+		return nil // Can't extract, skip silently
+	}
+
+	return s.DeleteImage(ctx, publicID)
+}
+
+// GetUsageStats retrieves Cloudinary account usage statistics
+func (s *mediaService) GetUsageStats(ctx context.Context) (*CloudinaryUsage, error) {
+	result, err := s.cld.Admin.Usage(ctx, admin.UsageParams{})
+	if err != nil {
+		return nil, fmt.Errorf("failed to get Cloudinary usage: %w", err)
+	}
+
+	usage := &CloudinaryUsage{
+		UsedStorage:    result.Storage.Usage,
+		UsedBandwidth:  result.Bandwidth.Usage,
+		TotalResources: result.Resources,
+		StorageLimit:   result.Storage.Limit,
+		BandwidthLimit: result.Bandwidth.Limit,
+	}
+
+	if usage.StorageLimit > 0 {
+		usage.UsagePercentage = float64(usage.UsedStorage) / float64(usage.StorageLimit) * 100
+	}
+
+	return usage, nil
+}
+
+// extractPublicIDFromURL extracts the Cloudinary public ID from a URL
+func extractPublicIDFromURL(url string) string {
+	// Example URL: https://res.cloudinary.com/demo/image/upload/v1234567890/folder/image_name.jpg
+
+	// Find "/upload/" and get everything after it
+	uploadIdx := strings.Index(url, "/upload/")
+	if uploadIdx == -1 {
+		return ""
+	}
+
+	// Get the path after /upload/
+	path := url[uploadIdx+8:] // 8 = len("/upload/")
+
+	// Remove version if present (starts with v followed by digits)
+	if len(path) > 0 && path[0] == 'v' {
+		slashIdx := strings.Index(path, "/")
+		if slashIdx != -1 {
+			path = path[slashIdx+1:]
+		}
+	}
+
+	// Remove file extension
+	lastDotIdx := strings.LastIndex(path, ".")
+	if lastDotIdx != -1 {
+		path = path[:lastDotIdx]
+	}
+
+	return path
 }

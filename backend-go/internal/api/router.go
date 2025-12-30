@@ -21,6 +21,11 @@ type Handlers struct {
 	VideoHandler       *handlers.VideoHandler
 	AchievementHandler *handlers.AchievementHandler
 	HealthHandler      *handlers.HealthHandler
+	CategoryHandler    *handlers.CategoryHandler
+	TagHandler         *handlers.TagHandler
+	ActivityLogHandler *handlers.ActivityLogHandler
+	ExportHandler      *handlers.ExportHandler
+	CleanupHandler     *handlers.CleanupHandler
 }
 
 func NewRouter(h Handlers) *gin.Engine {
@@ -60,6 +65,9 @@ func NewRouter(h Handlers) *gin.Engine {
 		api.POST("/refresh", h.AuthHandler.RefreshToken) // New refresh token endpoint
 		api.POST("/psb/register", h.PSBHandler.Register)
 		api.GET("/articles", h.ArticleHandler.GetAll)
+		api.GET("/articles/search", h.ArticleHandler.Search)
+		api.GET("/articles/category", h.ArticleHandler.GetByCategory)
+		api.GET("/articles/tag", h.ArticleHandler.GetByTag)
 		api.GET("/articles/:id", h.ArticleHandler.GetDetail)
 		api.GET("/articles/slug/:slug", h.ArticleHandler.GetDetailBySlug)
 
@@ -74,7 +82,15 @@ func NewRouter(h Handlers) *gin.Engine {
 
 		// Public Achievement Routes
 		api.GET("/achievements", h.AchievementHandler.GetAll)
-        
+
+		// Public Category Routes
+		api.GET("/categories", h.CategoryHandler.GetAll)
+		api.GET("/categories/:id", h.CategoryHandler.GetByID)
+
+		// Public Tag Routes
+		api.GET("/tags", h.TagHandler.GetAll)
+		api.GET("/tags/:id", h.TagHandler.GetByID)
+
 		// Protected Routes
 		protected := api.Group("/")
 		protected.Use(middleware.AuthMiddleware())
@@ -83,6 +99,8 @@ func NewRouter(h Handlers) *gin.Engine {
 
 			protected.GET("/psb/registrants", h.PSBHandler.GetAll)
 			protected.GET("/psb/registrants/:id", h.PSBHandler.GetDetail)
+			protected.PUT("/psb/registrants/:id", h.PSBHandler.Update)
+			protected.DELETE("/psb/registrants/:id", h.PSBHandler.Delete)
 			protected.PUT("/psb/registrants/:id/status", h.PSBHandler.UpdateStatus)
 			protected.PUT("/psb/registrants/:id/verify", h.PSBHandler.Verify)
 
@@ -99,7 +117,7 @@ func NewRouter(h Handlers) *gin.Engine {
 			protected.PUT("/articles/:id", h.ArticleHandler.Update)
 			protected.DELETE("/articles/:id", h.ArticleHandler.Delete)
 
-	// Gallery Routes (Admin Management)
+			// Gallery Routes (Admin Management)
 			protected.POST("/galleries", h.GalleryHandler.Create)
 			protected.PUT("/galleries/:id", h.GalleryHandler.Update)
 			protected.DELETE("/galleries/:id", h.GalleryHandler.Delete)
@@ -117,6 +135,16 @@ func NewRouter(h Handlers) *gin.Engine {
 			protected.PUT("/achievements/:id", h.AchievementHandler.Update)
 			protected.DELETE("/achievements/:id", h.AchievementHandler.Delete)
 
+			// Category Routes (Admin)
+			protected.POST("/categories", h.CategoryHandler.Create)
+			protected.PUT("/categories/:id", h.CategoryHandler.Update)
+			protected.DELETE("/categories/:id", h.CategoryHandler.Delete)
+
+			// Tag Routes (Admin)
+			protected.POST("/tags", h.TagHandler.Create)
+			protected.PUT("/tags/:id", h.TagHandler.Update)
+			protected.DELETE("/tags/:id", h.TagHandler.Delete)
+
 			// Super Admin Routes
 			superAdmin := protected.Group("/")
 			superAdmin.Use(middleware.RBACMiddleware("super_admin"))
@@ -125,6 +153,17 @@ func NewRouter(h Handlers) *gin.Engine {
 				superAdmin.GET("/admins", h.AuthHandler.GetAllAdmins)
 				superAdmin.DELETE("/admins/:id", h.AuthHandler.DeleteAdmin)
 				superAdmin.PUT("/admins/:id/password", h.AuthHandler.UpdateAdminPassword)
+
+				// Activity Log Routes (Super Admin)
+				superAdmin.GET("/activity-logs", h.ActivityLogHandler.GetAll)
+				superAdmin.GET("/activity-logs/:entity_type/:entity_id", h.ActivityLogHandler.GetByEntity)
+
+				// Export Routes (Super Admin)
+				superAdmin.GET("/export/santri/excel", h.ExportHandler.ExportSantriExcel)
+
+				// Cleanup Routes (Super Admin)
+				superAdmin.GET("/cleanup/cloudinary/usage", h.CleanupHandler.GetCloudinaryUsage)
+				superAdmin.POST("/cleanup/cloudinary/delete", h.CleanupHandler.DeleteImageByURL)
 			}
 		}
 	}

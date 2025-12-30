@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"backend-go/internal/dto"
+	"backend-go/internal/models"
 	"backend-go/internal/services"
 	"backend-go/internal/utils"
 	"net/http"
@@ -43,9 +44,14 @@ func (h *AuthHandler) Login(c *gin.Context) {
 		return
 	}
 
+	// Log login activity
+	if tokenPair.User.ID > 0 {
+		services.LogActivityAsync(c.Request.Context(), tokenPair.User.ID, models.ActionLogin, "auth", nil, nil, map[string]string{"username": input.Username}, c.ClientIP(), c.GetHeader("User-Agent"))
+	}
+
 	// Set access token in HttpOnly cookie
 	c.SetCookie("auth_token", tokenPair.AccessToken, int(tokenPair.ExpiresIn), "/", "", false, true)
-	
+
 	// Set refresh token in HttpOnly cookie with longer expiry
 	c.SetCookie("refresh_token", tokenPair.RefreshToken, 7*24*3600, "/", "", false, true)
 
@@ -99,10 +105,18 @@ func (h *AuthHandler) RefreshToken(c *gin.Context) {
 // @Success      200  {object} utils.APIResponse
 // @Router       /logout [post]
 func (h *AuthHandler) Logout(c *gin.Context) {
+	// Get user ID before logout
+	userID, _ := c.Get("user_id")
+
 	// Get refresh token from cookie to blacklist it
 	if refreshToken, err := c.Cookie("refresh_token"); err == nil && refreshToken != "" {
 		// Blacklist the refresh token to prevent reuse
 		_ = h.service.BlacklistToken(c.Request.Context(), refreshToken)
+	}
+
+	// Log logout activity
+	if uid, ok := userID.(uint); ok {
+		services.LogActivityAsync(c.Request.Context(), uid, models.ActionLogout, "auth", nil, nil, nil, c.ClientIP(), c.GetHeader("User-Agent"))
 	}
 
 	// Clear both cookies

@@ -15,6 +15,9 @@ type Article struct {
 	IsPublished  bool           `gorm:"default:false" json:"is_published"`
 	AuthorID     uint           `json:"author_id"`
 	Author       User           `json:"author" gorm:"foreignKey:AuthorID"`
+	CategoryID   *uint          `json:"category_id"`
+	Category     *Category      `json:"category,omitempty" gorm:"foreignKey:CategoryID"`
+	Tags         []Tag          `json:"tags,omitempty" gorm:"many2many:article_tags;"`
 	CreatedAt    time.Time      `json:"created_at"`
 	UpdatedAt    time.Time      `json:"updated_at"`
 	DeletedAt    gorm.DeletedAt `gorm:"index" json:"-"`

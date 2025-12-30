@@ -37,3 +37,30 @@ type VerifySantriRequest struct {
 	Class     string `json:"class" binding:"required,min=1,max=10"`
 	EntryYear int    `json:"entry_year" binding:"required,min=2000,max=2100"`
 }
+
+// UpdateSantriRequest is the DTO for updating santri data
+type UpdateSantriRequest struct {
+	FullName    string `json:"full_name" binding:"omitempty,min=3,max=100"`
+	NIK         string `json:"nik" binding:"omitempty,len=16,numeric"`
+	BirthPlace  string `json:"birth_place" binding:"omitempty,min=2,max=50"`
+	BirthDate   string `json:"birth_date" binding:"omitempty"`
+	Gender      string `json:"gender" binding:"omitempty,oneof=L P"`
+	Address     string `json:"address" binding:"omitempty,min=10,max=500"`
+	ParentName  string `json:"parent_name" binding:"omitempty,min=3,max=100"`
+	ParentPhone string `json:"parent_phone" binding:"omitempty,min=10,max=15"`
+	PhotoURL    string `json:"photo_url" binding:"omitempty,url"`
+}
+
+// PaginationMeta contains pagination metadata
+type PaginationMeta struct {
+	Page       int   `json:"page"`
+	Limit      int   `json:"limit"`
+	TotalItems int64 `json:"total_items"`
+	TotalPages int   `json:"total_pages"`
+}
+
+// PaginatedSantriResponse is the response for paginated santri list
+type PaginatedSantriResponse struct {
+	Items []interface{}  `json:"items"`
+	Meta  PaginationMeta `json:"meta"`
+}

@@ -51,6 +51,12 @@ func (h *AchievementHandler) Create(c *gin.Context) {
 		return
 	}
 
+	// Log activity
+	userID, _ := c.Get("user_id")
+	if uid, ok := userID.(uint); ok {
+		services.LogActivityAsync(c.Request.Context(), uid, models.ActionCreate, "achievement", &achievement.ID, nil, achievement, c.ClientIP(), c.GetHeader("User-Agent"))
+	}
+
 	utils.SuccessResponse(c, http.StatusCreated, "Achievement created successfully", achievement)
 }
 
@@ -96,6 +102,13 @@ func (h *AchievementHandler) Delete(c *gin.Context) {
 		return
 	}
 
+	// Log activity
+	userID, _ := c.Get("user_id")
+	if uid, ok := userID.(uint); ok {
+		entityID := uint(id)
+		services.LogActivityAsync(c.Request.Context(), uid, models.ActionDelete, "achievement", &entityID, nil, nil, c.ClientIP(), c.GetHeader("User-Agent"))
+	}
+
 	utils.SuccessResponse(c, http.StatusOK, "Achievement deleted successfully", nil)
 }
 
@@ -137,6 +150,13 @@ func (h *AchievementHandler) Update(c *gin.Context) {
 	if err := h.service.UpdateAchievement(c.Request.Context(), uint(id), achievement); err != nil {
 		utils.ResponseWithError(c, err)
 		return
+	}
+
+	// Log activity
+	userID, _ := c.Get("user_id")
+	if uid, ok := userID.(uint); ok {
+		entityID := uint(id)
+		services.LogActivityAsync(c.Request.Context(), uid, models.ActionUpdate, "achievement", &entityID, nil, achievement, c.ClientIP(), c.GetHeader("User-Agent"))
 	}
 
 	utils.SuccessResponse(c, http.StatusOK, "Achievement updated successfully", nil)

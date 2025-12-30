@@ -49,6 +49,12 @@ func (h *VideoHandler) Create(c *gin.Context) {
 		return
 	}
 
+	// Log activity
+	userID, _ := c.Get("user_id")
+	if uid, ok := userID.(uint); ok {
+		services.LogActivityAsync(c.Request.Context(), uid, models.ActionCreate, "video", &video.ID, nil, video, c.ClientIP(), c.GetHeader("User-Agent"))
+	}
+
 	utils.SuccessResponse(c, http.StatusCreated, "Video created successfully", video)
 }
 
@@ -134,6 +140,13 @@ func (h *VideoHandler) Update(c *gin.Context) {
 		return
 	}
 
+	// Log activity
+	userID, _ := c.Get("user_id")
+	if uid, ok := userID.(uint); ok {
+		entityID := uint(id)
+		services.LogActivityAsync(c.Request.Context(), uid, models.ActionUpdate, "video", &entityID, nil, video, c.ClientIP(), c.GetHeader("User-Agent"))
+	}
+
 	utils.SuccessResponse(c, http.StatusOK, "Video updated successfully", nil)
 }
 
@@ -160,5 +173,13 @@ func (h *VideoHandler) Delete(c *gin.Context) {
 		utils.ResponseWithError(c, err)
 		return
 	}
+
+	// Log activity
+	userID, _ := c.Get("user_id")
+	if uid, ok := userID.(uint); ok {
+		entityID := uint(id)
+		services.LogActivityAsync(c.Request.Context(), uid, models.ActionDelete, "video", &entityID, nil, nil, c.ClientIP(), c.GetHeader("User-Agent"))
+	}
+
 	utils.SuccessResponse(c, http.StatusOK, "Video deleted successfully", nil)
 }

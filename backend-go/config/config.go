@@ -19,6 +19,12 @@ type Config struct {
 	Environment   string `mapstructure:"ENV"`
 	AllowedOrigin string `mapstructure:"ALLOWED_ORIGIN"`
 	CSRFSecret    string `mapstructure:"CSRF_SECRET" validate:"required"`
+	// SMTP Configuration (optional)
+	SMTPHost string `mapstructure:"SMTP_HOST"`
+	SMTPPort int    `mapstructure:"SMTP_PORT"`
+	SMTPUser string `mapstructure:"SMTP_USER"`
+	SMTPPass string `mapstructure:"SMTP_PASS"`
+	SMTPFrom string `mapstructure:"SMTP_FROM"`
 }
 
 var AppConfig Config

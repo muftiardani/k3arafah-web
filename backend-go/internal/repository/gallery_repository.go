@@ -19,6 +19,7 @@ type GalleryRepository interface {
 
 	// Photo methods
 	AddPhoto(ctx context.Context, photo *models.Photo) error
+	FindPhotoByID(ctx context.Context, id uint) (*models.Photo, error)
 	DeletePhoto(ctx context.Context, id uint) error
 }
 
@@ -76,6 +77,12 @@ func (r *galleryRepository) Count(ctx context.Context) (int64, error) {
 
 func (r *galleryRepository) AddPhoto(ctx context.Context, photo *models.Photo) error {
 	return utils.HandleDBError(r.db.WithContext(ctx).Create(photo).Error)
+}
+
+func (r *galleryRepository) FindPhotoByID(ctx context.Context, id uint) (*models.Photo, error) {
+	var photo models.Photo
+	err := r.db.WithContext(ctx).First(&photo, id).Error
+	return &photo, utils.HandleDBError(err)
 }
 
 func (r *galleryRepository) DeletePhoto(ctx context.Context, id uint) error {

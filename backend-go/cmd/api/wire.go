@@ -28,6 +28,9 @@ var repositorySet = wire.NewSet(
 	repository.NewMessageRepository,
 	repository.NewVideoRepository,
 	repository.NewAchievementRepository,
+	repository.NewCategoryRepository,
+	repository.NewTagRepository,
+	repository.NewActivityLogRepository,
 )
 
 var serviceSet = wire.NewSet(
@@ -41,6 +44,11 @@ var serviceSet = wire.NewSet(
 	services.NewMessageService,
 	services.NewVideoService,
 	services.NewAchievementService,
+	services.NewCategoryService,
+	services.NewTagService,
+	services.NewActivityLogService,
+	services.NewEmailService,
+	services.NewExportService,
 )
 
 var handlerSet = wire.NewSet(
@@ -54,6 +62,11 @@ var handlerSet = wire.NewSet(
 	handlers.NewVideoHandler,
 	handlers.NewAchievementHandler,
 	handlers.NewHealthHandler,
+	handlers.NewCategoryHandler,
+	handlers.NewTagHandler,
+	handlers.NewActivityLogHandler,
+	handlers.NewExportHandler,
+	handlers.NewCleanupHandler,
 )
 
 func InitializeAPI() (*gin.Engine, error) {

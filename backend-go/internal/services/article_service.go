@@ -18,6 +18,9 @@ type ArticleService interface {
 	GetAllArticlesPaginated(ctx context.Context, page, limit int) ([]models.Article, int64, error)
 	GetArticleByID(ctx context.Context, id uint) (*models.Article, error)
 	GetArticleBySlug(ctx context.Context, slug string) (*models.Article, error)
+	SearchArticles(ctx context.Context, query string, page, limit int) ([]models.Article, int64, error)
+	GetArticlesByCategory(ctx context.Context, categoryID uint, page, limit int) ([]models.Article, int64, error)
+	GetArticlesByTag(ctx context.Context, tagID uint, page, limit int) ([]models.Article, int64, error)
 	UpdateArticle(ctx context.Context, id uint, articleData *models.Article) error
 	DeleteArticle(ctx context.Context, id uint) error
 }
@@ -119,14 +122,27 @@ func (s *articleService) GetArticleBySlug(ctx context.Context, slug string) (*mo
 	return result, nil
 }
 
+func (s *articleService) SearchArticles(ctx context.Context, query string, page, limit int) ([]models.Article, int64, error) {
+	// No caching for search as queries vary greatly
+	return s.repo.Search(ctx, query, page, limit)
+}
+
+func (s *articleService) GetArticlesByCategory(ctx context.Context, categoryID uint, page, limit int) ([]models.Article, int64, error) {
+	return s.repo.FindByCategory(ctx, categoryID, page, limit)
+}
+
+func (s *articleService) GetArticlesByTag(ctx context.Context, tagID uint, page, limit int) ([]models.Article, int64, error) {
+	return s.repo.FindByTag(ctx, tagID, page, limit)
+}
+
 func (s *articleService) UpdateArticle(ctx context.Context, id uint, articleData *models.Article) error {
 	existing, err := s.repo.FindByID(ctx, id)
 	if err != nil {
 		return err
 	}
-	
+
 	p := bluemonday.UGCPolicy()
-	
+
 	existing.Title = articleData.Title
 	existing.Content = p.Sanitize(articleData.Content)
 	existing.ThumbnailURL = articleData.ThumbnailURL
@@ -137,18 +153,29 @@ func (s *articleService) UpdateArticle(ctx context.Context, id uint, articleData
 		s.cache.Delete(utils.CacheKeyArticlesAll)
 		s.cache.Delete(fmt.Sprintf(utils.CacheKeyArticlesIDPattern, id))
 		s.cache.Delete(fmt.Sprintf(utils.CacheKeyArticlesSlugPattern, existing.Slug))
-        s.cache.DeleteByPattern("articles:page:*")
+		s.cache.DeleteByPattern("articles:page:*")
 	}
 	return err
 }
 
 func (s *articleService) DeleteArticle(ctx context.Context, id uint) error {
-	err := s.repo.Delete(ctx, id)
+	// Get article to cleanup thumbnail
+	article, err := s.repo.FindByID(ctx, id)
+	if err != nil {
+		return err
+	}
+
+	// Cleanup thumbnail from Cloudinary asynchronously
+	if article.ThumbnailURL != "" {
+		CleanupImageAsync(article.ThumbnailURL)
+	}
+
+	err = s.repo.Delete(ctx, id)
 	if err == nil {
 		s.cache.Delete(utils.CacheKeyArticlesAll)
 		s.cache.Delete(fmt.Sprintf(utils.CacheKeyArticlesIDPattern, id))
 		s.cache.DeleteByPattern("articles:slug:*")
-        s.cache.DeleteByPattern("articles:page:*")
+		s.cache.DeleteByPattern("articles:page:*")
 	}
 	return err
 }

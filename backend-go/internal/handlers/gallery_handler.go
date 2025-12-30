@@ -55,6 +55,12 @@ func (h *GalleryHandler) Create(c *gin.Context) {
 		return
 	}
 
+	// Log activity
+	userID, _ := c.Get("user_id")
+	if uid, ok := userID.(uint); ok {
+		services.LogActivityAsync(c.Request.Context(), uid, models.ActionCreate, "gallery", &gallery.ID, nil, gallery, c.ClientIP(), c.GetHeader("User-Agent"))
+	}
+
 	utils.SuccessResponse(c, http.StatusCreated, "Gallery created successfully", gallery)
 }
 
@@ -174,6 +180,13 @@ func (h *GalleryHandler) Update(c *gin.Context) {
 		return
 	}
 
+	// Log activity
+	userID, _ := c.Get("user_id")
+	if uid, ok := userID.(uint); ok {
+		entityID := uint(id)
+		services.LogActivityAsync(c.Request.Context(), uid, models.ActionUpdate, "gallery", &entityID, nil, galleryData, c.ClientIP(), c.GetHeader("User-Agent"))
+	}
+
 	utils.SuccessResponse(c, http.StatusOK, "Gallery updated successfully", nil)
 }
 
@@ -200,6 +213,14 @@ func (h *GalleryHandler) Delete(c *gin.Context) {
 		utils.ResponseWithError(c, err)
 		return
 	}
+
+	// Log activity
+	userID, _ := c.Get("user_id")
+	if uid, ok := userID.(uint); ok {
+		entityID := uint(id)
+		services.LogActivityAsync(c.Request.Context(), uid, models.ActionDelete, "gallery", &entityID, nil, nil, c.ClientIP(), c.GetHeader("User-Agent"))
+	}
+
 	utils.SuccessResponse(c, http.StatusOK, "Gallery deleted successfully", nil)
 }
 

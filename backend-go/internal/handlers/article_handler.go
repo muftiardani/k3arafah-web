@@ -58,6 +58,9 @@ func (h *ArticleHandler) Create(c *gin.Context) {
 		return
 	}
 
+	// Log activity
+	services.LogActivityAsync(c.Request.Context(), userID.(uint), models.ActionCreate, "article", &article.ID, nil, article, c.ClientIP(), c.GetHeader("User-Agent"))
+
 	utils.SuccessResponse(c, http.StatusCreated, "Article created successfully", article)
 }
 
@@ -150,6 +153,174 @@ func (h *ArticleHandler) GetDetailBySlug(c *gin.Context) {
 	utils.SuccessResponse(c, http.StatusOK, "Article detail fetched successfully", article)
 }
 
+// Search godoc
+// @Summary      Search articles
+// @Description  Search articles by title or content
+// @Tags         articles
+// @Produce      json
+// @Param        q      query     string  true   "Search query"
+// @Param        page   query     int     false  "Page number (default: 1)"
+// @Param        limit  query     int     false  "Items per page (default: 10)"
+// @Success      200    {object}  utils.APIResponse
+// @Failure      400    {object}  utils.APIResponse
+// @Router       /articles/search [get]
+func (h *ArticleHandler) Search(c *gin.Context) {
+	query := c.Query("q")
+	if query == "" {
+		utils.ErrorResponse(c, http.StatusBadRequest, "Query parameter 'q' is required", nil)
+		return
+	}
+
+	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
+	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "10"))
+	if page < 1 {
+		page = 1
+	}
+	if limit < 1 || limit > 50 {
+		limit = 10
+	}
+
+	articles, total, err := h.service.SearchArticles(c.Request.Context(), query, page, limit)
+	if err != nil {
+		utils.ResponseWithError(c, err)
+		return
+	}
+
+	totalPages := int(total) / limit
+	if int(total)%limit > 0 {
+		totalPages++
+	}
+
+	response := map[string]interface{}{
+		"items": articles,
+		"meta": map[string]interface{}{
+			"page":        page,
+			"limit":       limit,
+			"total_items": total,
+			"total_pages": totalPages,
+			"query":       query,
+		},
+	}
+
+	utils.SuccessResponse(c, http.StatusOK, "Search results fetched successfully", response)
+}
+
+// GetByCategory godoc
+// @Summary      Get articles by category
+// @Description  Get articles filtered by category ID
+// @Tags         articles
+// @Produce      json
+// @Param        category_id  query     int  true   "Category ID"
+// @Param        page         query     int  false  "Page number (default: 1)"
+// @Param        limit        query     int  false  "Items per page (default: 10)"
+// @Success      200          {object}  utils.APIResponse
+// @Failure      400          {object}  utils.APIResponse
+// @Router       /articles/category [get]
+func (h *ArticleHandler) GetByCategory(c *gin.Context) {
+	categoryIDStr := c.Query("category_id")
+	if categoryIDStr == "" {
+		utils.ErrorResponse(c, http.StatusBadRequest, "Query parameter 'category_id' is required", nil)
+		return
+	}
+
+	categoryID, err := strconv.Atoi(categoryIDStr)
+	if err != nil {
+		utils.ErrorResponse(c, http.StatusBadRequest, "Invalid category_id", err.Error())
+		return
+	}
+
+	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
+	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "10"))
+	if page < 1 {
+		page = 1
+	}
+	if limit < 1 || limit > 50 {
+		limit = 10
+	}
+
+	articles, total, err := h.service.GetArticlesByCategory(c.Request.Context(), uint(categoryID), page, limit)
+	if err != nil {
+		utils.ResponseWithError(c, err)
+		return
+	}
+
+	totalPages := int(total) / limit
+	if int(total)%limit > 0 {
+		totalPages++
+	}
+
+	response := map[string]interface{}{
+		"items": articles,
+		"meta": map[string]interface{}{
+			"page":        page,
+			"limit":       limit,
+			"total_items": total,
+			"total_pages": totalPages,
+			"category_id": categoryID,
+		},
+	}
+
+	utils.SuccessResponse(c, http.StatusOK, "Articles by category fetched successfully", response)
+}
+
+// GetByTag godoc
+// @Summary      Get articles by tag
+// @Description  Get articles filtered by tag ID
+// @Tags         articles
+// @Produce      json
+// @Param        tag_id  query     int  true   "Tag ID"
+// @Param        page    query     int  false  "Page number (default: 1)"
+// @Param        limit   query     int  false  "Items per page (default: 10)"
+// @Success      200     {object}  utils.APIResponse
+// @Failure      400     {object}  utils.APIResponse
+// @Router       /articles/tag [get]
+func (h *ArticleHandler) GetByTag(c *gin.Context) {
+	tagIDStr := c.Query("tag_id")
+	if tagIDStr == "" {
+		utils.ErrorResponse(c, http.StatusBadRequest, "Query parameter 'tag_id' is required", nil)
+		return
+	}
+
+	tagID, err := strconv.Atoi(tagIDStr)
+	if err != nil {
+		utils.ErrorResponse(c, http.StatusBadRequest, "Invalid tag_id", err.Error())
+		return
+	}
+
+	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
+	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "10"))
+	if page < 1 {
+		page = 1
+	}
+	if limit < 1 || limit > 50 {
+		limit = 10
+	}
+
+	articles, total, err := h.service.GetArticlesByTag(c.Request.Context(), uint(tagID), page, limit)
+	if err != nil {
+		utils.ResponseWithError(c, err)
+		return
+	}
+
+	totalPages := int(total) / limit
+	if int(total)%limit > 0 {
+		totalPages++
+	}
+
+	response := map[string]interface{}{
+		"items": articles,
+		"meta": map[string]interface{}{
+			"page":        page,
+			"limit":       limit,
+			"total_items": total,
+			"total_pages": totalPages,
+			"tag_id":      tagID,
+		},
+	}
+
+	utils.SuccessResponse(c, http.StatusOK, "Articles by tag fetched successfully", response)
+}
+
 // Update godoc
 // @Summary      Update an article
 // @Description  Update an existing article (admin only)
@@ -190,6 +361,14 @@ func (h *ArticleHandler) Update(c *gin.Context) {
 		utils.ResponseWithError(c, err)
 		return
 	}
+
+	// Log activity
+	userID, _ := c.Get("user_id")
+	if uid, ok := userID.(uint); ok {
+		entityID := uint(id)
+		services.LogActivityAsync(c.Request.Context(), uid, models.ActionUpdate, "article", &entityID, nil, article, c.ClientIP(), c.GetHeader("User-Agent"))
+	}
+
 	utils.SuccessResponse(c, http.StatusOK, "Article updated successfully", nil)
 }
 
@@ -216,6 +395,14 @@ func (h *ArticleHandler) Delete(c *gin.Context) {
 		utils.ResponseWithError(c, err)
 		return
 	}
+
+	// Log activity
+	userID, _ := c.Get("user_id")
+	if uid, ok := userID.(uint); ok {
+		entityID := uint(id)
+		services.LogActivityAsync(c.Request.Context(), uid, models.ActionDelete, "article", &entityID, nil, nil, c.ClientIP(), c.GetHeader("User-Agent"))
+	}
+
 	utils.SuccessResponse(c, http.StatusOK, "Article deleted successfully", nil)
 }
 
