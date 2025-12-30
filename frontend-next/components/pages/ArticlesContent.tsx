@@ -2,25 +2,104 @@
 
 import { useTranslations } from "next-intl";
 import { Link } from "@/navigation";
-import { Calendar, User, ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
+import { Calendar, User, ArrowRight, ChevronLeft, ChevronRight, Search, X } from "lucide-react";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { fadeIn, staggerContainer, slideUp } from "@/lib/animations";
-import { usePaginatedArticles, articleKeys } from "@/lib/hooks";
-import { Article } from "@/lib/services/articleService";
+import { usePaginatedArticles } from "@/lib/hooks";
+import { useCategories } from "@/lib/hooks/useCategories";
+import { useTags } from "@/lib/hooks/useTags";
+import {
+  Article,
+  searchArticles,
+  getArticlesByCategory,
+  getArticlesByTag,
+  PaginatedResponse,
+} from "@/lib/services/articleService";
 import { ArticlesListSkeleton } from "@/components/ui/skeletons";
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
+import { useQuery } from "@tanstack/react-query";
 
 interface ArticlesContentProps {
   initialArticles?: Article[];
 }
 
+// Debounce hook
+function useDebounce<T>(value: T, delay: number): T {
+  const [debouncedValue, setDebouncedValue] = useState<T>(value);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedValue(value);
+    }, delay);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [value, delay]);
+
+  return debouncedValue;
+}
+
 export default function ArticlesContent({ initialArticles = [] }: ArticlesContentProps) {
   const t = useTranslations("Articles");
   const [page, setPage] = useState(1);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
+  const [selectedTag, setSelectedTag] = useState<number | null>(null);
   const LIMIT = 6;
 
-  const { data, isLoading, isError, isPlaceholderData } = usePaginatedArticles(page, LIMIT);
+  const debouncedSearch = useDebounce(searchQuery, 300);
+
+  // Fetch categories and tags for filters
+  const { data: categories = [] } = useCategories();
+  const { data: tags = [] } = useTags();
+
+  // Determine which query to use based on filters
+  const hasSearch = debouncedSearch.length > 0;
+  const hasCategory = selectedCategory !== null;
+  const hasTag = selectedTag !== null;
+  const hasFilters = hasSearch || hasCategory || hasTag;
+
+  // Default paginated articles (no filter)
+  const defaultQuery = usePaginatedArticles(page, LIMIT, { enabled: !hasFilters });
+
+  // Search query
+  const searchQueryResult = useQuery({
+    queryKey: ["articles", "search", debouncedSearch, page],
+    queryFn: () => searchArticles(debouncedSearch, page, LIMIT),
+    enabled: hasSearch && !hasCategory && !hasTag,
+  });
+
+  // Category filter query
+  const categoryQuery = useQuery({
+    queryKey: ["articles", "category", selectedCategory, page],
+    queryFn: () => getArticlesByCategory(selectedCategory!, page, LIMIT),
+    enabled: hasCategory && !hasSearch && !hasTag,
+  });
+
+  // Tag filter query
+  const tagQuery = useQuery({
+    queryKey: ["articles", "tag", selectedTag, page],
+    queryFn: () => getArticlesByTag(selectedTag!, page, LIMIT),
+    enabled: hasTag && !hasSearch && !hasCategory,
+  });
+
+  // Determine active query result
+  const activeQuery = hasSearch
+    ? searchQueryResult
+    : hasCategory
+      ? categoryQuery
+      : hasTag
+        ? tagQuery
+        : defaultQuery;
+
+  const { data, isLoading, isError, isPlaceholderData } = activeQuery as {
+    data: PaginatedResponse<Article> | undefined;
+    isLoading: boolean;
+    isError: boolean;
+    isPlaceholderData?: boolean;
+  };
 
   const articles = data?.items || [];
   const meta = data?.meta;
@@ -34,6 +113,18 @@ export default function ArticlesContent({ initialArticles = [] }: ArticlesConten
       setPage((old) => old + 1);
     }
   };
+
+  const clearFilters = () => {
+    setSearchQuery("");
+    setSelectedCategory(null);
+    setSelectedTag(null);
+    setPage(1);
+  };
+
+  // Reset page when filters change
+  useEffect(() => {
+    setPage(1);
+  }, [debouncedSearch, selectedCategory, selectedTag]);
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -57,6 +148,81 @@ export default function ArticlesContent({ initialArticles = [] }: ArticlesConten
           >
             {t("hero_desc")}
           </motion.p>
+
+          {/* Search and Filters */}
+          <motion.div variants={slideUp} className="mx-auto mt-8 max-w-3xl space-y-4">
+            {/* Search Input */}
+            <div className="relative">
+              <Search className="absolute top-1/2 left-4 h-5 w-5 -translate-y-1/2 text-gray-400" />
+              <input
+                type="text"
+                placeholder={t("search_placeholder") || "Cari artikel..."}
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full rounded-full border border-gray-300 bg-white py-3 pr-12 pl-12 text-gray-900 shadow-sm transition-all focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+              />
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery("")}
+                  className="absolute top-1/2 right-4 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              )}
+            </div>
+
+            {/* Category and Tag Filters */}
+            <div className="flex flex-wrap items-center justify-center gap-3">
+              {/* Category Filter */}
+              <select
+                value={selectedCategory || ""}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  setSelectedCategory(val ? Number(val) : null);
+                  setSelectedTag(null);
+                  setSearchQuery("");
+                }}
+                className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm text-gray-700 transition-colors focus:border-emerald-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300"
+              >
+                <option value="">Semua Kategori</option>
+                {categories.map((cat) => (
+                  <option key={cat.id} value={cat.id}>
+                    {cat.name}
+                  </option>
+                ))}
+              </select>
+
+              {/* Tag Filter */}
+              <select
+                value={selectedTag || ""}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  setSelectedTag(val ? Number(val) : null);
+                  setSelectedCategory(null);
+                  setSearchQuery("");
+                }}
+                className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm text-gray-700 transition-colors focus:border-emerald-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300"
+              >
+                <option value="">Semua Tag</option>
+                {tags.map((tag) => (
+                  <option key={tag.id} value={tag.id}>
+                    {tag.name}
+                  </option>
+                ))}
+              </select>
+
+              {/* Clear Filters */}
+              {hasFilters && (
+                <button
+                  onClick={clearFilters}
+                  className="flex items-center gap-1 rounded-lg bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
+                >
+                  <X className="h-4 w-4" />
+                  Hapus Filter
+                </button>
+              )}
+            </div>
+          </motion.div>
         </motion.div>
       </section>
 
@@ -68,6 +234,30 @@ export default function ArticlesContent({ initialArticles = [] }: ArticlesConten
           ) : isError ? (
             <div className="flex justify-center py-20 text-center text-red-500">
               <p>Failed to load articles. Please try again later.</p>
+            </div>
+          ) : articles.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-20 text-center">
+              <Search className="mb-4 h-12 w-12 text-gray-400" />
+              <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
+                Tidak Ada Artikel Ditemukan
+              </h3>
+              <p className="mt-2 text-gray-600 dark:text-gray-400">
+                {hasSearch
+                  ? `Tidak ada artikel yang cocok dengan "${debouncedSearch}"`
+                  : hasCategory
+                    ? "Tidak ada artikel dalam kategori ini"
+                    : hasTag
+                      ? "Tidak ada artikel dengan tag ini"
+                      : "Belum ada artikel yang tersedia"}
+              </p>
+              {hasFilters && (
+                <button
+                  onClick={clearFilters}
+                  className="mt-4 rounded-lg bg-emerald-600 px-6 py-2 text-white transition-colors hover:bg-emerald-700"
+                >
+                  Hapus Filter
+                </button>
+              )}
             </div>
           ) : (
             <>

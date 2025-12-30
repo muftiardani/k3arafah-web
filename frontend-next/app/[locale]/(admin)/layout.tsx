@@ -17,6 +17,9 @@ import {
   Mail,
   Video,
   Medal,
+  Folder,
+  Tag,
+  Activity,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -130,6 +133,16 @@ function SidebarContent({
           icon: FileText,
         },
         {
+          title: "Kategori",
+          href: "/dashboard/categories",
+          icon: Folder,
+        },
+        {
+          title: "Tag",
+          href: "/dashboard/tags",
+          icon: Tag,
+        },
+        {
           title: t("Nav.achievements"),
           href: "/dashboard/achievements",
           icon: Medal,
@@ -153,6 +166,12 @@ function SidebarContent({
           title: t("Nav.users"),
           href: "/users",
           icon: ShieldAlert,
+          role: "super_admin",
+        },
+        {
+          title: "Activity Log",
+          href: "/dashboard/activity-log",
+          icon: Activity,
           role: "super_admin",
         },
       ],

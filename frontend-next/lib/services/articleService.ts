@@ -252,3 +252,87 @@ export const deleteArticle = async (id: number): Promise<boolean> => {
     throw error;
   }
 };
+
+/**
+ * Search articles by query string
+ */
+export const searchArticles = async (
+  query: string,
+  page: number = 1,
+  limit: number = 10
+): Promise<PaginatedResponse<Article>> => {
+  try {
+    const res = await api.get("/articles/search", {
+      params: { q: query, page, limit },
+    });
+
+    const data = res.data?.data;
+    if (data && Array.isArray(data.items)) {
+      return {
+        items: data.items.map((item: BackendArticle) => transformArticle(item)),
+        meta: data.meta || { page, limit, total_items: 0, total_pages: 0 },
+      };
+    }
+
+    return { items: [], meta: { page, limit, total_items: 0, total_pages: 0 } };
+  } catch (error) {
+    console.error("Failed to search articles:", error);
+    throw error;
+  }
+};
+
+/**
+ * Get articles by category ID
+ */
+export const getArticlesByCategory = async (
+  categoryId: number,
+  page: number = 1,
+  limit: number = 10
+): Promise<PaginatedResponse<Article>> => {
+  try {
+    const res = await api.get(`/articles/category/${categoryId}`, {
+      params: { page, limit },
+    });
+
+    const data = res.data?.data;
+    if (data && Array.isArray(data.items)) {
+      return {
+        items: data.items.map((item: BackendArticle) => transformArticle(item)),
+        meta: data.meta || { page, limit, total_items: 0, total_pages: 0 },
+      };
+    }
+
+    return { items: [], meta: { page, limit, total_items: 0, total_pages: 0 } };
+  } catch (error) {
+    console.error("Failed to get articles by category:", error);
+    throw error;
+  }
+};
+
+/**
+ * Get articles by tag ID
+ */
+export const getArticlesByTag = async (
+  tagId: number,
+  page: number = 1,
+  limit: number = 10
+): Promise<PaginatedResponse<Article>> => {
+  try {
+    const res = await api.get(`/articles/tag/${tagId}`, {
+      params: { page, limit },
+    });
+
+    const data = res.data?.data;
+    if (data && Array.isArray(data.items)) {
+      return {
+        items: data.items.map((item: BackendArticle) => transformArticle(item)),
+        meta: data.meta || { page, limit, total_items: 0, total_pages: 0 },
+      };
+    }
+
+    return { items: [], meta: { page, limit, total_items: 0, total_pages: 0 } };
+  } catch (error) {
+    console.error("Failed to get articles by tag:", error);
+    throw error;
+  }
+};

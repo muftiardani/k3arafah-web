@@ -45,6 +45,19 @@ export {
   usePrefetchAchievement,
 } from "./useAchievements";
 
+// Category Hooks
+export {
+  categoryKeys,
+  useCategories,
+  useCategory,
+  useCreateCategory,
+  useUpdateCategory,
+  useDeleteCategory,
+} from "./useCategories";
+
+// Tag Hooks
+export { tagKeys, useTags, useTag, useCreateTag, useUpdateTag, useDeleteTag } from "./useTags";
+
 // Auth Hooks
 export { authKeys, useLogin, useLogout, useAuth, useForceLogout } from "./useAuth";
 

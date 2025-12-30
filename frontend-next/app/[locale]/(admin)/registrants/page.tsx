@@ -22,8 +22,9 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { CheckCircle2, Loader2 } from "lucide-react";
+import { CheckCircle2, Loader2, Download } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { env } from "@/lib/env";
 
 interface Santri {
   id: number;
@@ -102,6 +103,19 @@ export default function RegistrantsPage() {
         <p className="text-muted-foreground text-lg">
           Kelola data pendaftar baru yang masuk sistem.
         </p>
+      </div>
+
+      <div className="flex items-center justify-end">
+        <Button
+          variant="outline"
+          onClick={() => {
+            window.open(`${env.NEXT_PUBLIC_API_URL}/export/santri`, "_blank");
+            toast.success("Downloading Excel file...");
+          }}
+        >
+          <Download className="mr-2 h-4 w-4" />
+          Export Excel
+        </Button>
       </div>
 
       <div className="bg-card overflow-hidden rounded-xl border shadow-md transition-all hover:shadow-lg">
