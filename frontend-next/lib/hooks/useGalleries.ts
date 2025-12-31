@@ -11,7 +11,6 @@ import {
   Gallery,
   CreateGalleryData,
   UpdateGalleryData,
-  GalleryPhoto,
 } from "@/lib/services/galleryService";
 
 /**
@@ -134,15 +133,8 @@ export function useUploadGalleryPhoto(galleryId: number) {
 
   return useMutation({
     mutationFn: (file: File) => uploadGalleryPhoto(galleryId, file),
-    onSuccess: (newPhoto: GalleryPhoto) => {
-      // Optimistically add photo to cache
-      queryClient.setQueryData<Gallery | null>(galleryKeys.detail(galleryId), (old) => {
-        if (!old) return old;
-        return {
-          ...old,
-          photos: [...old.photos, newPhoto],
-        };
-      });
+    onSuccess: () => {
+      // Invalidate to fetch new photos
       queryClient.invalidateQueries({ queryKey: galleryKeys.detail(galleryId) });
       toast.success("Foto berhasil diupload");
     },

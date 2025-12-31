@@ -1,4 +1,4 @@
-import api, { type ApiResponse } from "@/lib/api";
+import api from "@/lib/api";
 import { z } from "zod";
 
 // Zod Schema for validation

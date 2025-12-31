@@ -12,7 +12,6 @@ import {
   GraduationCap,
   ShieldAlert,
   LucideIcon,
-  ChevronRight,
   School,
   Mail,
   Video,
@@ -48,7 +47,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   // Use Zustand store for consistent state management
   const user = useAuthStore((state) => state.user);
-  const { mutate: logout, isPending: isLoggingOut } = useLogout();
+  const { mutate: logout } = useLogout();
 
   const handleLogout = () => {
     logout();

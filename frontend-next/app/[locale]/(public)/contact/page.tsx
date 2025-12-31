@@ -1,4 +1,3 @@
-import { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import ContactContent from "@/components/pages/ContactContent";
 

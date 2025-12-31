@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Plus, Trash2, Shield, ShieldCheck, Loader2 } from "lucide-react";
-import { useTranslations, useLocale } from "next-intl";
+import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -48,7 +48,6 @@ type CreateAdminFormData = z.infer<typeof createAdminSchema>;
 
 export default function AdminsPage() {
   const t = useTranslations("Dashboard.AdminsPage");
-  const locale = useLocale();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const currentUser = useAuthStore((state) => state.user);
 

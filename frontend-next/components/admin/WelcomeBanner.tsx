@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { formatDate } from "@/lib/utils/date";
 import { Sparkles, Calendar } from "lucide-react";
 
 export function WelcomeBanner() {

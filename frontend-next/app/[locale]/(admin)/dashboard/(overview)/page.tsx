@@ -7,7 +7,6 @@ import {
   GraduationCap,
   Users,
   ArrowRight,
-  Image as ImageIcon,
   Clock,
   CheckCircle2,
   XCircle,

@@ -42,13 +42,9 @@ export function useServiceWorker() {
  */
 export function usePWAInstall() {
   useEffect(() => {
-    let deferredPrompt: BeforeInstallPromptEvent | null = null;
-
     const handleBeforeInstallPrompt = (e: BeforeInstallPromptEvent) => {
       // Prevent Chrome 67 and earlier from automatically showing the prompt
       e.preventDefault();
-      // Stash the event so it can be triggered later
-      deferredPrompt = e;
 
       // Optionally show your own install button/banner
       console.log("PWA install prompt available");
@@ -56,7 +52,6 @@ export function usePWAInstall() {
 
     const handleAppInstalled = () => {
       console.log("PWA was installed");
-      deferredPrompt = null;
     };
 
     window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt as EventListener);

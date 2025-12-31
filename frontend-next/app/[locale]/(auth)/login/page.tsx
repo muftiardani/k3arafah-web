@@ -3,7 +3,6 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { useRouter } from "next/navigation";
 import { motion, Variants } from "framer-motion";
 import { User, Lock, School, ArrowRight, Loader2, Quote } from "lucide-react";
 import { Link } from "@/navigation";
@@ -22,7 +21,6 @@ import {
 import { Input } from "@/components/ui/input";
 
 export default function AdminLogin() {
-  const router = useRouter();
   const t = useTranslations("Login");
   const { mutate: login, isPending: isLoading } = useLogin();
 

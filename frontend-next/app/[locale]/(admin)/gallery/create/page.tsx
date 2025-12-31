@@ -78,9 +78,14 @@ export default function CreateGalleryPage() {
     <div className="flex w-full flex-col gap-6 pb-10">
       {/* Header */}
       <div className="flex items-center gap-4">
-        <Button variant="outline" size="icon" asChild className="rounded-full">
+        <Button
+          variant="ghost"
+          size="icon"
+          asChild
+          className="rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-800"
+        >
           <Link href="/gallery">
-            <ArrowLeft className="h-4 w-4" />
+            <ArrowLeft className="h-5 w-5" />
           </Link>
         </Button>
         <div>
@@ -93,20 +98,20 @@ export default function CreateGalleryPage() {
 
       <Separator />
 
-      <form onSubmit={handleSubmit} className="grid gap-6 lg:grid-cols-3">
+      <form onSubmit={handleSubmit} className="grid gap-8 lg:grid-cols-3">
         {/* Main Details (Left Column) */}
         <div className="space-y-6 lg:col-span-2">
-          <Card className="border-none shadow-md">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
+          <Card className="border-border/50 border shadow-sm">
+            <CardHeader className="bg-muted/30 border-b pb-4">
+              <CardTitle className="flex items-center gap-2 text-xl">
                 <ImageIcon className="text-primary h-5 w-5" />
                 Detail Album
               </CardTitle>
               <CardDescription>Informasi dasar mengenai album foto ini.</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-6">
+            <CardContent className="space-y-6 p-6">
               <div className="space-y-2">
-                <Label htmlFor="title" className="text-base">
+                <Label htmlFor="title" className="text-sm font-semibold">
                   Judul Album
                 </Label>
                 <Input
@@ -114,12 +119,12 @@ export default function CreateGalleryPage() {
                   placeholder="Contoh: Kegiatan Idul Adha 2024"
                   value={formData.title}
                   onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                  className="h-11"
+                  className="focus-visible:ring-primary dark:focus-visible:ring-primary h-10 border-zinc-200 bg-white font-medium transition-all dark:border-zinc-800 dark:bg-zinc-950"
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="description" className="text-base">
+                <Label htmlFor="description" className="text-sm font-semibold">
                   Deskripsi
                 </Label>
                 <Textarea
@@ -127,7 +132,7 @@ export default function CreateGalleryPage() {
                   placeholder="Deskripsi singkat kegiatan..."
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  className="min-h-[150px] resize-y text-base"
+                  className="focus-visible:ring-primary dark:focus-visible:ring-primary min-h-[150px] resize-y border-zinc-200 bg-white font-medium transition-all dark:border-zinc-800 dark:bg-zinc-950"
                 />
               </div>
             </CardContent>
@@ -137,7 +142,11 @@ export default function CreateGalleryPage() {
             <Button type="button" variant="ghost" asChild>
               <Link href="/gallery">Batal</Link>
             </Button>
-            <Button type="submit" disabled={loading} className="min-w-[140px]">
+            <Button
+              type="submit"
+              disabled={loading}
+              className="bg-primary hover:bg-primary/90 min-w-[140px]"
+            >
               {loading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Menyimpan...
@@ -151,12 +160,14 @@ export default function CreateGalleryPage() {
 
         {/* Sidebar (Right Column) - Cover Image */}
         <div className="space-y-6">
-          <Card className="border-none shadow-md">
-            <CardHeader>
-              <CardTitle className="text-base">Cover Album</CardTitle>
-              <CardDescription>Gambar sampul yang akan muncul di daftar galeri.</CardDescription>
+          <Card className="border-border/50 border shadow-sm">
+            <CardHeader className="bg-muted/30 border-b pb-4">
+              <CardTitle className="text-base font-semibold">Cover Album</CardTitle>
+              <CardDescription className="text-xs">
+                Gambar sampul untuk daftar galeri.
+              </CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="p-6">
               <div className="space-y-4">
                 <div
                   className={`flex flex-col items-center justify-center rounded-xl border-2 border-dashed p-4 text-center transition-all ${

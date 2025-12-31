@@ -154,7 +154,7 @@ export async function getCSRFToken(): Promise<string> {
 export async function checkAuth(): Promise<User | null> {
   try {
     // Try to get dashboard stats as auth check
-    const response = await authApi.get("/dashboard/stats");
+    await authApi.get("/dashboard/stats");
     // If successful, user is authenticated
     // The user data should be stored in zustand from login
     return null; // Caller should get user from store

@@ -1,5 +1,3 @@
-import { Metadata } from "next";
-
 import { getTranslations } from "next-intl/server";
 import ArticlesContent from "@/components/pages/ArticlesContent";
 

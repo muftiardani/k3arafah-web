@@ -34,12 +34,6 @@ const SingleGalleryResponseSchema = z.object({
   data: GallerySchema,
 });
 
-const SinglePhotoResponseSchema = z.object({
-  status: z.union([z.boolean(), z.number()]),
-  message: z.string(),
-  data: GalleryPhotoSchema,
-});
-
 // Types
 export type GalleryPhoto = z.infer<typeof GalleryPhotoSchema>;
 export type Gallery = z.infer<typeof GallerySchema>;
@@ -145,28 +139,18 @@ export const deleteGallery = async (id: number): Promise<boolean> => {
 /**
  * Upload a photo to a gallery
  */
-export const uploadGalleryPhoto = async (galleryId: number, file: File): Promise<GalleryPhoto> => {
+export const uploadGalleryPhoto = async (galleryId: number, file: File): Promise<boolean> => {
   try {
     const formData = new FormData();
     formData.append("photos", file);
 
-    const res = await api.post<ApiResponse<GalleryPhoto>>(
-      `/galleries/${galleryId}/photos`,
-      formData,
-      {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      }
-    );
+    await api.post(`/galleries/${galleryId}/photos`, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
 
-    const result = SinglePhotoResponseSchema.safeParse(res.data);
-    if (result.success) {
-      return result.data.data;
-    }
-
-    console.error("Zod Validation Failed (uploadGalleryPhoto):", result.error);
-    return res.data.data;
+    return true;
   } catch (error) {
     console.error("Failed to upload photo:", error);
     throw error;

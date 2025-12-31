@@ -3,14 +3,23 @@
 import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { toast } from "sonner";
-import { ArrowLeft, Trash2, Upload, Loader2, Image as ImageIcon } from "lucide-react";
+import { ArrowLeft, Trash2, Upload, Loader2, Image as ImageIcon, AlertCircle } from "lucide-react";
 import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { formatDate } from "@/lib/utils/date";
 import { useGallery, useUploadGalleryPhoto, useDeleteGalleryPhoto } from "@/lib/hooks/useGalleries";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 export default function GalleryDetailPage() {
   const { id } = useParams();
@@ -19,6 +28,7 @@ export default function GalleryDetailPage() {
 
   const [uploadFiles, setUploadFiles] = useState<File[]>([]);
   const [uploading, setUploading] = useState(false);
+  const [photoToDelete, setPhotoToDelete] = useState<number | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { data: gallery, isLoading } = useGallery(galleryId);
@@ -49,9 +59,11 @@ export default function GalleryDetailPage() {
     }
   };
 
-  const handleDeletePhoto = (photoId: number) => {
-    if (!confirm("Hapus foto ini?")) return;
-    deleteMutation.mutate(photoId);
+  const confirmDelete = () => {
+    if (photoToDelete) {
+      deleteMutation.mutate(photoToDelete);
+      setPhotoToDelete(null);
+    }
   };
 
   if (isLoading) {
@@ -109,18 +121,40 @@ export default function GalleryDetailPage() {
 
       <div className="w-full space-y-8 px-4 md:px-0">
         {/* Upload Section */}
-        <Card className="bg-muted/30 border-2 border-dashed shadow-none">
+        <Card className="border-dashed shadow-sm">
           <CardContent className="flex flex-col items-center gap-6 p-6 md:flex-row">
-            <div className="bg-background rounded-full p-4 shadow-sm">
-              <Upload className="text-primary h-6 w-6" />
+            <div className="bg-primary/10 flex h-16 w-16 items-center justify-center rounded-full">
+              <Upload className="text-primary h-8 w-8" />
             </div>
             <div className="flex-1 text-center md:text-left">
-              <h3 className="text-lg font-semibold">Upload Foto</h3>
-              <p className="text-muted-foreground text-sm">
-                Tambahkan momen baru ke album ini. Bisa upload banyak sekaligus.
+              <h3 className="text-xl font-bold">Upload Foto Baru</h3>
+              <p className="text-muted-foreground mt-1 text-sm">
+                Tambahkan momen baru ke album ini. Mendukung upload multiple file sekaligus.
               </p>
             </div>
             <div className="flex w-full items-center gap-3 md:w-auto">
+              <div className="relative">
+                <Button
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={uploading}
+                  className="bg-primary hover:bg-primary/90 shadow-primary/20 relative z-10 min-w-[140px] shadow-lg"
+                >
+                  {uploading ? (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  ) : (
+                    <Upload className="mr-2 h-4 w-4" />
+                  )}
+                  {uploadFiles.length > 0 ? `Upload (${uploadFiles.length})` : "Pilih Foto"}
+                </Button>
+                {/* Visual indicator for Drag & Drop could be added here if implemented */}
+              </div>
+
+              {uploadFiles.length > 0 && (
+                <Button variant="outline" onClick={handleUpload} disabled={uploading}>
+                  Mulai Upload
+                </Button>
+              )}
+
               <Input
                 ref={fileInputRef}
                 id="photo-upload"
@@ -129,20 +163,8 @@ export default function GalleryDetailPage() {
                 accept="image/*"
                 onChange={handleFileChange}
                 disabled={uploading}
-                className="bg-background cursor-pointer"
+                className="hidden"
               />
-              <Button
-                onClick={handleUpload}
-                disabled={uploadFiles.length === 0 || uploading}
-                className="min-w-[100px]"
-              >
-                {uploading ? (
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                ) : (
-                  <Upload className="mr-2 h-4 w-4" />
-                )}
-                Upload {uploadFiles.length > 0 && `(${uploadFiles.length})`}
-              </Button>
             </div>
           </CardContent>
         </Card>
@@ -150,38 +172,49 @@ export default function GalleryDetailPage() {
         <Separator />
 
         {/* Photo Grid */}
-        <div className="space-y-4">
-          <h2 className="text-xl font-bold tracking-tight">Koleksi Foto</h2>
+        <div className="space-y-6">
+          <div className="flex items-center justify-between">
+            <h2 className="text-2xl font-bold tracking-tight">Koleksi Foto</h2>
+            <p className="text-muted-foreground text-sm font-medium">
+              {gallery.photos?.length || 0} items
+            </p>
+          </div>
 
           {gallery.photos?.length === 0 ? (
-            <div className="bg-muted/30 flex flex-col items-center justify-center rounded-xl border border-dashed py-20">
-              <ImageIcon className="text-muted-foreground/30 mb-4 h-12 w-12" />
-              <p className="text-muted-foreground">Album ini masih kosong.</p>
+            <div className="bg-muted/30 flex flex-col items-center justify-center rounded-xl border border-dashed py-20 text-center">
+              <div className="bg-background mb-4 rounded-full p-4 shadow-sm">
+                <ImageIcon className="text-muted-foreground/30 h-8 w-8" />
+              </div>
+              <h3 className="font-semibold">Masih Kosong</h3>
+              <p className="text-muted-foreground text-sm">Album ini belum memiliki foto.</p>
             </div>
           ) : (
             <div className="columns-2 gap-4 space-y-4 md:columns-3 lg:columns-4">
               {gallery.photos?.map((photo) => (
                 <div
                   key={photo.id}
-                  className="group relative cursor-zoom-in break-inside-avoid overflow-hidden rounded-xl"
+                  className="group relative cursor-zoom-in break-inside-avoid overflow-hidden rounded-xl bg-black/5"
                 >
                   <Image
                     src={photo.photo_url}
                     alt="Gallery Photo"
                     width={500}
                     height={500}
-                    className="h-auto w-full object-cover transition-transform duration-500 group-hover:scale-110"
+                    className="h-auto w-full object-cover transition-transform duration-700 group-hover:scale-110"
                   />
 
-                  {/* Overlay */}
-                  <div className="absolute inset-0 flex items-center justify-center gap-2 bg-black/40 opacity-0 transition-opacity group-hover:opacity-100">
+                  {/* Overlay Gradient */}
+                  <div className="absolute inset-0 bg-linear-to-t from-black/60 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+
+                  {/* Action Buttons */}
+                  <div className="absolute right-3 bottom-3 flex translate-y-4 gap-2 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
                     <Button
                       variant="destructive"
                       size="icon"
-                      className="h-9 w-9 rounded-full"
+                      className="h-9 w-9 rounded-full border-2 border-white/20 shadow-lg transition-transform hover:scale-105"
                       onClick={(e) => {
                         e.stopPropagation();
-                        handleDeletePhoto(photo.id);
+                        setPhotoToDelete(photo.id);
                       }}
                     >
                       <Trash2 className="h-4 w-4" />
@@ -193,6 +226,31 @@ export default function GalleryDetailPage() {
           )}
         </div>
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={!!photoToDelete} onOpenChange={(open) => !open && setPhotoToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2 text-red-600">
+              <AlertCircle className="h-5 w-5" />
+              Hapus Foto?
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              Apakah Anda yakin ingin menghapus foto ini secarah permanen? Tindakan ini tidak dapat
+              dibatalkan.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Batal</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmDelete}
+              className="bg-red-600 hover:bg-red-700 focus:ring-red-600"
+            >
+              Ya, Hapus
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

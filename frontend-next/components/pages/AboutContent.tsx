@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { Users, Target, History, Award } from "lucide-react";
+import { Target, History, Award } from "lucide-react";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { fadeIn, staggerContainer, slideUp, scaleIn } from "@/lib/animations";

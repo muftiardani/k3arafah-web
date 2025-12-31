@@ -4,7 +4,6 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Plus, Trash2, Eye, Pencil, Loader2, ImageIcon, MoreHorizontal } from "lucide-react";
-import { toast } from "sonner";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import {
@@ -76,26 +75,29 @@ export default function GalleryPage() {
   return (
     <div className="flex w-full flex-col gap-8 pb-10">
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <div>
+        <div className="space-y-1">
           <h1 className="text-3xl font-bold tracking-tight">{t("title")}</h1>
           <p className="text-muted-foreground text-lg">{t("description")}</p>
         </div>
-        <Button asChild className="shadow-primary/20 shadow-lg transition-all hover:scale-105">
+        <Button
+          asChild
+          className="bg-primary shadow-primary/20 hover:bg-primary/90 shadow-lg transition-all hover:scale-105"
+        >
           <Link href="/gallery/create">
             <Plus className="mr-2 h-5 w-5" /> {t("add_new")}
           </Link>
         </Button>
       </div>
 
-      <Separator className="bg-border/60" />
+      <Separator />
 
       {galleries.length === 0 ? (
-        <div className="bg-muted/30 border-muted-foreground/20 flex flex-col items-center justify-center rounded-3xl border-2 border-dashed py-20">
-          <div className="bg-background mb-6 rounded-full p-6 shadow-sm">
-            <ImageIcon className="text-muted-foreground/50 h-12 w-12" />
+        <div className="bg-muted/30 border-muted-foreground/20 flex flex-col items-center justify-center rounded-3xl border-2 border-dashed py-20 text-center">
+          <div className="bg-background mb-6 flex h-20 w-20 items-center justify-center rounded-full shadow-sm">
+            <ImageIcon className="text-muted-foreground/50 h-10 w-10" />
           </div>
           <h3 className="mb-2 text-xl font-semibold">{t("empty")}</h3>
-          <p className="text-muted-foreground max-w-sm text-center">
+          <p className="text-muted-foreground max-w-sm text-sm">
             Belum ada album galeri. Mulai dengan membuat album baru untuk memamerkan foto kegiatan.
           </p>
           <Button asChild variant="outline" className="mt-8">
@@ -104,10 +106,10 @@ export default function GalleryPage() {
         </div>
       ) : (
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {/* Create New Card (Optional visual integration) */}
+          {/* Create New Card Visual */}
           <Link href="/gallery/create" className="group">
-            <div className="border-muted-foreground/20 bg-muted/5 hover:bg-muted/10 hover:border-primary/50 flex h-full min-h-[300px] cursor-pointer flex-col items-center justify-center gap-4 rounded-xl border-2 border-dashed transition-all">
-              <div className="bg-background flex h-14 w-14 items-center justify-center rounded-full shadow-sm transition-transform group-hover:scale-110">
+            <div className="border-muted-foreground/20 bg-muted/5 hover:bg-muted/10 hover:border-primary/50 flex h-full min-h-[300px] cursor-pointer flex-col items-center justify-center gap-4 rounded-xl border-2 border-dashed transition-all duration-300 hover:shadow-lg">
+              <div className="bg-background flex h-14 w-14 items-center justify-center rounded-full shadow-sm transition-transform duration-300 group-hover:scale-110">
                 <Plus className="text-primary h-6 w-6" />
               </div>
               <span className="text-muted-foreground group-hover:text-primary font-medium transition-colors">
@@ -119,7 +121,7 @@ export default function GalleryPage() {
           {galleries.map((gallery) => (
             <Card
               key={gallery.id}
-              className="group relative flex h-full flex-col overflow-hidden rounded-xl border-none shadow-md transition-all duration-300 hover:shadow-xl"
+              className="group relative flex h-full flex-col overflow-hidden rounded-xl border-zinc-200 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl dark:border-zinc-800"
             >
               <div className="bg-muted relative aspect-video w-full overflow-hidden">
                 {gallery.cover_url ? (
@@ -136,52 +138,63 @@ export default function GalleryPage() {
                 )}
 
                 {/* Overlay Action Menu */}
-                <div className="absolute top-2 right-2 z-20 opacity-0 transition-opacity group-hover:opacity-100">
+                <div className="absolute top-2 right-2 z-20 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button
                         variant="secondary"
                         size="icon"
-                        className="h-8 w-8 rounded-full border-none bg-black/50 text-white hover:bg-black/70"
+                        className="h-8 w-8 rounded-full border border-white/10 bg-black/60 text-white backdrop-blur-md hover:bg-black/80"
                       >
                         <MoreHorizontal className="h-4 w-4" />
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                       <DropdownMenuItem onClick={() => handleEdit(gallery)}>
-                        <Pencil className="mr-2 h-4 w-4" /> Edit
+                        <Pencil className="mr-2 h-4 w-4" /> Edit Detail
                       </DropdownMenuItem>
                       <DropdownMenuItem
-                        className="text-red-600 focus:text-red-600"
+                        className="text-red-600 focus:bg-red-50 focus:text-red-600 dark:focus:bg-red-900/10"
                         onClick={() => deleteGallery(gallery.id)}
                       >
-                        <Trash2 className="mr-2 h-4 w-4" /> Delete
+                        <Trash2 className="mr-2 h-4 w-4" /> Hapus
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </div>
 
-                {/* Overlay Content */}
+                {/* Overlay Gradient */}
                 <div className="absolute inset-0 flex flex-col justify-end bg-linear-to-t from-black/80 via-black/20 to-transparent p-4 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
-                  <Button asChild size="sm" variant="secondary" className="w-full font-semibold">
+                  <Button
+                    asChild
+                    size="sm"
+                    variant="secondary"
+                    className="w-full font-semibold shadow-lg"
+                  >
                     <Link href={`/gallery/${gallery.id}`}>
-                      <Eye className="mr-2 h-4 w-4" /> Lihat Detail
+                      <Eye className="mr-2 h-4 w-4" /> Lihat Foto
                     </Link>
                   </Button>
                 </div>
               </div>
 
-              <CardContent className="flex flex-1 flex-col gap-3 p-2">
-                <h3 className="line-clamp-1 text-lg leading-tight font-bold" title={gallery.title}>
-                  {gallery.title}
-                </h3>
-                <p className="text-muted-foreground line-clamp-2 flex-1 text-sm">
-                  {gallery.description || (
-                    <span className="italic opacity-50">Tidak ada deskripsi</span>
-                  )}
-                </p>
-                <div className="text-muted-foreground/70 mt-2 w-full border-t pt-2 text-xs">
-                  {formatDate(gallery.created_at, "long")}
+              <CardContent className="flex flex-1 flex-col gap-3 p-4">
+                <div className="space-y-1">
+                  <h3
+                    className="line-clamp-1 text-lg leading-tight font-bold tracking-tight"
+                    title={gallery.title}
+                  >
+                    {gallery.title}
+                  </h3>
+                  <p className="text-muted-foreground line-clamp-2 text-sm">
+                    {gallery.description || (
+                      <span className="italic opacity-50">Tidak ada deskripsi</span>
+                    )}
+                  </p>
+                </div>
+                <div className="text-muted-foreground/70 mt-auto flex items-center justify-between border-t pt-3 text-xs font-medium">
+                  <span>{formatDate(gallery.created_at, "long")}</span>
+                  {gallery.photos?.length ? <span>{gallery.photos.length} Foto</span> : null}
                 </div>
               </CardContent>
             </Card>
@@ -191,41 +204,49 @@ export default function GalleryPage() {
 
       {/* Edit Dialog */}
       <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle>{t("edit_title") || "Edit Gallery"}</DialogTitle>
-            <DialogDescription>
-              {t("edit_description") || "Update gallery details"}
+        <DialogContent className="gap-0 border-zinc-200 p-0 shadow-2xl sm:max-w-lg dark:border-zinc-800">
+          <DialogHeader className="p-6 pb-0">
+            <DialogTitle className="text-2xl font-bold">
+              {t("edit_title") || "Edit Album"}
+            </DialogTitle>
+            <DialogDescription className="text-base">
+              {t("edit_description") || "Perbarui informasi album ini."}
             </DialogDescription>
           </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <div className="grid gap-2">
-              <Label htmlFor="edit-title">{t("form_title") || "Title"}</Label>
+
+          <div className="grid gap-5 p-6">
+            <div className="space-y-2">
+              <Label htmlFor="edit-title" className="text-sm font-semibold">
+                {t("form_title") || "Judul Album"}
+              </Label>
               <Input
                 id="edit-title"
                 value={editForm.title}
                 onChange={(e) => setEditForm({ ...editForm, title: e.target.value })}
-                className="col-span-3"
+                className="focus-visible:ring-primary dark:focus-visible:ring-primary h-10 border-zinc-200 bg-white font-medium transition-all dark:border-zinc-800 dark:bg-zinc-950"
               />
             </div>
-            <div className="grid gap-2">
-              <Label htmlFor="edit-desc">{t("form_description") || "Description"}</Label>
+            <div className="space-y-2">
+              <Label htmlFor="edit-desc" className="text-sm font-semibold">
+                {t("form_description") || "Deskripsi"}
+              </Label>
               <Textarea
                 id="edit-desc"
                 value={editForm.description}
                 onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
                 rows={4}
-                className="col-span-3 resize-none"
+                className="focus-visible:ring-primary dark:focus-visible:ring-primary min-h-[100px] resize-none border-zinc-200 bg-white font-medium transition-all dark:border-zinc-800 dark:bg-zinc-950"
               />
             </div>
           </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setEditDialogOpen(false)}>
-              {t("cancel") || "Cancel"}
+
+          <DialogFooter className="border-t bg-zinc-50 p-6 dark:bg-zinc-900/50">
+            <Button variant="ghost" onClick={() => setEditDialogOpen(false)}>
+              {t("cancel") || "Batal"}
             </Button>
             <Button onClick={handleUpdate} disabled={updateMutation.isPending}>
               {updateMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              {t("save") || "Save"}
+              {t("save") || "Simpan Perubahan"}
             </Button>
           </DialogFooter>
         </DialogContent>
